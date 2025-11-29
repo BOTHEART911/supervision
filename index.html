@@ -431,6 +431,22 @@
         <div class="section-toggle">
           <button id="btn-toggle-actividades" class="chip">Ver Relación de Actividades</button>
         </div>
+
+        <!-- Botón CUENTA debajo del botón de Actividades -->
+<div class="center" style="margin-top:6px;">
+  <button
+    id="btn-abrir-carpeta-cuenta"
+    class="btn-icon hidden"
+    aria-label="Abrir carpeta de CUENTA en Drive"
+    title="Abrir carpeta de CUENTA en Drive"
+  >
+    <img
+      src="https://res.cloudinary.com/dqqeavica/image/upload/v1764111247/carpeta_drive_epbrhp.webp"
+      alt="CUENTA"
+    >
+  </button>
+</div>
+        
         <div id="sec-actividades" class="section-content hidden">
           <div id="actividades-blocks"></div>
         </div>
@@ -1011,17 +1027,6 @@ function pintarCuentas(list){
       abrirRevisionCuenta(c.documento);
     });
     btnRow.appendChild(btnRevisar);
-
-    // ← NUEVO: Botón Drive para abrir carpeta de la cuenta (BH)
-    const btnDrive=document.createElement('button');
-    btnDrive.className='btn-icon';
-    btnDrive.innerHTML='<img src="https://res.cloudinary.com/dqqeavica/image/upload/v1763997280/DRIVE_bycgsc.webp" alt="">';
-    btnDrive.addEventListener('click', ()=>{
-      const id = String(c.carpetaCuenta||'').trim();
-      if(id){ window.open('https://drive.google.com/drive/folders/'+id,'_blank'); }
-      else { Swal.fire({icon:'info',title:'Sin carpeta'}); }
-    });
-    btnRow.appendChild(btnDrive);
 
     div.appendChild(btnRow);
     wrap.appendChild(div);
