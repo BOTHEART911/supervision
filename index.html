@@ -1201,6 +1201,26 @@ function renderRevisionCuenta(){
   }
 }
 
+// === Mostrar/ocultar y parametrizar botón "CUENTA" (debajo de Actividades) ===
+const cuentaBtn = document.getElementById('btn-abrir-carpeta-cuenta');
+const idCuenta = String(cu?.idCuenta || '').trim();
+
+// Si hay idCuenta (BH), mostramos el botón y abrimos esa carpeta
+if (idCuenta){
+  cuentaBtn.classList.remove('hidden');
+  // Limpiamos cualquier listener previo
+  const nuevoBtn = cuentaBtn.cloneNode(true);
+  cuentaBtn.parentNode.replaceChild(nuevoBtn, cuentaBtn);
+
+  nuevoBtn.addEventListener('click', ()=>{
+    playSoundOnce(SOUNDS.menu); // o SOUNDS.logout, como prefieras
+    window.open('https://drive.google.com/drive/folders/' + idCuenta, '_blank');
+  });
+} else {
+  // Si no hay BH, ocultamos el botón
+  cuentaBtn.classList.add('hidden');
+}
+  
 document.getElementById('rc-volver').addEventListener('click', ()=>{
   playSoundOnce(SOUNDS.back);
   showView('view-revision');
