@@ -788,7 +788,10 @@ document.getElementById('btn-reg-guardar').addEventListener('click', async ()=>{
     Swal.fire({icon:'error',title:'Error',text:e.message});
   }
 });
-document.getElementById('btn-reg-volver').addEventListener('click', ()=> showView('view-login'));
+document.getElementById('btn-reg-volver').addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  showView('view-login');
+});
 
 /* ================== ACTUALIZAR ================== */
 let updFirmaDataUrl=''; let updImagenDataUrl='';
@@ -813,7 +816,10 @@ document.getElementById('upd-imagen').addEventListener('change', async (e)=>{
   }catch(_){ updImagenDataUrl=''; prev.style.display='none'; }
 });
 document.getElementById('go-actualizar').addEventListener('click', ()=>{ overlay.classList.remove('open'); showView('view-actualizar'); });
-document.getElementById('btn-upd-volver').addEventListener('click', ()=> showView('view-inicio'));
+document.getElementById('btn-upd-volver').addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  showView('view-inicio');
+});
 document.getElementById('btn-upd-guardar').addEventListener('click', async ()=>{
   if(!currentUser){ Swal.fire({icon:'warning',title:'Sesión inválida'}); return; }
   if(!updFirmaDataUrl && !updImagenDataUrl){ Swal.fire({icon:'info',title:'Sin cambios'}); return; }
@@ -908,7 +914,10 @@ document.getElementById('contr-filter').addEventListener('input',()=>{
   });
   pintarContratistas(filtered); actualizarResumenContratistas(filtered);
 });
-document.getElementById('contr-volver').addEventListener('click', ()=> showView('view-inicio'));
+document.getElementById('contr-volver').addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  showView('view-inicio');
+});
 
 /* ================== DETALLES ================== */
 async function mostrarDetallesContratista(documento){
@@ -950,7 +959,10 @@ async function mostrarDetallesContratista(documento){
     showView('view-detalles');
   }catch(e){ Swal.fire({icon:'error',title:'Error',text:e.message}); }
 }
-document.getElementById('detalles-ocultar').addEventListener('click', ()=> showView('view-contratistas'));
+document.getElementById('detalles-ocultar').addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  showView('view-contratistas');
+});
 
 /* ================== REVISIÓN ================== */
 let CUENTAS_DATA=[];
@@ -1003,7 +1015,10 @@ document.getElementById('cuentas-filter').addEventListener('input',()=>{
   });
   pintarCuentas(filtered); actualizarResumenCuentas(filtered);
 });
-document.getElementById('revision-volver').addEventListener('click', ()=> showView('view-inicio'));
+document.getElementById('revision-volver').addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  showView('view-inicio');
+});
 
 function resetToggleSections(){
   const defs = [
@@ -1162,7 +1177,10 @@ function renderRevisionCuenta(){
   }
 }
 
-document.getElementById('rc-volver').addEventListener('click', ()=>{ resetToggleSections(); showView('view-revision'); });
+document.getElementById('rc-volver').addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  showView('view-revision');
+});
 document.getElementById('rc-guardar').addEventListener('click', async ()=>{
   if(!REV_CUENTA?.cuenta){ Swal.fire({icon:'warning',title:'Sin cuenta cargada'}); return; }
   const documento = REV_CUENTA.contratista.documento;
@@ -1280,7 +1298,10 @@ document.getElementById('req-filter').addEventListener('input',()=>{
   const filtered=REQ_DATA.filter(c=>[c.nombre,c.documento,c.secretaria,c.supervisor,c.telefono].some(v=>String(v||'').toLowerCase().includes(q)));
   pintarReq(filtered); actualizarResumenReq(filtered);
 });
-document.getElementById('req-volver').addEventListener('click', ()=> showView('view-inicio'));
+document.getElementById('req-volver').addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  showView('view-inicio');
+});
 
 let MODAL_TARGET=null;
 function abrirModalReq(c){
@@ -1331,7 +1352,10 @@ document.getElementById('comunicado-enviar').addEventListener('click', async ()=
     renderInicio(); showView('view-inicio');
   }catch(e){ Swal.fire({icon:'error',title:'Error',text:e.message}); }
 });
-document.getElementById('comunicado-volver').addEventListener('click', ()=> showView('view-inicio'));
+document.getElementById('comunicado-volver').addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  showView('view-inicio');
+});
 
 /* ================== SOPORTE ================== */
 document.getElementById('go-soporte').addEventListener('click', ()=>{ overlay.classList.remove('open'); showView('view-soporte'); });
@@ -1349,7 +1373,10 @@ document.getElementById('soporte-enviar').addEventListener('click', async ()=>{
     renderInicio(); showView('view-inicio');
   }catch(e){ Swal.fire({icon:'error',title:'Error',text:e.message}); }
 });
-document.getElementById('soporte-volver').addEventListener('click', ()=> showView('view-inicio'));
+document.getElementById('soporte-volver').addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  showView('view-inicio');
+});
 
 /* ================== PWA ================== */
 let deferredPrompt = null;
@@ -1385,17 +1412,37 @@ window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferr
 window.addEventListener('appinstalled', ()=>{ markInstalled(); deferredPrompt = null; updateInstallButtonsVisibility(); });
 document.getElementById('btn-instalar').addEventListener('click', async ()=>{
   if(isIOS()){
-    Swal.fire({ icon:'info', title:'Para Instalar en tu Iphone', html:'1) Toca Compartir (cuadro con flecha en la parte inferior).<br>2) Elige "Agregar a pantalla de inicio".<br>3) Confirma "Agregar".' });
-    return;
+    // Instrucciones iOS (igual que referencia.md)
+    return Swal.fire({
+      icon:'info',
+      title:'Instalar en iPhone/iPad',
+      html:'1) Toca Compartir (cuadro con flecha).<br>2) Elige "Agregar a pantalla de inicio".<br>3) Confirma "Agregar".'
+    });
   }
-  if(!deferredPrompt){ Swal.fire({icon:'info',title:'Instalación no disponible todavía'}); return; }
-  const dp = deferredPrompt; dp.prompt(); const choice = await dp.userChoice; deferredPrompt = null;
+  if(!deferredPrompt){
+    return Swal.fire({ icon:'info', title:'Instalación no disponible todavía' });
+  }
+  deferredPrompt.prompt();
+  const choice = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+
   if (choice.outcome === 'accepted'){
     markInstalled();
-    Swal.fire({ icon:'success', title:'¡App instalándose!', html:'Debes esperar unos segundos mientras el sistema instala la App.<br><b>Ya puedes salir de esta vista, aparecerá en la pantalla principal de este dispositivo.</b>', timer: 12000, showConfirmButton: false });
-  } else { Swal.fire({icon:'info',title:'Instalación cancelada'}); }
+
+    // ALERTA IGUAL A referencia.md
+    Swal.fire({
+      icon: 'success',
+      title: '¡App instalándose!',
+      html: 'Debes esperar 1 minuto.<br><br>Al terminar este tiempo, refresca la página o busca el icono de la aplicación en la pantalla de tu dispositivo.',
+      timer: 8000,
+      showConfirmButton: false
+    });
+  } else {
+    Swal.fire({ icon:'info', title:'Instalación cancelada' });
+  }
   updateInstallButtonsVisibility();
 });
+
 async function initPWAVista(){
   const installed = await detectInstalled();
   if (installed){ showView('view-login'); } else { showView('view-instalar'); updateInstallButtonsVisibility(); }
