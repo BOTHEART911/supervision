@@ -230,7 +230,7 @@
       <div class="card narrow" style="text-align:center;">
         <h2 style="color:var(--primary);">APP SUPERVISIÓN</h2>
         <img class="brand" alt="Instalar" src="https://res.cloudinary.com/dqqeavica/image/upload/v1763930524/menu_t9xli7.gif" />
-        <p style="font-weight:600;">Herramienta de uso exclusivo para Supervisores</p>
+        <p style="font-weight:600;">Herramienta de uso exclusivo para Supervisores de la Alcaldía de Flandes</p>
         <div class="btn-row" style="justify-content:center; margin-top:12px;">
           <button id="btn-instalar" class="btn-primary" style="display:none;">Instalar la App 📲</button>
         </div>
@@ -244,7 +244,7 @@
         <h1 style="color:var(--primary); text-shadow: 0 2px 2px #031732;">SUPERVISIÓN</h1>
         <p class="helper"><b>Acceso exclusivo para Supervisores autorizados.</b></p>
 
-        <label>Cédula</label>
+        <label>Contraseña</label>
         <div class="pwd-wrapper">
           <input id="login-cedula" type="password" inputmode="numeric" autocomplete="off" placeholder="Sin puntos ni espacios" />
           <button type="button" id="toggle-cedula" aria-label="Mostrar cédula" class="toggle-cedula">
@@ -284,7 +284,7 @@
       </div>
     </section>
 
-    <!-- VISTA INICIO (inspirada en referencia.md) -->
+    <!-- VISTA INICIO -->
     <section id="view-inicio" class="view">
       <div class="card narrow">
         <div class="btn-row" style="margin-bottom:12px;">
@@ -298,7 +298,7 @@
 </div>
 
         <h2 id="inicio-nombre" style="color:var(--primary); font-weight:900; margin-top:6px;"></h2>
-<p id="inicio-rol" class="center muted" style="margin-top:0;">SUPERVISOR(A)</p>
+<p id="inicio-rol" class="center muted" style="margin-top:0; font-weight:300;">SUPERVISOR(A)</p>
 
         <img id="inicio-firma" class="firma-preview" src="" alt="Firma" style="display:none;" />
 
@@ -318,11 +318,11 @@
           <img alt="banner" src="https://res.cloudinary.com/dqqeavica/image/upload/v1763930524/menu_t9xli7.gif" style="max-width:180px;border-radius:10px;" />
         </div>
         <h3>Selecciona una opción</h3>
-        <button class="menu-btn" id="go-actualizar">ACTUALIZAR FIRMA E IMAGEN</button>
         <button class="menu-btn" id="go-contratistas">CONTRATISTAS</button>
         <button class="menu-btn" id="go-revision">REVISAR CUENTAS</button>
         <button class="menu-btn" id="go-requerimientos">REQUERIMIENTO</button>
         <button class="menu-btn" id="go-comunicados">COMUNICADOS</button>
+        <button class="menu-btn" id="go-actualizar">ACTUALIZAR FIRMA E IMAGEN</button>
         <button class="menu-btn" id="go-soporte">SOPORTE</button>
         <div style="height:24px"></div>
         <img class="brand" alt="Banner" src="https://res.cloudinary.com/dqqeavica/image/upload/v1763921425/Digital_sw3wk9.gif" />
@@ -517,7 +517,8 @@ const SOUNDS = {
   warning: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011578/Low_battery_d5qua1.mp3',
   login: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011577/Siri_star_g1owy4.mp3',
   logout: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011577/Siri_End_kelv02.mp3',
-  back: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011578/Keyboard_Enter_b9k2dc.mp3'
+  back: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011578/Keyboard_Enter_b9k2dc.mp3',
+  menu: 'https://res.cloudinary.com/dqqeavica/video/upload/v1759011577/Namedrop_Popup_ale2zy.mp3' // ← NUEVO
 };
 function playSoundOnce(url){
   try{
@@ -710,9 +711,38 @@ function renderInicio(){
 
 /* ================== OVERLAY MENÚ ================== */
 const overlay = document.getElementById('overlay');
-document.getElementById('btn-open-menu').addEventListener('click', ()=>{ overlay.classList.add('open'); });
-document.getElementById('btn-ovl-back').addEventListener('click', ()=> overlay.classList.remove('open'));
-document.getElementById('ovlClose').addEventListener('click', ()=> overlay.classList.remove('open'));
+
+// Botón MENÚ: sonido 'menu' + abrir
+document.getElementById('btn-open-menu').addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.menu);
+  overlay.classList.add('open');
+});
+
+// Botón ATRÁS dentro del panel: sonido 'back' + cerrar
+document.getElementById('btn-ovl-back').addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  overlay.classList.remove('open');
+});
+
+// Clic en el scrim (fondo oscuro): sonido 'back' + cerrar
+document.getElementById('ovlClose').addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  overlay.classList.remove('open');
+});
+
+/* Sonido 'logout' al seleccionar cualquiera de las opciones del overlay.
+   Ubicar este bucle inmediatamente después de los listeners anteriores. */
+['go-actualizar','go-contratistas','go-revision','go-requerimientos','go-comunicados','go-soporte']
+  .forEach(id => {
+    const el = document.getElementById(id);
+    if(el){
+      el.addEventListener('click', ()=>{
+        playSoundOnce(SOUNDS.logout);
+        // El overlay se cierra en cada acción (si aún no lo cierras en otro lugar)
+        overlay.classList.remove('open');
+      });
+    }
+  });
 
 /* ================== COMPLETAR REGISTRO ================== */
 // Previsualización simple (si compresión falla, usa original)
@@ -849,7 +879,10 @@ function pintarContratistas(list){
 
     const actions=document.createElement('div'); actions.className='btn-row';
     const btnDetalles=document.createElement('button'); btnDetalles.textContent='MOSTRAR DETALLES';
-    btnDetalles.addEventListener('click', ()=>{ mostrarDetallesContratista(c.documento); });
+    btnDetalles.addEventListener('click', ()=> {
+  playSoundOnce(SOUNDS.logout);                 // ← SONIDO LOGOUT
+  mostrarDetallesContratista(c.documento);
+});
     actions.appendChild(btnDetalles);
 
     const btnWhatsapp=document.createElement('button'); btnWhatsapp.className='btn-icon'; btnWhatsapp.innerHTML='<img src="https://res.cloudinary.com/dqqeavica/image/upload/v1759166341/WhatsApp_mljaqm.webp" alt="WhatsApp">';
@@ -954,7 +987,10 @@ function pintarCuentas(list){
     const pInf=document.createElement('p'); pInf.className='item-sub'; pInf.textContent='INFORME: '+(c.informe||'')+' de: '+(c.totalInformes||'');
     const btnRow=document.createElement('div'); btnRow.className='btn-row';
     const btnRevisar=document.createElement('button'); btnRevisar.textContent='REVISAR';
-    btnRevisar.addEventListener('click', ()=> abrirRevisionCuenta(c.documento));
+    btnRevisar.addEventListener('click', ()=> {
+  playSoundOnce(SOUNDS.logout);                 // ← SONIDO LOGOUT
+  abrirRevisionCuenta(c.documento);
+});
     btnRow.appendChild(btnRevisar);
     div.appendChild(header); div.appendChild(pDoc); div.appendChild(pInf); div.appendChild(btnRow);
     wrap.appendChild(div);
@@ -1149,30 +1185,35 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
     cancelButtonText:'Cancelar'
   });
 
-  function pieSupervisor(){ return supervisor === 'ANA JUDITH GAMBOA MANTILLA' ? '> Alcaldesa' : '> Supervisor(a)'; }
+    function pieSupervisor(){ return supervisor === 'ANA JUDITH GAMBOA MANTILLA' ? '> Alcaldesa' : '> Supervisor(a)'; }
 
   function msgAprobadoContratista(){
     return (
-      'Estimado(a) *'+nombre+'*\\n\\n' +
-      '¡He firmado el Informe de Supervisión y solicitado al área de contratación validar tu *Cuenta N° '+informe+'*!,\\n\\n' +  
-      'Espera atentamente la aprobación.\\n\\n' + 
-      'Cordialmente,\\n\\n' +
-      '*'+supervisor+'*\\n'+pieSupervisor()
+      'Estimado(a) *'+nombre+'*' + '\n\n' +
+      '¡He firmado el Informe de Supervisión y solicitado al área de contratación validar tu *Cuenta N° '+informe+'*!,' + '\n\n' +
+      'Espera atentamente la aprobación.' + '\n\n' +
+      'Cordialmente,' + '\n\n' +
+      '*'+supervisor+'*' + '\n' + pieSupervisor()
     );
   }
+
   function msgAprobadoGrupo(){
     return (
-      'Buen día *Equipo de Contratación*\\n\\n' +
-      '¡Por favor solicito la revisión de la *Cuenta N° '+informe+'*! Del contratista *'+nombre+'*,\\n\\n' +
-      'Cordialmente,\\n\\n*'+supervisor+'*\\n'+pieSupervisor()
+      'Buen día *Equipo de Contratación*' + '\n\n' +
+      '¡Por favor solicito la revisión de la *Cuenta N° '+informe+'*! Del contratista *'+nombre+'*.' + '\n\n' +
+      'Cordialmente,' + '\n\n' +
+      '*'+supervisor+'*' + '\n' + pieSupervisor()
     );
   }
+
   function msgDevueltaContratista(){
     return (
-      'Estimado(a) *'+nombre+'*\\n\\n' +
-      'Se ha devuelto tu *Cuenta N° '+informe+'* por esta inconsistencia:\\n\\n*'+(observ || 'Sin observaciones')+'*\\n\\n' +
-      'Haz la corrección desde la *App Contratista* teniendo en cuenta las observaciones anteriores.\\n\\n' +
-      'Cordialmente,\\n\\n*'+supervisor+'*\\n'+pieSupervisor()
+      'Estimado(a) *'+nombre+'*' + '\n\n' +
+      'Se ha devuelto tu *Cuenta N° '+informe+'* por esta inconsistencia:' + '\n\n' +
+      '*'+(observ || 'Sin observaciones')+'*' + '\n\n' +
+      'Haz la corrección desde la *App Contratista* teniendo en cuenta las observaciones anteriores.' + '\n\n' +
+      'Cordialmente,' + '\n\n' +
+      '*'+supervisor+'*' + '\n' + pieSupervisor()
     );
   }
 
@@ -1226,7 +1267,10 @@ function pintarReq(list){
     header.appendChild(title); div.appendChild(header);
     const btnRow=document.createElement('div'); btnRow.className='btn-row';
     const btnRedact=document.createElement('button'); btnRedact.textContent='REDACTAR';
-    btnRedact.addEventListener('click', ()=> abrirModalReq(c));
+    btnRedact.addEventListener('click', ()=> {
+  playSoundOnce(SOUNDS.logout);                 // ← SONIDO LOGOUT
+  abrirModalReq(c);
+});
     btnRow.appendChild(btnRedact); div.appendChild(btnRow);
     wrap.appendChild(div);
   }
@@ -1258,11 +1302,13 @@ document.getElementById('modal-req-enviar').addEventListener('click', ()=>{
   if(!MODAL_TARGET){ return; } if(!txt){ Swal.fire({icon:'warning',title:'Texto requerido'}); return; }
   const tel = normalizeNumber57(MODAL_TARGET.telefono);
   const nombre = (MODAL_TARGET.nombre || '').trim();
-  const pie = supervisorNombreCompleto === 'ANA JUDITH GAMBOA MANTILLA' ? '> Alcaldesa' : '> Supervisor(a)';
+    const pie = supervisorNombreCompleto === 'ANA JUDITH GAMBOA MANTILLA' ? '> Alcaldesa' : '> Supervisor(a)';
   const mensaje =
-    'Estimado(a) *' + nombre + '*\\n\\n' +
-    'Tenemos el siguiente requerimiento:\\n\\n*' + txt + '*\\n\\n' +
-    'Cordialmente,\\n\\n*' + supervisorNombreCompleto + '*\\n' + pie;
+    'Estimado(a) *' + nombre + '*' + '\n\n' +
+    'Tenemos el siguiente requerimiento:' + '\n\n' +
+    '*' + txt + '*' + '\n\n' +
+    'Cordialmente,' + '\n\n' +
+    '*' + supervisorNombreCompleto + '*' + '\n' + pie;
   if(tel){ sendBuilderbotMessage(tel, mensaje); }
   const modal=document.getElementById('modal-requerimiento');
   modal.classList.remove('open'); modal.classList.add('hidden');
