@@ -991,20 +991,39 @@ function pintarCuentas(list){
   const wrap=document.getElementById('cuentas-list');
   wrap.innerHTML='';
   if(!list.length){ wrap.innerHTML='<p class="muted center">No hay cuentas.</p>'; return; }
+
   for(const c of list){
     const div=document.createElement('div'); div.className='item-card';
+
     const header=document.createElement('div'); header.className='item-header';
     const title=document.createElement('p'); title.className='item-title'; title.textContent=(c.nombre||''); header.appendChild(title);
-    const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC: '+(c.documento||'');
-    const pInf=document.createElement('p'); pInf.className='item-sub'; pInf.textContent='INFORME: '+(c.informe||'')+' de: '+(c.totalInformes||'');
+    div.appendChild(header);
+
+    const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC: '+(c.documento||''); div.appendChild(pDoc);
+    const pInf=document.createElement('p'); pInf.className='item-sub'; pInf.textContent='INFORME: '+(c.informe||'')+' de: '+(c.totalInformes||''); div.appendChild(pInf);
+
     const btnRow=document.createElement('div'); btnRow.className='btn-row';
+
+    // Botón REVISAR (como lo tienes)
     const btnRevisar=document.createElement('button'); btnRevisar.textContent='REVISAR';
     btnRevisar.addEventListener('click', ()=> {
-  playSoundOnce(SOUNDS.logout);                 // ← SONIDO LOGOUT
-  abrirRevisionCuenta(c.documento);
-});
+      playSoundOnce(SOUNDS.logout);
+      abrirRevisionCuenta(c.documento);
+    });
     btnRow.appendChild(btnRevisar);
-    div.appendChild(header); div.appendChild(pDoc); div.appendChild(pInf); div.appendChild(btnRow);
+
+    // ← NUEVO: Botón Drive para abrir carpeta de la cuenta (BH)
+    const btnDrive=document.createElement('button');
+    btnDrive.className='btn-icon';
+    btnDrive.innerHTML='<img src="https://res.cloudinary.com/dqqeavica/image/upload/v1763997280/DRIVE_bycgsc.webp" alt="">';
+    btnDrive.addEventListener('click', ()=>{
+      const id = String(c.carpetaCuenta||'').trim();
+      if(id){ window.open('https://drive.google.com/drive/folders/'+id,'_blank'); }
+      else { Swal.fire({icon:'info',title:'Sin carpeta'}); }
+    });
+    btnRow.appendChild(btnDrive);
+
+    div.appendChild(btnRow);
     wrap.appendChild(div);
   }
 }
