@@ -293,12 +293,12 @@
         </div>
 
         <div class="avatar-wrap">
-          <img id="inicio-avatar-emoji" class="avatar-emoji" src="https://res.cloudinary.com/dqqeavica/image/upload/v1758738139/user_zefosv.png" alt="usuario" style="display:none;" />
-          <img id="inicio-avatar-img" class="avatar-img" src="" alt="perfil" style="display:none;" />
-        </div>
+  <img id="inicio-avatar-emoji" class="avatar-emoji" src="https://res.cloudinary.com/dqqeavica/image/upload/v1758738139/user_zefosv.png" alt="" style="display:none;" />
+  <img id="inicio-avatar-img" class="avatar-img" src="" alt="" style="display:none;" />
+</div>
 
-        <h2 style="color:var(--primary);">SUPERVISOR(A)</h2>
-        <p id="inicio-nombre" style="text-align:center; font-weight:900; margin-top:6px;"></p>
+        <h2 id="inicio-nombre" style="color:var(--primary); font-weight:900; margin-top:6px;"></h2>
+<p id="inicio-rol" class="center muted" style="margin-top:0;">SUPERVISOR(A)</p>
 
         <img id="inicio-firma" class="firma-preview" src="" alt="Firma" style="display:none;" />
 
@@ -675,22 +675,31 @@ document.getElementById('btn-logout').addEventListener('click', ()=>{
 function driveThumbById(id){ return id ? ('https://drive.google.com/thumbnail?sz=w1000&id='+id) : ''; }
 function renderInicio(){
   // Avatar
-  const hasImagen = !!currentUser?.imagenId;
-  const imgEl = document.getElementById('inicio-avatar-img');
+  const imgEl   = document.getElementById('inicio-avatar-img');
   const emojiEl = document.getElementById('inicio-avatar-emoji');
+  const hasImagen = !!currentUser?.imagenId;
+
+  // prepara handlers antes de asignar src
+  imgEl.onload = () => { imgEl.style.display=''; emojiEl.style.display='none'; };
+  imgEl.onerror = () => { imgEl.style.display='none'; emojiEl.style.display=''; };
+
   if(hasImagen){
-    const url = driveThumbById(currentUser.imagenId);
-    imgEl.src = url; imgEl.style.display='';
-    emojiEl.style.display='none';
+    imgEl.style.display='none';           // oculto hasta que cargue
+    emojiEl.style.display='none';         // oculto mientras intenta
+    imgEl.src = driveThumbById(currentUser.imagenId);
   }else{
     imgEl.style.display='none';
     emojiEl.style.display='';
   }
-  // Nombre
+
+  // Nombre y rol
   document.getElementById('inicio-nombre').textContent = supervisorNombreCompleto;
-  // Firma
-  const hasFirma = !!currentUser?.firmaId;
+  const rolEl = document.getElementById('inicio-rol');
+  if(rolEl) rolEl.textContent = 'SUPERVISOR(A)';
+
+  // Firma (igual que antes)
   const firmaEl = document.getElementById('inicio-firma');
+  const hasFirma = !!currentUser?.firmaId;
   if(hasFirma){
     firmaEl.src = driveThumbById(currentUser.firmaId);
     firmaEl.style.display='';
