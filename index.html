@@ -74,17 +74,113 @@
   }
   .danger{ background:#e11; border-color:#e11; color:#fff; }
 
-  /* Botón icono */
-  .btn-icon{
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
-    padding: 6px !important;
-    display: inline-flex;
-    align-items:center; justify-content:center;
-  }
-  .btn-icon img{ width:44px; height:44px; object-fit:contain; display:block; }
+ /* Botones de icono: sin recuadro ni fondo, con enfoque accesible */
+.btn-icon{
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 10px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-icon:hover,
+.btn-icon:active{
+  background: transparent !important;
+  color: inherit !important;
+  border: 0 !important;
+}
+.btn-icon:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(4,40,28,.28);
+  border-radius: 10px;
+}
+.btn-icon img{
+  width: 80px;
+  height: 80px;
+  display: block;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  pointer-events: none;
+}
 
+/* Alinear íconos WhatsApp y Drive en UNA MISMA LÍNEA dentro de cada contratista */
+.contr-actions{
+  display:flex;
+  flex-wrap:nowrap;
+}
+.contr-actions .left-group{
+  display:flex;
+  gap:12px;
+  flex:1 1 auto;
+}
+.contr-actions .right-group{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:12px;
+  margin-left:12px;
+  flex:0 0 auto;
+  min-width:auto;
+}
+
+/* Afinar íconos en el grupo derecho (tamaño y efecto) */
+.contr-actions .right-group .btn-icon{
+  flex:0 0 auto;
+  width:auto;
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  padding:6px !important;
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  cursor:pointer;
+  transition:transform .12s ease;
+}
+.contr-actions .right-group .btn-icon:hover{ transform:scale(1.08); }
+.contr-actions .right-group .btn-icon:active{ transform:scale(.94); }
+.contr-actions .right-group .btn-icon img{
+  width:44px !important;
+  height:44px !important;
+  display:block;
+  object-fit:contain;
+  pointer-events:none;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));
+}
+
+/* Responsive: en móviles, íconos arriba y botones grandes abajo */
+@media (max-width:700px){
+  .contr-actions{
+    flex-wrap: wrap !important;
+    align-items: center;
+  }
+  .contr-actions .right-group{
+    order: 1 !important;
+    flex: 0 0 100% !important;
+    justify-content: flex-end !important;
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+  }
+  .contr-actions .left-group{
+    order: 2 !important;
+    flex: 0 0 100% !important;
+    min-width: 0;
+    margin-top: 8px;
+    display: flex;
+    gap: 12px;
+  }
+  .contr-actions .left-group > button{
+    flex: 1 1 48%;
+  }
+}
+/* Extra: si la pantalla es muy estrecha, apila los botones verticalmente */
+@media (max-width:400px){
+  .contr-actions .left-group > button{
+    flex: 1 1 100%;
+  }
+}
   /* Loader centrado */
   .loader{
     position:fixed; inset:0;
@@ -192,9 +288,17 @@
   }
 
   /* Avatar inicio */
-  .avatar-wrap{ display:flex; justify-content:center; margin-top:8px; }
-  .avatar-emoji{ width:96px; height:96px; }
-  .avatar-img{ width:96px; height:96px; border-radius:999px; border:2px solid #fff; object-fit:cover; }
+  .avatar-emoji{
+  width:120px;
+  height:120px;
+}
+.avatar-img{
+  width:160px;
+  height:160px;
+  border-radius:999px;
+  border:2px solid #fff;
+  object-fit:cover;
+}
 
   /* Firma preview */
   .firma-preview{ max-width:260px; border-radius:12px; border:1.5px solid #d8e4ff; margin:8px auto 0; display:block; }
@@ -899,27 +1003,56 @@ function pintarContratistas(list){
     const pSup=document.createElement('p'); pSup.className='item-sub'; pSup.innerHTML='SUPERVISOR: '+(c.supervisor||'') + (c.matchSupervisor ? ' <b>(ASIGNADO A TI)</b>' : '');
     div.appendChild(pSup);
 
-    const actions=document.createElement('div'); actions.className='btn-row';
-    const btnDetalles=document.createElement('button'); btnDetalles.textContent='MOSTRAR DETALLES';
-    btnDetalles.addEventListener('click', ()=> {
-  playSoundOnce(SOUNDS.logout);                 // ← SONIDO LOGOUT
-  mostrarDetallesContratista(c.documento);
-});
-    actions.appendChild(btnDetalles);
+    cconst actionsRow = document.createElement('div');
+    actionsRow.className = 'contr-actions';
 
-    const btnWhatsapp=document.createElement('button'); btnWhatsapp.className='btn-icon'; btnWhatsapp.innerHTML='<img src="https://res.cloudinary.com/dqqeavica/image/upload/v1759166341/WhatsApp_mljaqm.webp" alt="WhatsApp">';
+    const leftGroup = document.createElement('div');
+    leftGroup.className = 'left-group';
+
+    const rightGroup = document.createElement('div');
+    rightGroup.className = 'right-group';
+
+    // Botón grande: Mostrar detalles (queda en el grupo izquierdo)
+    const btnDetalles = document.createElement('button');
+    btnDetalles.textContent = 'MOSTRAR DETALLES';
+    btnDetalles.addEventListener('click', ()=> {
+      playSoundOnce(SOUNDS.logout);
+      mostrarDetallesContratista(c.documento);
+    });
+    leftGroup.appendChild(btnDetalles);
+
+    // Ícono WhatsApp (grupo derecho)
+    const btnWhatsapp = document.createElement('button');
+    btnWhatsapp.className = 'btn-icon';
+    btnWhatsapp.innerHTML = '<img src="https://res.cloudinary.com/dqqeavica/image/upload/v1759166341/WhatsApp_mljaqm.webp" alt="WhatsApp">';
+    btnWhatsapp.setAttribute('aria-label','Abrir chat de WhatsApp');
     btnWhatsapp.addEventListener('click', ()=>{
-      let tel=String(c.telefono||'').replace(/\D/g,''); if(!tel){ Swal.fire({icon:'info',title:'Sin teléfono'}); return; }
-      if(!tel.startsWith('57')) tel='57'+tel; if(!/^57\d{10}$/.test(tel)){ Swal.fire({icon:'warning',title:'Teléfono inválido'}); return; }
+      let tel=String(c.telefono||'').replace(/\D/g,'');
+      if(!tel){ Swal.fire({icon:'info',title:'Sin teléfono'}); return; }
+      if(!tel.startsWith('57')) tel='57'+tel;
+      if(!/^57\d{10}$/.test(tel)){ Swal.fire({icon:'warning',title:'Teléfono inválido'}); return; }
       window.open('https://wa.me/'+tel,'_blank');
     });
 
-    const btnDrive=document.createElement('button'); btnDrive.className='btn-icon'; btnDrive.innerHTML='<img src="https://res.cloudinary.com/dqqeavica/image/upload/v1763997280/DRIVE_bycgsc.webp" alt="Drive">';
-    btnDrive.addEventListener('click', ()=>{ if(c.carpetaContratista){ window.open('https://drive.google.com/drive/folders/'+c.carpetaContratista,'_blank'); } else { Swal.fire({icon:'info',title:'Sin carpeta'}); } });
+    // Ícono Drive (grupo derecho)
+    const btnDrive = document.createElement('button');
+    btnDrive.className = 'btn-icon';
+    btnDrive.innerHTML = '<img src="https://res.cloudinary.com/dqqeavica/image/upload/v1763997280/DRIVE_bycgsc.webp" alt="Drive">';
+    btnDrive.setAttribute('aria-label','Abrir carpeta Drive');
+    btnDrive.addEventListener('click', ()=>{
+      if(c.carpetaContratista){
+        window.open('https://drive.google.com/drive/folders/'+c.carpetaContratista,'_blank');
+      } else {
+        Swal.fire({icon:'info',title:'Sin carpeta'});
+      }
+    });
 
-    actions.appendChild(btnWhatsapp);
-    actions.appendChild(btnDrive);
-    div.appendChild(actions);
+    rightGroup.appendChild(btnWhatsapp);
+    rightGroup.appendChild(btnDrive);
+
+    actionsRow.appendChild(leftGroup);
+    actionsRow.appendChild(rightGroup);
+    div.appendChild(actionsRow);
     wrap.appendChild(div);
   }
 }
