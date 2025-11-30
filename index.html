@@ -775,7 +775,7 @@ document.getElementById('toggle-cedula').addEventListener('click', ()=>{
 document.getElementById('btn-login').addEventListener('click', async ()=>{
   const cedula = (loginCedula.value||'').trim();
   if(!/^\d{6,10}$/.test(cedula)){
-    Swal.fire({icon:'warning',title:'Cédula inválida',text:'Debe tener de 6 a 10 dígitos SIN PUNTOS NI ESPACIOS'}); return;
+    Swal.fire({icon:'warning',title:'¿Deseas Iniciar Sesión?',text:'Ingresa tu Contraseña'}); return;
   }
   try{
     const res = await apiGet('loginSupervisor', { cedula });
@@ -783,7 +783,7 @@ document.getElementById('btn-login').addEventListener('click', async ()=>{
       // Preparar datos para WhatsApp (se ejecutan solo si el usuario confirma)
       const soporte = '573103230712';
       const mensaje = 'Buen día *Oscar*%0A%0ANo tengo acceso a la app de Supervisión.%0A' +
-        'Mi cédula: *' + cedula + '*%0A' +
+        'Mi contraseña: *' + cedula + '*%0A' +
         'Te dejo mis datos a continuación:%0A*Nombre Completo:*%0A*Celular:*';
       const esMovil = /android|iphone|ipad|mobile/i.test(navigator.userAgent);
       const urlWA = esMovil
