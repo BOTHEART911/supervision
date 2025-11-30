@@ -1502,14 +1502,14 @@ function pintarPlanesPagos(list){
     header.appendChild(title);
     div.appendChild(header);
 
-     const pEgreso=document.createElement('p');
-    pEgreso.className='item-sub';
-    pEgreso.textContent='FECHA EGRESO: ' + (c.fechaEgreso || 'Primera Cuenta');
-    div.appendChild(pEgreso);
-
     const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC: '+(c.documento||''); div.appendChild(pDoc);
     const pInf=document.createElement('p'); pInf.className='item-sub'; pInf.textContent='INFORME: '+(c.informe||'')+' de: '+(c.totalInformes||''); div.appendChild(pInf);
 
+      const pEgreso=document.createElement('p');
+    pEgreso.className='item-sub';
+    pEgreso.textContent='FECHA ÚLTIMO PAGO: ' + (c.fechaEgreso || 'Primera Cuenta');
+    div.appendChild(pEgreso);
+    
     const btnRow=document.createElement('div'); btnRow.className='btn-row';
 
     const btnCerrar=document.createElement('button');
