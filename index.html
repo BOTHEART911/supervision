@@ -1003,7 +1003,7 @@ function pintarContratistas(list){
     const pSup=document.createElement('p'); pSup.className='item-sub'; pSup.innerHTML='SUPERVISOR: '+(c.supervisor||'') + (c.matchSupervisor ? ' <b>(ASIGNADO A TI)</b>' : '');
     div.appendChild(pSup);
 
-    cconst actionsRow = document.createElement('div');
+    const actionsRow = document.createElement('div');
     actionsRow.className = 'contr-actions';
 
     const leftGroup = document.createElement('div');
