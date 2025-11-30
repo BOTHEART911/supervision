@@ -428,6 +428,7 @@
         <h3>Selecciona una opción</h3>
         <button class="menu-btn" id="go-contratistas">CONTRATISTAS</button>
         <button class="menu-btn" id="go-revision">REVISAR CUENTAS</button>
+        <button class="menu-btn" id="go-planes-pagos">PLAN DE PAGOS</button>
         <button class="menu-btn" id="go-requerimientos">REQUERIMIENTO</button>
         <button class="menu-btn" id="go-comunicados">COMUNICADOS</button>
         <button class="menu-btn" id="go-actualizar">ACTUALIZAR FIRMA E IMAGEN</button>
@@ -568,6 +569,23 @@
         </div>
       </div>
     </section>
+
+        <!-- VISTA PLAN DE PAGO -->
+
+    <section id="view-planes-pagos" class="view">
+  <div class="card">
+    <h2 style="color:var(--primary)">PLANES DE PAGOS REPORTADOS</h2>
+    <div class="center">
+      <div id="planes-count" class="chip" style="display:none;">0</div>
+      <p class="muted" style="margin:6px 0 12px;">N° de Cuentas en Plan de Pagos</p>
+    </div>
+    <input id="planes-filter" class="chip" style="width:100%; border-radius:999px;" type="text" placeholder="Filtrar por nombre, documento, informe o total informes">
+    <div class="btn-row spaced">
+      <button id="planes-volver" class="danger">REGRESAR</button>
+    </div>
+    <div id="planes-list" class="list-grid"></div>
+  </div>
+</section>
 
     <!-- VISTA REQUERIMIENTO -->
     <section id="view-requerimientos" class="view">
@@ -854,9 +872,10 @@ document.getElementById('ovlClose').addEventListener('click', ()=>{
   overlay.classList.remove('open');
 });
 
+
 /* Sonido 'logout' al seleccionar cualquiera de las opciones del overlay.
    Ubicar este bucle inmediatamente después de los listeners anteriores. */
-['go-actualizar','go-contratistas','go-revision','go-requerimientos','go-comunicados','go-soporte']
+['go-actualizar','go-contratistas','go-revision','go-planes-pagos','go-requerimientos','go-comunicados','go-soporte']
   .forEach(id => {
     const el = document.getElementById(id);
     if(el){
@@ -1095,8 +1114,9 @@ async function mostrarDetallesContratista(documento){
         `<b>OBJETO:</b> ${d.objeto||''}`,
         `<b>FECHA DE INICIO:</b> ${d.fechaInicio||''}`,
         `<b>FECHA DE TERMINO:</b> ${d.fechaTermino||''}`,
+        `<b>VALOR INICIAL:</b> ${d.valor||''}`,
         `<b>MRA:</b> ${d.mra||''}`,
-        `<b>VALOR:</b> ${d.valorFinal||''}`,
+        `<b>VALOR FINAL:</b> ${d.valorFinal||''}`,
         `<b>CDP:</b> ${d.cdp||''}`,
         `<b>RP:</b> ${d.rp||''}`,
         `<b>CDP ADICIÓN:</b> ${d.cdpAdicion||''}`,
@@ -1180,6 +1200,8 @@ document.getElementById('revision-volver').addEventListener('click', ()=>{
   playSoundOnce(SOUNDS.back);
   showView('view-inicio');
 });
+
+
 
 function resetToggleSections(){
   const defs = [
@@ -1434,6 +1456,123 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
     }catch(e){ Swal.fire({icon:'error',title:'Error',text:e.message}); }
   }
 });
+
+  /* ================== PLAN DE PAGOS ================== */
+
+  document.getElementById('go-planes-pagos').addEventListener('click', async ()=>{
+  overlay.classList.remove('open');
+  await cargarPlanesPagos();
+  showView('view-planes-pagos');
+});
+  
+let PLANES_PAGOS_DATA = [];
+
+async function cargarPlanesPagos(){
+  try{
+    const list = await apiGet('listPlanesPagos', { supervisor: supervisorNombreCompleto });
+    PLANES_PAGOS_DATA = Array.isArray(list) ? list : [];
+    pintarPlanesPagos(PLANES_PAGOS_DATA);
+    actualizarResumenPlanesPagos(PLANES_PAGOS_DATA);
+  }catch(e){
+    PLANES_PAGOS_DATA = [];
+    pintarPlanesPagos(PLANES_PAGOS_DATA);
+    actualizarResumenPlanesPagos(PLANES_PAGOS_DATA);
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }
+}
+
+function actualizarResumenPlanesPagos(list){
+  const box = document.getElementById('planes-count');
+  if(!list.length){ box.style.display='none'; box.textContent=''; return; }
+  box.textContent = String(list.length);
+  box.style.display='inline-block';
+}
+
+function pintarPlanesPagos(list){
+  const wrap = document.getElementById('planes-list');
+  wrap.innerHTML='';
+  if(!list.length){
+    wrap.innerHTML='<p class="muted center">No hay cuentas en Plan de Pagos.</p>';
+    return;
+  }
+  for(const c of list){
+    const div=document.createElement('div'); div.className='item-card';
+    const header=document.createElement('div'); header.className='item-header';
+    const title=document.createElement('p'); title.className='item-title'; title.textContent=(c.nombre||'');
+    header.appendChild(title);
+    div.appendChild(header);
+
+    const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC: '+(c.documento||''); div.appendChild(pDoc);
+    const pInf=document.createElement('p'); pInf.className='item-sub'; pInf.textContent='INFORME: '+(c.informe||'')+' de: '+(c.totalInformes||''); div.appendChild(pInf);
+
+    const btnRow=document.createElement('div'); btnRow.className='btn-row';
+
+    const btnCerrar=document.createElement('button');
+    btnCerrar.textContent='CERRAR PROCESO';
+    btnCerrar.addEventListener('click', ()=> {
+      playSoundOnce(SOUNDS.logout);
+      cerrarProcesoPlanPago(c.documento, c.informe);
+    });
+    btnRow.appendChild(btnCerrar);
+
+    div.appendChild(btnRow);
+    wrap.appendChild(div);
+  }
+}
+
+document.getElementById('planes-filter').addEventListener('input', ()=>{
+  const q=document.getElementById('planes-filter').value.trim().toLowerCase();
+  const filtered = PLANES_PAGOS_DATA.filter(c=>{
+    return [c.nombre,c.documento,c.informe,c.totalInformes].some(v=>String(v||'').toLowerCase().includes(q));
+  });
+  pintarPlanesPagos(filtered);
+  actualizarResumenPlanesPagos(filtered);
+});
+
+document.getElementById('planes-volver').addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  showView('view-inicio');
+});
+
+async function cerrarProcesoPlanPago(documento, informe){
+  try{
+    // Obtener detalles del contratista para mensajes
+    const det = await apiGet('detallesContratistaSupervisor', { documento });
+    if(!det){ Swal.fire({icon:'warning',title:'Contratista no encontrado'}); return; }
+    const nombre = det.nombre || '';
+    const telRaw = det.telefono || '';
+    const telContratista = normalizeNumber57(telRaw);
+    const supervisor = supervisorNombreCompleto;
+    function pieSupervisor(){ return supervisor === 'ANA JUDITH GAMBOA MANTILLA' ? '> Alcaldesa' : '> Supervisor(a)'; }
+
+    const msgContratista =
+      'Estimado(a) *'+nombre+'*' + '\n\n' +
+      '¡He aceptado tu *Plan de Pagos* de la *Cuenta N° '+informe+'*!,' + '\n\n' +
+      'Ya puedes entregar tus 2 paquetes organizados en el despacho de mi oficina.' + '\n\n' +
+      'Cordialmente,' + '\n\n' +
+      '*'+supervisor+'*' + '\n' + pieSupervisor();
+
+    const msgGrupo =
+      'Buen día *Equipo de Contabilidad*' + '\n\n' +
+      '¡Por favor solicito la orden de pago de la *Cuenta N° '+informe+'*! Del contratista *'+nombre+'*.' + '\n\n' +
+      'Cordialmente,' + '\n\n' +
+      '*'+supervisor+'*' + '\n' + pieSupervisor();
+
+    // Enviar mensajes
+    const grupoId = 'HpfMVceAaM96quyxP3YSL1';
+    if(telContratista){ sendBuilderbotMessage(telContratista, msgContratista); }
+    sendBuilderbotMessage(grupoId, msgGrupo);
+
+    // Actualizar estado en la hoja
+    await apiPost('cerrarPlanPagoSupervisor', { documento, informe, supervisor });
+
+    Swal.fire({icon:'success',title:'Proceso Cerrado',timer:1800,showConfirmButton:false});
+    await cargarPlanesPagos();
+    showView('view-planes-pagos');
+  }catch(e){
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }
+}
 
 /* ================== REQUERIMIENTOS ================== */
 let REQ_DATA=[];
