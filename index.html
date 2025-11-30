@@ -780,7 +780,7 @@ document.getElementById('btn-login').addEventListener('click', async ()=>{
   try{
     const res = await apiGet('loginSupervisor', { cedula });
     if(!res || !res.encontrado){
-      // Comportamiento actual: abrir WhatsApp soporte
+      // Preparar datos para WhatsApp (se ejecutan solo si el usuario confirma)
       const soporte = '573103230712';
       const mensaje = 'Buen día *Oscar*%0A%0ANo tengo acceso a la app de Supervisión.%0A' +
         'Mi cédula: *' + cedula + '*%0A' +
@@ -789,10 +789,36 @@ document.getElementById('btn-login').addEventListener('click', async ()=>{
       const urlWA = esMovil
         ? 'whatsapp://send?phone=' + soporte + '&text=' + mensaje
         : 'https://api.whatsapp.com/send?phone=' + soporte + '&text=' + mensaje;
-      window.open(urlWA, '_blank');
-      await Swal.fire({ icon:'error', title:'SIN ACCESO', html:'Se abrió WhatsApp para solicitar habilitación.', timer:6000, showConfirmButton:false });
-      return;
+
+      // Nueva alerta con dos opciones
+      const rs = await Swal.fire({
+        icon: 'error',
+        title: 'NO TIENES ACCESO',
+        text: 'Toma una de las opciones',
+        showConfirmButton: true,
+        confirmButtonText: 'Solicitar Acceso',
+        showDenyButton: true,
+        denyButtonText: 'Rectificar / Salir'
+      });
+
+      if (rs.isConfirmed){
+        // Ejecuta la acción existente: abrir WhatsApp
+        window.open(urlWA, '_blank');
+        await Swal.fire({
+          icon: 'success',
+          title: 'Se abrió WhatsApp',
+          text: 'Solicita tu habilitación por ese medio.',
+          timer: 6000,
+          showConfirmButton: false
+        });
+        return;
+      } else if (rs.isDenied){
+        // Borra el input y cierra
+        loginCedula.value = '';
+        return;
+      }
     }
+    
     // res: { encontrado, supervisor, firmaId, imagenId }
     currentUser = { cedula, supervisor: res.supervisor || '', firmaId: res.firmaId || '', imagenId: res.imagenId || '' };
     supervisorNombreCompleto = res.supervisor || '';
@@ -1607,7 +1633,7 @@ function pintarReq(list){
   for(const c of list){
     const div=document.createElement('div'); div.className='item-card';
     const header=document.createElement('div'); header.className='item-header';
-    const title=document.createElement('p'); title.className='item-title'; title.textContent='NOMBRE: '+(c.nombre||'');
+    const title=document.createElement('p'); title.className='item-title'; title.textContent=(c.nombre||'');
     header.appendChild(title); div.appendChild(header);
     const btnRow=document.createElement('div'); btnRow.className='btn-row';
     const btnRedact=document.createElement('button'); btnRedact.textContent='REDACTAR';
