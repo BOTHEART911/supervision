@@ -1411,6 +1411,7 @@ document.getElementById('rc-volver').addEventListener('click', ()=>{
   playSoundOnce(SOUNDS.back);
   showView('view-revision');
 });
+  
 document.getElementById('rc-guardar').addEventListener('click', async ()=>{
   if(!REV_CUENTA?.cuenta){ Swal.fire({icon:'warning',title:'Sin cuenta cargada'}); return; }
   const documento = REV_CUENTA.contratista.documento;
@@ -1422,65 +1423,101 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
   const observ = (document.getElementById('rc-observaciones').value || '').trim();
   const telContratista = normalizeNumber57(telContratistaRaw);
 
+  // Alerta con 4 opciones (Aprobar, Devolver, Incompleta, Cancelar)
   const rs = await Swal.fire({
     icon:'success',
     title:`Haz revisado la cuenta N° ${informe} de ${nombre}`,
-    text:'Toma una de las opciones.',
-    showCancelButton:true,
-    showDenyButton:true,
-    confirmButtonText:'Aprobar',
-    denyButtonText:'Devolver',
-    cancelButtonText:'Cancelar'
+    html: `
+      <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">
+        <button id="opt-aprobar" class="swal2-confirm swal2-styled" style="flex:1 1 45%;">Aprobar</button>
+        <button id="opt-devolver" class="swal2-deny swal2-styled" style="flex:1 1 45%;">Devolver</button>
+        <button id="opt-incompleta" class="swal2-cancel swal2-styled" style="flex:1 1 45%;">Incompleta</button>
+        <button id="opt-cancelar" class="swal2-cancel swal2-styled danger" style="flex:1 1 45%;">Cancelar</button>
+      </div>
+    `,
+    showConfirmButton: false,
+    showDenyButton: false,
+    showCancelButton: false,
+    didOpen: (el)=>{
+      function pieSupervisor(){ return supervisor === 'ANA JUDITH GAMBOA MANTILLA' ? '> Alcaldesa' : '> Supervisor(a)'; }
+
+      function msgAprobadoContratista(){
+        return (
+          'Estimado(a) *'+nombre+'*' + '\n\n' +
+          '¡He firmado el Informe de Supervisión y solicitado al área de contratación validar tu *Cuenta N° '+informe+'*!,' + '\n\n' +
+          'Espera atentamente la aprobación.' + '\n\n' +
+          'Cordialmente,' + '\n\n' +
+          '*'+supervisor+'*' + '\n' + pieSupervisor()
+        );
+      }
+
+      function msgAprobadoGrupo(){
+        return (
+          'Buen día *Equipo de Contratación*' + '\n\n' +
+          '¡Por favor solicito la revisión de la *Cuenta N° '+informe+'*! Del contratista *'+nombre+'*.' + '\n\n' +
+          'Cordialmente,' + '\n\n' +
+          '*'+supervisor+'*' + '\n' + pieSupervisor()
+        );
+      }
+
+      function msgDevueltaContratista(){
+        return (
+          'Estimado(a) *'+nombre+'*' + '\n\n' +
+          'Se ha devuelto tu *Cuenta N° '+informe+'* por esta inconsistencia:' + '\n\n' +
+          '*'+(observ || 'Sin observaciones')+'*' + '\n\n' +
+          'Haz la corrección desde la *App Contratista* teniendo en cuenta las observaciones anteriores.' + '\n\n' +
+          'Cordialmente,' + '\n\n' +
+          '*'+supervisor+'*' + '\n' + pieSupervisor()
+        );
+      }
+
+      function msgIncompleta(){
+        return (
+          'Estimado(a) *'+nombre+'*' + '\n\n' +
+          'En tu *Cuenta N° '+informe+'* no encuentro el(los) siguiente(s) soporte(s):' + '\n\n' +
+          '*'+(observ || 'Sin observaciones')+'*' + '\n\n' +
+          'Toma la opción *Mi Última Cuenta* en la *App Contratista* y carga el(los) soporte(s) restante(s) teniendo en cuenta las observaciones anteriores.' + '\n\n' +
+          'Cordialmente,' + '\n\n' +
+          '*'+supervisor+'*' + '\n' + pieSupervisor()
+        );
+      }
+
+      // Aprobar (mantiene lógica existente)
+      el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
+        try{
+          await apiPost('aprobarCuentaSupervisor',{documento,informe,supervisor});
+          if(telContratista){ sendBuilderbotMessage(telContratista, msgAprobadoContratista()); }
+          sendBuilderbotMessage(grupoId, msgAprobadoGrupo());
+          Swal.close();
+          Swal.fire({icon:'success',title:'Cuenta Aprobada',timer:1800,showConfirmButton:false});
+          await cargarCuentas(); showView('view-revision');
+        }catch(e){ Swal.close(); Swal.fire({icon:'error',title:'Error',text:e.message}); }
+      });
+
+      // Devolver (mantiene lógica existente)
+      el.querySelector('#opt-devolver')?.addEventListener('click', async ()=>{
+        try{
+          await apiPost('devolverCuentaSupervisor',{documento,informe,observaciones:observ});
+          if(telContratista){ sendBuilderbotMessage(telContratista, msgDevueltaContratista()); }
+          Swal.close();
+          Swal.fire({icon:'success',title:'Cuenta Devuelta',timer:1800,showConfirmButton:false});
+          await cargarCuentas(); showView('view-revision');
+        }catch(e){ Swal.close(); Swal.fire({icon:'error',title:'Error',text:e.message}); }
+      });
+
+      // Incompleta (solo envía mensaje; NO llama backend)
+      el.querySelector('#opt-incompleta')?.addEventListener('click', ()=>{
+        if(telContratista){ sendBuilderbotMessage(telContratista, msgIncompleta()); }
+        Swal.close();
+        Swal.fire({icon:'success',title:'Mensaje enviado al contratista',timer:2200,showConfirmButton:false});
+      });
+
+      // Cancelar
+      el.querySelector('#opt-cancelar')?.addEventListener('click', ()=>{
+        Swal.close();
+      });
+    }
   });
-
-    function pieSupervisor(){ return supervisor === 'ANA JUDITH GAMBOA MANTILLA' ? '> Alcaldesa' : '> Supervisor(a)'; }
-
-  function msgAprobadoContratista(){
-    return (
-      'Estimado(a) *'+nombre+'*' + '\n\n' +
-      '¡He firmado el Informe de Supervisión y solicitado al área de contratación validar tu *Cuenta N° '+informe+'*!,' + '\n\n' +
-      'Espera atentamente la aprobación.' + '\n\n' +
-      'Cordialmente,' + '\n\n' +
-      '*'+supervisor+'*' + '\n' + pieSupervisor()
-    );
-  }
-
-  function msgAprobadoGrupo(){
-    return (
-      'Buen día *Equipo de Contratación*' + '\n\n' +
-      '¡Por favor solicito la revisión de la *Cuenta N° '+informe+'*! Del contratista *'+nombre+'*.' + '\n\n' +
-      'Cordialmente,' + '\n\n' +
-      '*'+supervisor+'*' + '\n' + pieSupervisor()
-    );
-  }
-
-  function msgDevueltaContratista(){
-    return (
-      'Estimado(a) *'+nombre+'*' + '\n\n' +
-      'Se ha devuelto tu *Cuenta N° '+informe+'* por esta inconsistencia:' + '\n\n' +
-      '*'+(observ || 'Sin observaciones')+'*' + '\n\n' +
-      'Haz la corrección desde la *App Contratista* teniendo en cuenta las observaciones anteriores.' + '\n\n' +
-      'Cordialmente,' + '\n\n' +
-      '*'+supervisor+'*' + '\n' + pieSupervisor()
-    );
-  }
-
-  if(rs.isConfirmed){
-    try{
-      await apiPost('aprobarCuentaSupervisor',{documento,informe,supervisor});
-      if(telContratista){ sendBuilderbotMessage(telContratista, msgAprobadoContratista()); }
-      sendBuilderbotMessage(grupoId, msgAprobadoGrupo());
-      Swal.fire({icon:'success',title:'Cuenta Aprobada',timer:1800,showConfirmButton:false});
-      await cargarCuentas(); showView('view-revision');
-    }catch(e){ Swal.fire({icon:'error',title:'Error',text:e.message}); }
-  } else if(rs.isDenied){
-    try{
-      await apiPost('devolverCuentaSupervisor',{documento,informe,observaciones:observ});
-      if(telContratista){ sendBuilderbotMessage(telContratista, msgDevueltaContratista()); }
-      Swal.fire({icon:'success',title:'Cuenta Devuelta',timer:1800,showConfirmButton:false});
-      await cargarCuentas(); showView('view-revision');
-    }catch(e){ Swal.fire({icon:'error',title:'Error',text:e.message}); }
-  }
 });
 
   /* ================== PLAN DE PAGOS ================== */
