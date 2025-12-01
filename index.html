@@ -1702,8 +1702,10 @@ function pintarReq(list){
     header.appendChild(title); div.appendChild(header);
     const btnRow=document.createElement('div'); btnRow.className='btn-row';
     const btnRedact=document.createElement('button'); btnRedact.textContent='REDACTAR';
-    btnRedact.addEventListener('click', ()=> {
-  playSoundOnce(SOUNDS.logout);                 // ← SONIDO LOGOUT
+    btnRedact.addEventListener('click', (e)=> {
+  e.preventDefault();
+  e.stopPropagation();
+  playSoundOnce(SOUNDS.logout);
   abrirModalReq(c);
 });
     btnRow.appendChild(btnRedact); div.appendChild(btnRow);
@@ -1722,11 +1724,13 @@ document.getElementById('req-volver').addEventListener('click', ()=>{
 
 let MODAL_TARGET=null;
 function abrirModalReq(c){
-  MODAL_TARGET=c;
-  document.getElementById('modal-req-text').value='';
-  const modal=document.getElementById('modal-requerimiento');
-  modal.classList.remove('hidden'); modal.classList.add('open');
+  MODAL_TARGET = c;
+  document.getElementById('modal-req-text').value = '';
+  const modal = document.getElementById('modal-requerimiento');
+  modal.classList.remove('hidden');
+  modal.classList.add('open');
 }
+  
 document.getElementById('modal-ovl-back').addEventListener('click', ()=>{
   const modal=document.getElementById('modal-requerimiento');
   modal.classList.remove('open'); modal.classList.add('hidden');
