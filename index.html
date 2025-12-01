@@ -773,8 +773,7 @@ document.getElementById('toggle-cedula').addEventListener('click', ()=>{
   document.getElementById('toggle-cedula').innerHTML = '<img src="'+nuevoIcono+'" alt="'+accion+'">';
 });
 document.getElementById('btn-login').addEventListener('click', async ()=>{
-  // Sonido de login al iniciar sesión
-  playSoundOnce(SOUNDS.login);
+ 
   const cedula = (loginCedula.value||'').trim();
   if(!/^\d{6,10}$/.test(cedula)){
     Swal.fire({icon:'warning',title:'¿Deseas Iniciar Sesión?',text:'Ingresa tu Contraseña'}); return;
@@ -824,6 +823,10 @@ document.getElementById('btn-login').addEventListener('click', async ()=>{
     // res: { encontrado, supervisor, firmaId, imagenId }
     currentUser = { cedula, supervisor: res.supervisor || '', firmaId: res.firmaId || '', imagenId: res.imagenId || '' };
     supervisorNombreCompleto = res.supervisor || '';
+
+     // Sonido de login al iniciar sesión
+  playSoundOnce(SOUNDS.login);
+    
     if(!currentUser.firmaId){
       await Swal.fire({ icon:'success', title:`${supervisorNombreCompleto} completa tu registro`, text:'Solo debes ingresar la imagen de tu firma.' });
       showView('view-completar');
