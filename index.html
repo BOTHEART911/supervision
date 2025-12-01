@@ -320,6 +320,25 @@
     display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:6px;
   }
   .toggle-cedula img{ width:22px; height:22px; display:block; }
+
+    .modal-backdrop{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.55);
+  display:flex; align-items:center; justify-content:center;
+  z-index:9998; padding:20px;
+}
+.modal-backdrop.hidden{ display:none !important; }
+.modal{
+  background:#fff; border-radius:16px;
+  max-width:520px; width:100%;
+  padding:20px 20px 14px;
+  box-shadow:0 8px 22px rgba(0,0,0,.25);
+  animation:modalIn .25s ease;
+}
+@keyframes modalIn{
+  from{ opacity:0; transform:translateY(12px); }
+  to{ opacity:1; transform:translateY(0); }
+}
   </style>
 </head>
 <body>
@@ -604,19 +623,16 @@
     </section>
 
     <!-- MODAL REQUERIMIENTO -->
-    <div id="modal-requerimiento" class="overlay hidden" style="position:fixed;">
-      <div class="scrim" id="modal-close"></div>
-      <aside class="panel" style="right:0; left:auto; transform:translateX(100%);">
-        <div class="btn-row">
-          <button id="modal-ovl-back">ATRÁS</button>
-        </div>
-        <h3 style="color:#fff">Redacta tu Requerimiento</h3>
-        <textarea id="modal-req-text" rows="6" placeholder="Redacta el Requerimiento" style="border-radius:12px;"></textarea>
-        <div class="btn-row" style="margin-top:14px;">
-          <button id="modal-req-enviar" class="menu-btn">Enviar</button>
-        </div>
-      </aside>
+    <div id="modal-requerimiento" class="modal-backdrop hidden">
+  <div class="modal">
+    <h3 style="color:var(--primary)">Redacta tu Requerimiento</h3>
+    <textarea id="modal-req-text" rows="5" placeholder="Redacta el Requerimiento" style="width:100%;border:2px solid var(--primary);border-radius:12px;"></textarea>
+    <div class="btn-row" style="margin-top:14px;">
+      <button id="modal-req-enviar" class="btn-primary">Enviar</button>
+      <button id="modal-req-cancelar" class="danger">Cancelar</button>
     </div>
+  </div>
+</div>
 
     <!-- VISTA COMUNICADOS -->
     <section id="view-comunicados" class="view">
@@ -1700,15 +1716,16 @@ function pintarReq(list){
     const header=document.createElement('div'); header.className='item-header';
     const title=document.createElement('p'); title.className='item-title'; title.textContent=(c.nombre||'');
     header.appendChild(title); div.appendChild(header);
+
     const btnRow=document.createElement('div'); btnRow.className='btn-row';
     const btnRedact=document.createElement('button'); btnRedact.textContent='REDACTAR';
-    btnRedact.addEventListener('click', (e)=> {
-  e.preventDefault();
-  e.stopPropagation();
-  playSoundOnce(SOUNDS.logout);
-  abrirModalReq(c);
-});
-    btnRow.appendChild(btnRedact); div.appendChild(btnRow);
+    btnRedact.addEventListener('click',(e)=>{
+      e.preventDefault(); e.stopPropagation();
+      playSoundOnce(SOUNDS.logout);
+      abrirModalReq(c);
+    });
+    btnRow.appendChild(btnRedact);
+    div.appendChild(btnRow);
     wrap.appendChild(div);
   }
 }
@@ -1724,36 +1741,32 @@ document.getElementById('req-volver').addEventListener('click', ()=>{
 
 let MODAL_TARGET=null;
 function abrirModalReq(c){
-  MODAL_TARGET = c;
-  document.getElementById('modal-req-text').value = '';
-  const modal = document.getElementById('modal-requerimiento');
-  modal.classList.remove('hidden');
-  modal.classList.add('open');
+  MODAL_TARGET=c;
+  const ta=document.getElementById('modal-req-text');
+  ta.value='';
+  document.getElementById('modal-requerimiento').classList.remove('hidden');
+  ta.focus();
 }
-  
-document.getElementById('modal-ovl-back').addEventListener('click', ()=>{
-  const modal=document.getElementById('modal-requerimiento');
-  modal.classList.remove('open'); modal.classList.add('hidden');
-});
-document.getElementById('modal-close').addEventListener('click', ()=>{
-  const modal=document.getElementById('modal-requerimiento');
-  modal.classList.remove('open'); modal.classList.add('hidden');
-});
+function cerrarModalReq(){
+  document.getElementById('modal-requerimiento').classList.add('hidden');
+  MODAL_TARGET=null;
+}
+document.getElementById('modal-req-cancelar').addEventListener('click', cerrarModalReq);
 document.getElementById('modal-req-enviar').addEventListener('click', ()=>{
   const txt=(document.getElementById('modal-req-text').value||'').trim();
-  if(!MODAL_TARGET){ return; } if(!txt){ Swal.fire({icon:'warning',title:'Texto requerido'}); return; }
+  if(!MODAL_TARGET){ return; }
+  if(!txt){
+    Swal.fire({icon:'warning',title:'Texto requerido'}); return;
+  }
   const tel = normalizeNumber57(MODAL_TARGET.telefono);
   const nombre = (MODAL_TARGET.nombre || '').trim();
-    const pie = supervisorNombreCompleto === 'ANA JUDITH GAMBOA MANTILLA' ? '> Alcaldesa' : '> Supervisor(a)';
+  const pie = supervisorNombreCompleto === 'ANA JUDITH GAMBOA MANTILLA' ? '> Alcaldesa' : '> Supervisor(a)';
   const mensaje =
-    'Estimado(a) *' + nombre + '*' + '\n\n' +
-    'Tenemos el siguiente requerimiento:' + '\n\n' +
-    '*' + txt + '*' + '\n\n' +
-    'Cordialmente,' + '\n\n' +
-    '*' + supervisorNombreCompleto + '*' + '\n' + pie;
+    'Estimado(a) *' + nombre + '*\n\n' +
+    'Tenemos el siguiente requerimiento:\n\n*' + txt + '*\n\n' +
+    'Cordialmente,\n\n*' + supervisorNombreCompleto + '*\n' + pie;
   if(tel){ sendBuilderbotMessage(tel, mensaje); }
-  const modal=document.getElementById('modal-requerimiento');
-  modal.classList.remove('open'); modal.classList.add('hidden');
+  cerrarModalReq();
   Swal.fire({icon:'success',title:'Requerimiento enviado',timer:1800,showConfirmButton:false});
 });
 
