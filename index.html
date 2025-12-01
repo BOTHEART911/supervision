@@ -773,6 +773,8 @@ document.getElementById('toggle-cedula').addEventListener('click', ()=>{
   document.getElementById('toggle-cedula').innerHTML = '<img src="'+nuevoIcono+'" alt="'+accion+'">';
 });
 document.getElementById('btn-login').addEventListener('click', async ()=>{
+  // Sonido de login al iniciar sesión
+  playSoundOnce(SOUNDS.login);
   const cedula = (loginCedula.value||'').trim();
   if(!/^\d{6,10}$/.test(cedula)){
     Swal.fire({icon:'warning',title:'¿Deseas Iniciar Sesión?',text:'Ingresa tu Contraseña'}); return;
@@ -1168,8 +1170,20 @@ let CUENTAS_DATA=[];
 document.getElementById('go-revision').addEventListener('click', async ()=>{
   overlay.classList.remove('open');
   await cargarCuentas();
+  if (!CUENTAS_DATA || CUENTAS_DATA.length === 0){
+    await Swal.fire({
+      icon:'success',
+      title:'¡Estás al día!',
+      text:'No tienes CUENTAS pendientes por revisar',
+      timer: 3200,
+      showConfirmButton: false
+    });
+    showView('view-inicio');
+    return;
+  }
   showView('view-revision');
 });
+  
 async function cargarCuentas(){
   try{
     const list=await apiGet('listCuentasIngresadas',{ supervisor: supervisorNombreCompleto });
@@ -1525,6 +1539,17 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
   document.getElementById('go-planes-pagos').addEventListener('click', async ()=>{
   overlay.classList.remove('open');
   await cargarPlanesPagos();
+  if (!PLANES_PAGOS_DATA || PLANES_PAGOS_DATA.length === 0){
+    await Swal.fire({
+      icon:'success',
+      title:'¡Estás al día!',
+      text:'No tienes PLANES DE PAGO por aceptar e informar',
+      timer: 3400,
+      showConfirmButton: false
+    });
+    showView('view-inicio');
+    return;
+  }
   showView('view-planes-pagos');
 });
   
