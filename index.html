@@ -241,11 +241,6 @@
   .item-title{ font-weight:900; font-size:1rem; color:var(--primary); margin:0; }
   .item-sub{ font-size:.72rem; font-weight:700; color:#333; margin:0; }
 
-  .estado-badge{
-    display:inline-block; border-radius:999px; padding:6px 14px; font-weight:800;
-    background:#c6f6d5; color:#06402B; border:2px solid #16a34a; font-size:.72rem;
-  }
-  .estado-badge.inactivo{ background:#fee2e2; color:#991b1b; border-color:#dc2626; }
 
   /* Secciones expandibles en Revisión */
   .section-toggle{ margin:12px 0; }
@@ -1061,12 +1056,6 @@ function pintarContratistas(list){
     const header=document.createElement('div'); header.className='item-header';
     const title=document.createElement('p'); title.className='item-title'; title.textContent=(c.nombre||'');
     header.appendChild(title);
-    // Estado (solo visual)
-    const estadoSpan = document.createElement('span');
-    estadoSpan.className = 'estado-badge ' + (c.estado === 'ACTIVO' ? '' : 'inactivo');
-    estadoSpan.textContent = c.estado || '';
-    header.appendChild(estadoSpan);
-    div.appendChild(header);
 
     const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC: '+(c.documento||''); div.appendChild(pDoc);
     const pSec=document.createElement('p'); pSec.className='item-sub'; pSec.textContent='SECRETARÍA: '+(c.secretaria||''); div.appendChild(pSec);
