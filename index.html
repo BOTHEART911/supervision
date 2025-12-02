@@ -1093,53 +1093,49 @@ function pintarContratistas(list){
 
     // Botón grande: Descargar Informe (queda después de MOSTRAR DETALLES en el grupo izquierdo)
    const btnDescargar = document.createElement('button');
-    btnDescargar.textContent = 'DESCARGAR INFORME';
-    btnDescargar.addEventListener('click', async ()=> {
-      // No usar window.open tras await: hacemos fetch directo del XLSX
-      playSoundOnce(SOUNDS.info);
-      try{
-        const nombre = String(c.nombre || '').trim();
-        const contrato = String(c.contrato || '').trim();
+btnDescargar.textContent = 'DESCARGAR INFORME';
+btnDescargar.addEventListener('click', async ()=> {
+  playSoundOnce(SOUNDS.info);
+  try{
+    const nombre = String(c.nombre || '').trim();
+    const contrato = String(c.contrato || '').trim();
 
-        // Llamamos al endpoint de descarga directa que devuelve binario XLSX
-        const url = new URL(API_BASE);
-        url.search = new URLSearchParams({
-          action: 'descargarInformeContratistaXLSX',
-          documento: c.documento,
-          contrato: contrato,
-          nombre: nombre
-        }).toString();
+    // Llama al endpoint de descarga directa que devuelve binario XLSX
+    const url = new URL(API_BASE);
+    url.search = new URLSearchParams({
+      action: 'descargarInformeContratistaXLSX',
+      documento: c.documento,
+      contrato: contrato,
+      nombre: nombre
+    }).toString();
 
-        startLoading();
-        const r = await fetch(url.toString(), { method:'GET' });
-        // Este endpoint NO retorna JSON; retorna binario OCTET_STREAM
-        if(!r.ok){
-          throw new Error('No se pudo descargar el archivo (HTTP '+r.status+')');
-        }
-        const blob = await r.blob();
-        // Nombre de archivo: preferimos el que el backend asigna; si no, local
-        const fileName = (nombre && contrato) ? (nombre + ' - ' + contrato + '.xlsx') : ('Informe.xlsx');
+    startLoading();
+    const r = await fetch(url.toString(), { method:'GET' });
+    if(!r.ok){
+      throw new Error('No se pudo descargar el archivo (HTTP '+r.status+')');
+    }
+    const blob = await r.blob();
+    const fileName = (nombre && contrato) ? (nombre + ' - ' + contrato + '.xlsx') : ('Informe.xlsx');
 
-        // Crear descarga segura dentro del mismo gesto de usuario
-        const a = document.createElement('a');
-        const objectUrl = URL.createObjectURL(blob);
-        a.href = objectUrl;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        // Limpieza
-        setTimeout(()=>{
-          URL.revokeObjectURL(objectUrl);
-          document.body.removeChild(a);
-        }, 1000);
+    // Descarga en un solo clic (sin popup bloqueado)
+    const a = document.createElement('a');
+    const objectUrl = URL.createObjectURL(blob);
+    a.href = objectUrl;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{
+      URL.revokeObjectURL(objectUrl);
+      document.body.removeChild(a);
+    }, 1000);
 
-      }catch(e){
-        Swal.fire({icon:'error',title:'Error',text:e.message});
-      } finally {
-        stopLoading();
-      }
-    });
-    leftGroup.appendChild(btnDescargar);
+  }catch(e){
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  } finally {
+    stopLoading();
+  }
+});
+leftGroup.appendChild(btnDescargar);
 
     // Ícono WhatsApp (grupo derecho)
     const btnWhatsapp = document.createElement('button');
