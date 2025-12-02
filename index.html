@@ -1100,39 +1100,26 @@ btnDescargar.addEventListener('click', async ()=> {
     const nombre = String(c.nombre || '').trim();
     const contrato = String(c.contrato || '').trim();
 
-    // Llama al endpoint de descarga directa que devuelve binario XLSX
-    const url = new URL(API_BASE);
-    url.search = new URLSearchParams({
-      action: 'descargarInformeContratistaXLSX',
+    // Llama al endpoint y obtiene la URL directa de descarga
+    const data = await apiGet('descargarInformeContratistaXLSX', {
       documento: c.documento,
       contrato: contrato,
       nombre: nombre
-    }).toString();
-
-    startLoading();
-    const r = await fetch(url.toString(), { method:'GET' });
-    if(!r.ok){
-      throw new Error('No se pudo descargar el archivo (HTTP '+r.status+')');
+    });
+    if(!data?.url){
+      throw new Error('No se obtuvo URL de descarga');
     }
-    const blob = await r.blob();
-    const fileName = (nombre && contrato) ? (nombre + ' - ' + contrato + '.xlsx') : ('Informe.xlsx');
 
-    // Descarga en un solo clic (sin popup bloqueado)
+    // Descarga confiable: abrir la URL directa (no bloqueada) en el mismo gesto
     const a = document.createElement('a');
-    const objectUrl = URL.createObjectURL(blob);
-    a.href = objectUrl;
-    a.download = fileName;
+    a.href = data.url;
+    a.download = data.name || (nombre + ' - ' + contrato + '.xlsx');
     document.body.appendChild(a);
     a.click();
-    setTimeout(()=>{
-      URL.revokeObjectURL(objectUrl);
-      document.body.removeChild(a);
-    }, 1000);
+    document.body.removeChild(a);
 
   }catch(e){
     Swal.fire({icon:'error',title:'Error',text:e.message});
-  } finally {
-    stopLoading();
   }
 });
 leftGroup.appendChild(btnDescargar);
