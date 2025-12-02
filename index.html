@@ -1091,6 +1091,29 @@ function pintarContratistas(list){
     });
     leftGroup.appendChild(btnDetalles);
 
+    // Botón grande: Descargar Informe (queda después de MOSTRAR DETALLES en el grupo izquierdo)
+    const btnDescargar = document.createElement('button');
+    btnDescargar.textContent = 'DESCARGAR INFORME';
+    btnDescargar.addEventListener('click', async ()=> {
+      playSoundOnce(SOUNDS.info);
+      try{
+        // c.documento y c.contrato ya vienen del listado de CONTRATISTAS
+        const nombre = String(c.nombre || '').trim();
+        const contrato = String(c.contrato || '').trim();
+        const data = await apiGet('descargarInformeContratista', {
+          documento: c.documento,
+          contrato: contrato,
+          nombre: nombre
+        });
+        if(!data?.created){ Swal.fire({icon:'info',title:'Sin datos para descargar'}); return; }
+        // Abrir descarga del XLSX con el nombre del archivo configurado en el backend
+        window.open(data.exportUrl, '_blank');
+      }catch(e){
+        Swal.fire({icon:'error',title:'Error',text:e.message});
+      }
+    });
+    leftGroup.appendChild(btnDescargar);
+
     // Ícono WhatsApp (grupo derecho)
     const btnWhatsapp = document.createElement('button');
     btnWhatsapp.className = 'btn-icon';
