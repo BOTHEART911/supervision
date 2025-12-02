@@ -1476,7 +1476,7 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
 
       function msgAprobadoContratista(){
         return (
-          '> Estado 1️⃣'\n' +
+          '> Estado 1️⃣\n' +
           'Estimado(a) *'+nombre+'*' + '\n\n' +
           '¡He firmado el Informe de Supervisión y solicitado al área de contratación validar tu *Cuenta N° '+informe+'*!' + '\n\n' +
           'Espera atentamente la aprobación.' + '\n\n' +
@@ -1487,7 +1487,7 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
 
       function msgAprobadoGrupo(){
         return (
-          'Buen día *Equipo de Contratación*' + '\n\n' +
+          '🔎 Buen día *Equipo de Contratación* 🔍' + '\n\n' +
           '¡Por favor solicito la revisión de la *Cuenta N° '+informe+'*! Del contratista *'+nombre+'*.' + '\n\n' +
           'Cordialmente,' + '\n\n' +
           '*'+supervisor+'*' + '\n' + pieSupervisor()
@@ -1659,7 +1659,7 @@ async function cerrarProcesoPlanPago(documento, informe){
     function pieSupervisor(){ return supervisor === 'ANA JUDITH GAMBOA MANTILLA' ? '> Alcaldesa' : '> Supervisor(a)'; }
 
     const msgContratista =
-      '> Estado 3️⃣'\n' +
+      '> Estado 3️⃣\n' +
       'Estimado(a) *'+nombre+'*' + '\n\n' +
       '¡He aceptado tu *Plan de Pagos* de la *Cuenta N° '+informe+'*!' + '\n\n' +
       'Ya puedes entregar tus 2 paquetes organizados en el despacho de mi oficina.' + '\n\n' +
@@ -1667,7 +1667,7 @@ async function cerrarProcesoPlanPago(documento, informe){
       '*'+supervisor+'*' + '\n' + pieSupervisor();
 
     const msgGrupo =
-      'Buen día *Equipo de Contabilidad*' + '\n\n' +
+      '📋 Buen día *Equipo de Contabilidad* 📋' + '\n\n' +
       '¡Por favor solicito la orden de pago de la *Cuenta N° '+informe+'*! Del contratista *'+nombre+'*.' + '\n\n' +
       'Cordialmente,' + '\n\n' +
       '*'+supervisor+'*' + '\n' + pieSupervisor();
