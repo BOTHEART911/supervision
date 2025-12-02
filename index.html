@@ -1476,8 +1476,9 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
 
       function msgAprobadoContratista(){
         return (
+          '> Estado 1️⃣'\n' +
           'Estimado(a) *'+nombre+'*' + '\n\n' +
-          '¡He firmado el Informe de Supervisión y solicitado al área de contratación validar tu *Cuenta N° '+informe+'*!,' + '\n\n' +
+          '¡He firmado el Informe de Supervisión y solicitado al área de contratación validar tu *Cuenta N° '+informe+'*!' + '\n\n' +
           'Espera atentamente la aprobación.' + '\n\n' +
           'Cordialmente,' + '\n\n' +
           '*'+supervisor+'*' + '\n' + pieSupervisor()
@@ -1658,8 +1659,9 @@ async function cerrarProcesoPlanPago(documento, informe){
     function pieSupervisor(){ return supervisor === 'ANA JUDITH GAMBOA MANTILLA' ? '> Alcaldesa' : '> Supervisor(a)'; }
 
     const msgContratista =
+      '> Estado 3️⃣'\n' +
       'Estimado(a) *'+nombre+'*' + '\n\n' +
-      '¡He aceptado tu *Plan de Pagos* de la *Cuenta N° '+informe+'*!,' + '\n\n' +
+      '¡He aceptado tu *Plan de Pagos* de la *Cuenta N° '+informe+'*!' + '\n\n' +
       'Ya puedes entregar tus 2 paquetes organizados en el despacho de mi oficina.' + '\n\n' +
       'Cordialmente,' + '\n\n' +
       '*'+supervisor+'*' + '\n' + pieSupervisor();
@@ -1671,7 +1673,7 @@ async function cerrarProcesoPlanPago(documento, informe){
       '*'+supervisor+'*' + '\n' + pieSupervisor();
 
     // Enviar mensajes
-    const grupoId = 'HpfMVceAaM96quyxP3YSL1';
+    const grupoId = 'HpfMVceAaM96quyxP3YSL1'; // GRUPO DE CONTABILIDAD
     if(telContratista){ sendBuilderbotMessage(telContratista, msgContratista); }
     sendBuilderbotMessage(grupoId, msgGrupo);
 
