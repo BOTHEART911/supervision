@@ -1499,7 +1499,7 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
   const nombre    = REV_CUENTA.contratista.nombre;
   const informe   = REV_CUENTA.cuenta.informe;
   const supervisor = supervisorNombreCompleto;
-  const grupoId = 'HpfMVceAaM96quyxP3YSL1'; // grupo de contratación
+  const grupoId = 'L5yaZR3aSHUGenlpJAAbXk'; // grupo de contratación
   const telContratistaRaw = REV_CUENTA.contratista.telefono;
   const observ = (document.getElementById('rc-observaciones').value || '').trim();
   const telContratista = normalizeNumber57(telContratistaRaw);
@@ -1721,7 +1721,7 @@ async function cerrarProcesoPlanPago(documento, informe){
       '*'+supervisor+'*' + '\n' + pieSupervisor();
 
     // Enviar mensajes
-    const grupoId = 'HpfMVceAaM96quyxP3YSL1'; // GRUPO DE CONTABILIDAD
+    const grupoId = 'GMnAsKZXoG8LUjtxNdw830'; // GRUPO DE CONTABILIDAD
     if(telContratista){ sendBuilderbotMessage(telContratista, msgContratista); }
     sendBuilderbotMessage(grupoId, msgGrupo);
 
