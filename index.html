@@ -1053,12 +1053,12 @@ function pintarContratistas(list){
   if(!list.length){ wrap.innerHTML='<p class="muted center">No hay contratistas.</p>'; return; }
   for(const c of list){
     const div=document.createElement('div'); div.className='item-card';
-    const header=document.createElement('div'); header.className='item-header';
-    const title=document.createElement('p'); title.className='item-title'; title.textContent=(c.nombre||'');
-    header.appendChild(title);
-    div.appendChild(pNombre);
+   const header=document.createElement('div'); header.className='item-header';
+const title=document.createElement('p'); title.className='item-title'; title.textContent=(c.nombre||'');
+header.appendChild(title);
+div.appendChild(header);
 
-    const pNombre=document.createElement('p'); pNombre.className='item-sub'; pNombre.innerHTML= (c.nombre||''); div.appendChild(pNombre);
+    const pNombre = document.createElement('p'); pNombre.className = 'item-sub'; pNombre.textContent = (c.nombre || ''); div.appendChild(pNombre);
     const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC: '+(c.documento||''); div.appendChild(pDoc);
     const pSec=document.createElement('p'); pSec.className='item-sub'; pSec.textContent='SECRETARÍA: '+(c.secretaria||''); div.appendChild(pSec);
     const pSup=document.createElement('p'); pSup.className='item-sub'; pSup.innerHTML='SUPERVISOR: '+(c.supervisor||'') + (c.matchSupervisor ? ' <b>(ASIGNADO A TI)</b>' : '');
