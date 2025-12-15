@@ -1131,6 +1131,9 @@ btnDescargar.addEventListener('click', async ()=> {
     } else {
       Swal.fire({icon:'info',title:'Sin datos para descargar'});
     }
+  }catch(e){
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }
 
 
     // Ícono WhatsApp (grupo derecho)
