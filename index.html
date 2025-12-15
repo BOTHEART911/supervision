@@ -1093,51 +1093,45 @@ btnDescargar.addEventListener('click', async ()=> {
     const contrato = String(c.contrato || '').trim();
 
     // IMPORTANTE: en PC intentamos no encadenar demasiadas esperas antes de abrir.
-    // 1) Pedimos la URL al backend
+    // 1) Pedimos la URL/archivo al backend
     const data = await apiGet('descargarInformeContratista', {
       documento: c.documento,
       contrato: contrato,
       nombre: nombre
     });
 
-    if(!data?.created || !data?.exportUrl){
-      Swal.fire({icon:'info',title:'Sin datos para descargar'});
-      return;
-    }
-
-    const url = data.exportUrl;
-
-    if (isMobile){
-      // En móvil funciona bien abrir en nueva pestaña
-      window.open(url, '_blank');
-    } else {
-      // En escritorio: tres estrategias seguras, elige la que prefieras:
-
-      // A) Navegar en la misma pestaña (menos bloqueo, descarga directa)
-      // location.href = url;
-
-      // B) Crear un <a> temporal y disparar click programático dentro del mismo gesto
+    if (data?.base64) {
+      // Descargar desde el blob en memoria (no hay copia en Drive)
+      const byteChars = atob(data.base64);
+      const byteNumbers = new Uint8Array(byteChars.length);
+      for (let i = 0; i < byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
+      const blob = new Blob([byteNumbers], { type: data.mimeType || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.target = '_self';           // misma pestaña ayuda a evitar bloqueo
-      a.rel = 'noopener';
-      // a.download = data.name || ''; // puedes probar, pero en export de Sheets no siempre respeta
+      a.download = data.name || 'informe.xlsx';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-
-      // C) Fallback con iframe oculto (evita pop‑up en algunos navegadores)
-      // const iframe = document.createElement('iframe');
-      // iframe.style.display = 'none';
-      // iframe.src = url;
-      // document.body.appendChild(iframe);
-      // setTimeout(()=> document.body.removeChild(iframe), 15000);
+      URL.revokeObjectURL(url);
+    } else if (data?.exportUrl) {
+      // Fallback (por si se mantiene exportUrl en algún flujo)
+      const url = data.exportUrl;
+      if (isMobile){
+        window.open(url, '_blank');
+      } else {
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = '_self';
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    } else {
+      Swal.fire({icon:'info',title:'Sin datos para descargar'});
     }
-  }catch(e){
-    Swal.fire({icon:'error',title:'Error',text:e.message});
-  }
-});
-leftGroup.appendChild(btnDescargar);
+
 
     // Ícono WhatsApp (grupo derecho)
     const btnWhatsapp = document.createElement('button');
@@ -1726,13 +1720,7 @@ async function cerrarProcesoPlanPago(documento, informe){
     sendBuilderbotMessage(grupoId, msgGrupo);
 
     // Actualizar estado en la hoja
-    await apiPost('cerrarPlanPagoSupervisor', {
-  documento,
-  informe,
-  supervisor,
-  correo: c.correo || '',
-  folderId: c.folderId || ''
-});
+    await apiPost('cerrarPlanPagoSupervisor', { documento, informe, supervisor });
 
     Swal.fire({icon:'success',title:'Proceso Cerrado',timer:1800,showConfirmButton:false});
     await cargarPlanesPagos();
