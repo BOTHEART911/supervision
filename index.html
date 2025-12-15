@@ -1083,58 +1083,60 @@ function pintarContratistas(list){
     // Botón grande: Descargar Informe (queda después de MOSTRAR DETALLES en el grupo izquierdo)
    const btnDescargar = document.createElement('button');
 btnDescargar.textContent = 'DESCARGAR INFORME';
-btnDescargar.addEventListener('click', async ()=> {
-  // Detectar móvil vs escritorio
-  const isMobile = /android|iphone|ipad|mobile/i.test(navigator.userAgent);
-  playSoundOnce(SOUNDS.info);
+    btnDescargar.addEventListener('click', async ()=> {
+      // Detectar móvil vs escritorio
+      const isMobile = /android|iphone|ipad|mobile/i.test(navigator.userAgent);
+      playSoundOnce(SOUNDS.info);
 
-  try{
-    const nombre = String(c.nombre || '').trim();
-    const contrato = String(c.contrato || '').trim();
+      try{
+        const nombre = String(c.nombre || '').trim();
+        const contrato = String(c.contrato || '').trim();
 
-    // IMPORTANTE: en PC intentamos no encadenar demasiadas esperas antes de abrir.
-    // 1) Pedimos la URL/archivo al backend
-    const data = await apiGet('descargarInformeContratista', {
-      documento: c.documento,
-      contrato: contrato,
-      nombre: nombre
-    });
+        // IMPORTANTE: en PC intentamos no encadenar demasiadas esperas antes de abrir.
+        // 1) Pedimos la URL/archivo al backend
+        const data = await apiGet('descargarInformeContratista', {
+          documento: c.documento,
+          contrato: contrato,
+          nombre: nombre
+        });
 
-    if (data?.base64) {
-      // Descargar desde el blob en memoria (no hay copia en Drive)
-      const byteChars = atob(data.base64);
-      const byteNumbers = new Uint8Array(byteChars.length);
-      for (let i = 0; i < byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
-      const blob = new Blob([byteNumbers], { type: data.mimeType || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = data.name || 'informe.xlsx';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } else if (data?.exportUrl) {
-      // Fallback (por si se mantiene exportUrl en algún flujo)
-      const url = data.exportUrl;
-      if (isMobile){
-        window.open(url, '_blank');
-      } else {
-        const a = document.createElement('a');
-        a.href = url;
-        a.target = '_self';
-        a.rel = 'noopener';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        if (data?.base64) {
+          // Descargar desde el blob en memoria (no hay copia en Drive)
+          const byteChars = atob(data.base64);
+          const byteNumbers = new Uint8Array(byteChars.length);
+          for (let i = 0; i < byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
+          const blob = new Blob([byteNumbers], { type: data.mimeType || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = data.name || 'informe.xlsx';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } else if (data?.exportUrl) {
+          // Fallback (por si se mantiene exportUrl en algún flujo)
+          const url = data.exportUrl;
+          if (isMobile){
+            window.open(url, '_blank');
+          } else {
+            const a = document.createElement('a');
+            a.href = url;
+            a.target = '_self';
+            a.rel = 'noopener';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }
+        } else {
+          Swal.fire({icon:'info',title:'Sin datos para descargar'});
+        }
+      }catch(e){
+        Swal.fire({icon:'error',title:'Error',text:e.message});
       }
-    } else {
-      Swal.fire({icon:'info',title:'Sin datos para descargar'});
-    }
-  }catch(e){
-    Swal.fire({icon:'error',title:'Error',text:e.message});
-  }
+    }); 
 
+    leftGroup.appendChild(btnDescargar);
 
     // Ícono WhatsApp (grupo derecho)
     const btnWhatsapp = document.createElement('button');
