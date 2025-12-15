@@ -1086,36 +1086,55 @@ div.appendChild(header);
    const btnDescargar = document.createElement('button');
 btnDescargar.textContent = 'DESCARGAR INFORME';
 btnDescargar.addEventListener('click', async ()=> {
+  // Detectar móvil vs escritorio
+  const isMobile = /android|iphone|ipad|mobile/i.test(navigator.userAgent);
   playSoundOnce(SOUNDS.info);
+
   try{
     const nombre = String(c.nombre || '').trim();
     const contrato = String(c.contrato || '').trim();
 
+    // IMPORTANTE: en PC intentamos no encadenar demasiadas esperas antes de abrir.
+    // 1) Pedimos la URL al backend
     const data = await apiGet('descargarInformeContratista', {
       documento: c.documento,
       contrato: contrato,
       nombre: nombre
     });
 
-    if(!data?.created || !data?.base64){
+    if(!data?.created || !data?.exportUrl){
       Swal.fire({icon:'info',title:'Sin datos para descargar'});
       return;
     }
 
-    const mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-    const byteChars = atob(data.base64);
-    const byteNums = new Array(byteChars.length);
-    for(let i=0; i<byteChars.length; i++){ byteNums[i] = byteChars.charCodeAt(i); }
-    const blob = new Blob([new Uint8Array(byteNums)], {type: mime});
-    const url = URL.createObjectURL(blob);
+    const url = data.exportUrl;
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = data.name || 'informe.xlsx';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    if (isMobile){
+      // En móvil funciona bien abrir en nueva pestaña
+      window.open(url, '_blank');
+    } else {
+      // En escritorio: tres estrategias seguras, elige la que prefieras:
+
+      // A) Navegar en la misma pestaña (menos bloqueo, descarga directa)
+      // location.href = url;
+
+      // B) Crear un <a> temporal y disparar click programático dentro del mismo gesto
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_self';           // misma pestaña ayuda a evitar bloqueo
+      a.rel = 'noopener';
+      // a.download = data.name || ''; // puedes probar, pero en export de Sheets no siempre respeta
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      // C) Fallback con iframe oculto (evita pop‑up en algunos navegadores)
+      // const iframe = document.createElement('iframe');
+      // iframe.style.display = 'none';
+      // iframe.src = url;
+      // document.body.appendChild(iframe);
+      // setTimeout(()=> document.body.removeChild(iframe), 15000);
+    }
   }catch(e){
     Swal.fire({icon:'error',title:'Error',text:e.message});
   }
