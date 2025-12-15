@@ -1726,7 +1726,13 @@ async function cerrarProcesoPlanPago(documento, informe){
     sendBuilderbotMessage(grupoId, msgGrupo);
 
     // Actualizar estado en la hoja
-    await apiPost('cerrarPlanPagoSupervisor', { documento, informe, supervisor });
+    await apiPost('cerrarPlanPagoSupervisor', {
+  documento,
+  informe,
+  supervisor,
+  correo: c.correo || '',
+  folderId: c.folderId || ''
+});
 
     Swal.fire({icon:'success',title:'Proceso Cerrado',timer:1800,showConfirmButton:false});
     await cargarPlanesPagos();
