@@ -1053,10 +1053,9 @@ function pintarContratistas(list){
   if(!list.length){ wrap.innerHTML='<p class="muted center">No hay contratistas.</p>'; return; }
   for(const c of list){
     const div=document.createElement('div'); div.className='item-card';
-        const header=document.createElement('div'); header.className='item-header';
+    const header=document.createElement('div'); header.className='item-header';
     const title=document.createElement('p'); title.className='item-title'; title.textContent=(c.nombre||'');
     header.appendChild(title);
-    div.appendChild(header); 
 
     const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC: '+(c.documento||''); div.appendChild(pDoc);
     const pSec=document.createElement('p'); pSec.className='item-sub'; pSec.textContent='SECRETARÍA: '+(c.secretaria||''); div.appendChild(pSec);
@@ -1084,60 +1083,61 @@ function pintarContratistas(list){
     // Botón grande: Descargar Informe (queda después de MOSTRAR DETALLES en el grupo izquierdo)
    const btnDescargar = document.createElement('button');
 btnDescargar.textContent = 'DESCARGAR INFORME';
-    btnDescargar.addEventListener('click', async ()=> {
-      // Detectar móvil vs escritorio
-      const isMobile = /android|iphone|ipad|mobile/i.test(navigator.userAgent);
-      playSoundOnce(SOUNDS.info);
+btnDescargar.addEventListener('click', async ()=> {
+  // Detectar móvil vs escritorio
+  const isMobile = /android|iphone|ipad|mobile/i.test(navigator.userAgent);
+  playSoundOnce(SOUNDS.info);
 
-      try{
-        const nombre = String(c.nombre || '').trim();
-        const contrato = String(c.contrato || '').trim();
+  try{
+    const nombre = String(c.nombre || '').trim();
+    const contrato = String(c.contrato || '').trim();
 
-        // IMPORTANTE: en PC intentamos no encadenar demasiadas esperas antes de abrir.
-        // 1) Pedimos la URL/archivo al backend
-        const data = await apiGet('descargarInformeContratista', {
-          documento: c.documento,
-          contrato: contrato,
-          nombre: nombre
-        });
+    // IMPORTANTE: en PC intentamos no encadenar demasiadas esperas antes de abrir.
+    // 1) Pedimos la URL al backend
+    const data = await apiGet('descargarInformeContratista', {
+      documento: c.documento,
+      contrato: contrato,
+      nombre: nombre
+    });
 
-        if (data?.base64) {
-          // Descargar desde el blob en memoria (no hay copia en Drive)
-          const byteChars = atob(data.base64);
-          const byteNumbers = new Uint8Array(byteChars.length);
-          for (let i = 0; i < byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
-          const blob = new Blob([byteNumbers], { type: data.mimeType || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = data.name || 'informe.xlsx';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        } else if (data?.exportUrl) {
-          // Fallback (por si se mantiene exportUrl en algún flujo)
-          const url = data.exportUrl;
-          if (isMobile){
-            window.open(url, '_blank');
-          } else {
-            const a = document.createElement('a');
-            a.href = url;
-            a.target = '_self';
-            a.rel = 'noopener';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-          }
-        } else {
-          Swal.fire({icon:'info',title:'Sin datos para descargar'});
-        }
-      }catch(e){
-        Swal.fire({icon:'error',title:'Error',text:e.message});
-      }
-    }); 
+    if(!data?.created || !data?.exportUrl){
+      Swal.fire({icon:'info',title:'Sin datos para descargar'});
+      return;
+    }
 
-    leftGroup.appendChild(btnDescargar);
+    const url = data.exportUrl;
+
+    if (isMobile){
+      // En móvil funciona bien abrir en nueva pestaña
+      window.open(url, '_blank');
+    } else {
+      // En escritorio: tres estrategias seguras, elige la que prefieras:
+
+      // A) Navegar en la misma pestaña (menos bloqueo, descarga directa)
+      // location.href = url;
+
+      // B) Crear un <a> temporal y disparar click programático dentro del mismo gesto
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_self';           // misma pestaña ayuda a evitar bloqueo
+      a.rel = 'noopener';
+      // a.download = data.name || ''; // puedes probar, pero en export de Sheets no siempre respeta
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      // C) Fallback con iframe oculto (evita pop‑up en algunos navegadores)
+      // const iframe = document.createElement('iframe');
+      // iframe.style.display = 'none';
+      // iframe.src = url;
+      // document.body.appendChild(iframe);
+      // setTimeout(()=> document.body.removeChild(iframe), 15000);
+    }
+  }catch(e){
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }
+});
+leftGroup.appendChild(btnDescargar);
 
     // Ícono WhatsApp (grupo derecho)
     const btnWhatsapp = document.createElement('button');
