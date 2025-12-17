@@ -2470,44 +2470,7 @@ function $id(base) {
 
   /* ================== CALENDARIO INSTITUCIONAL ================== */
 
-  let CAL_RESPONSABLES = [];
-
-async function cargarResponsablesCalendario(){
-  try{
-    const list = await apiGet('getResponsablesCalendario', {});
-    CAL_RESPONSABLES = Array.isArray(list) ? list : [];
-    const dl = document.getElementById('cal-dl-responsables');
-    if(!dl) return;
-    dl.innerHTML = '';
-    CAL_RESPONSABLES.forEach(r => {
-      const opt = document.createElement('option');
-      opt.value = r.nombre || '';
-      dl.appendChild(opt);
-    });
-  }catch(e){
-    console.warn('Error cargando responsables', e);
-  }
-}
-
-// Llamar a esta función cada vez que abras la vista REGISTRAR EVENTO
-// por ejemplo en la función que hace showView('view-calendario-form'):
-//   await cargarResponsablesCalendario();
-
-const inputNombreCal = document.getElementById('cal-nombre');
-const inputContactoCal = document.getElementById('cal-contacto');
-
-if(inputNombreCal){
-  inputNombreCal.addEventListener('change', ()=>{
-    const nombreSel = (inputNombreCal.value || '').trim();
-    const match = CAL_RESPONSABLES.find(r => (r.nombre || '').trim().toLowerCase() === nombreSel.toLowerCase());
-    if(match){
-      inputContactoCal.value = match.contacto || '';
-    }else{
-      inputContactoCal.value = '';
-    }
-  });
-}
-
+ 
 const CAL_API_ACTION_LIST = 'listEventosCalendario';
 const CAL_API_ACTION_SAVE = 'guardarEventoCalendario';
 const CAL_API_ACTION_GET  = 'getEventoCalendario';
