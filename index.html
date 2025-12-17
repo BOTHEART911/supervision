@@ -654,6 +654,43 @@
       </div>
     </section>
 
+    <!-- VISTA CALENDARIO INSTITUCIONAL -->
+<section id="view-calendario" class="view">
+  <div class="card">
+    <h2 style="color:var(--primary)">CALENDARIO INSTITUCIONAL</h2>
+
+    <div class="cal-header">
+      <button id="cal-today" class="chip">Hoy</button>
+      <div class="cal-nav">
+        <button id="cal-prev" class="chip">◀</button>
+        <span id="cal-month-label" class="chip"></span>
+        <button id="cal-next" class="chip">▶</button>
+      </div>
+      <div class="cal-view-switch">
+        <select id="cal-view-mode">
+          <option value="month">Mes</option>
+          <option value="week">Semana</option>
+          <option value="day">Día</option>
+          <option value="year">Año</option>
+        </select>
+      </div>
+      <div class="cal-search">
+        <button id="cal-search-toggle" class="chip">Filtrar</button>
+        <input id="cal-search-input" type="text" placeholder="Filtrar por nombre, secretaria, lugar, responsable" style="display:none;">
+      </div>
+    </div>
+
+    <div id="cal-grid" class="cal-grid">
+      <!-- aquí se dibuja el calendario desde JS -->
+    </div>
+
+    <div class="btn-row spaced" style="margin-top:16px;">
+      <button id="cal-btn-nuevo" class="btn-primary">Ingresar Evento</button>
+      <button id="cal-btn-volver" class="danger">Regresar</button>
+    </div>
+  </div>
+</section>
+
   </div>
 
 <script>
@@ -1895,63 +1932,109 @@ function calRender(){
   }
 }
 
-  document.getElementById('cal-today').addEventListener('click', ()=>{
-  calSetToday();
-  calRender();
-});
-document.getElementById('cal-prev').addEventListener('click', ()=>{
-  if(CAL_VIEW_MODE === 'year'){
-    CAL_CURRENT_DATE = new Date(2026, 0, 1);
-  }else if(CAL_VIEW_MODE === 'week' || CAL_VIEW_MODE === 'day'){
-    CAL_CURRENT_DATE = new Date(CAL_CURRENT_DATE.getFullYear(), CAL_CURRENT_DATE.getMonth(), CAL_CURRENT_DATE.getDate() - 7);
-  }else{
-    CAL_CURRENT_DATE = new Date(CAL_CURRENT_DATE.getFullYear(), CAL_CURRENT_DATE.getMonth() - 1, 1);
-  }
-  if(!calIsIn2026(CAL_CURRENT_DATE)){
-    CAL_CURRENT_DATE = new Date(2026, 0, 1);
-  }
-  calRender();
-});
-document.getElementById('cal-next').addEventListener('click', ()=>{
-  if(CAL_VIEW_MODE === 'year'){
-    CAL_CURRENT_DATE = new Date(2026, 11, 31);
-  }else if(CAL_VIEW_MODE === 'week' || CAL_VIEW_MODE === 'day'){
-    CAL_CURRENT_DATE = new Date(CAL_CURRENT_DATE.getFullYear(), CAL_CURRENT_DATE.getMonth(), CAL_CURRENT_DATE.getDate() + 7);
-  }else{
-    CAL_CURRENT_DATE = new Date(CAL_CURRENT_DATE.getFullYear(), CAL_CURRENT_DATE.getMonth() + 1, 1);
-  }
-  if(!calIsIn2026(CAL_CURRENT_DATE)){
-    CAL_CURRENT_DATE = new Date(2026, 11, 31);
-  }
-  calRender();
-});
+const calTodayBtn = document.getElementById('cal-today');
+if(calTodayBtn){
+  calTodayBtn.addEventListener('click', ()=>{
+    calSetToday();
+    calRender();
+  });
+}
 
-document.getElementById('cal-view-mode').addEventListener('change', (e)=>{
-  CAL_VIEW_MODE = e.target.value || 'month';
-  calRender();
-});
+  
+const calPrevBtn = document.getElementById('cal-prev');
+if(calPrevBtn){
+  calPrevBtn.addEventListener('click', ()=>{
+    if(CAL_VIEW_MODE === 'year'){
+      CAL_CURRENT_DATE = new Date(2026, 0, 1);
+    }else if(CAL_VIEW_MODE === 'week' || CAL_VIEW_MODE === 'day'){
+      CAL_CURRENT_DATE = new Date(
+        CAL_CURRENT_DATE.getFullYear(),
+        CAL_CURRENT_DATE.getMonth(),
+        CAL_CURRENT_DATE.getDate() - 7
+      );
+    }else{
+      CAL_CURRENT_DATE = new Date(
+        CAL_CURRENT_DATE.getFullYear(),
+        CAL_CURRENT_DATE.getMonth() - 1,
+        1
+      );
+    }
+    if(!calIsIn2026(CAL_CURRENT_DATE)){
+      CAL_CURRENT_DATE = new Date(2026, 0, 1);
+    }
+    calRender();
+  });
+}
 
-document.getElementById('cal-filter-toggle').addEventListener('click', ()=>{
-  const bar = document.getElementById('cal-filter-bar');
-  if(!bar) return;
-  const visible = bar.style.display !== 'none';
-  bar.style.display = visible ? 'none' : 'block';
-  if(!visible){
-    document.getElementById('cal-filter-input').focus();
-  }
-});
-document.getElementById('cal-filter-input').addEventListener('input', ()=>{
-  calRender();
-});
+  
+const calNextBtn = document.getElementById('cal-next');
+if(calNextBtn){
+  calNextBtn.addEventListener('click', ()=>{
+    if(CAL_VIEW_MODE === 'year'){
+      CAL_CURRENT_DATE = new Date(2026, 11, 31);
+    }else if(CAL_VIEW_MODE === 'week' || CAL_VIEW_MODE === 'day'){
+      CAL_CURRENT_DATE = new Date(
+        CAL_CURRENT_DATE.getFullYear(),
+        CAL_CURRENT_DATE.getMonth(),
+        CAL_CURRENT_DATE.getDate() + 7
+      );
+    }else{
+      CAL_CURRENT_DATE = new Date(
+        CAL_CURRENT_DATE.getFullYear(),
+        CAL_CURRENT_DATE.getMonth() + 1,
+        1
+      );
+    }
+    if(!calIsIn2026(CAL_CURRENT_DATE)){
+      CAL_CURRENT_DATE = new Date(2026, 11, 31);
+    }
+    calRender();
+  });
+}
 
-document.getElementById('cal-back').addEventListener('click', ()=>{
-  playSoundOnce(SOUNDS.back);
-  showView('view-inicio');
-});
+const calViewModeSel = document.getElementById('cal-view-mode');
+if(calViewModeSel){
+  calViewModeSel.addEventListener('change', (e)=>{
+    CAL_VIEW_MODE = e.target.value || 'month';
+    calRender();
+  });
+}
 
-document.getElementById('cal-new-event').addEventListener('click', ()=>{
-  calOpenCreate();
-});
+const calFilterToggleBtn = document.getElementById('cal-filter-toggle');
+if(calFilterToggleBtn){
+  calFilterToggleBtn.addEventListener('click', ()=>{
+    const bar = document.getElementById('cal-filter-bar');
+    if(!bar) return;
+    const visible = bar.style.display !== 'none';
+    bar.style.display = visible ? 'none' : 'block';
+    if(!visible){
+      const input = document.getElementById('cal-filter-input');
+      if(input) input.focus();
+    }
+  });
+}
+
+const calFilterInput = document.getElementById('cal-filter-input');
+if(calFilterInput){
+  calFilterInput.addEventListener('input', ()=>{
+    calRender();
+  });
+}
+
+const calBackBtn = document.getElementById('cal-back');
+if(calBackBtn){
+  calBackBtn.addEventListener('click', ()=>{
+    playSoundOnce(SOUNDS.back);
+    showView('view-inicio');
+  });
+}
+
+const calNewEventBtn = document.getElementById('cal-new-event');
+if(calNewEventBtn){
+  calNewEventBtn.addEventListener('click', ()=>{
+    calOpenCreate();
+  });
+}
 
   let CAL_FECHA_EVENTO_ISO = '';
 let CAL_FECHA_PUB_ISO = '';
