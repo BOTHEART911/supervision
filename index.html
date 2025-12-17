@@ -334,6 +334,264 @@
   from{ opacity:0; transform:translateY(12px); }
   to{ opacity:1; transform:translateY(0); }
 }
+
+    <!-- 2) ESTILOS PARA CALENDARIO Y FORMULARIO -->
+<!-- Inserta este bloque dentro de la etiqueta <style> del <head>, 
+     puede ser después de los estilos de .modal y antes del cierre de </style> -->
+
+  /* CALENDARIO INSTITUCIONAL */
+  .cal-wrapper{
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .cal-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+  }
+  .cal-title{
+    font-weight:800;
+    font-size:1.1rem;
+    color:var(--primary);
+  }
+  .cal-nav-group{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .cal-pill-btn{
+    border-radius:999px;
+    padding:8px 14px;
+    border:2px solid var(--primary);
+    background:#fff;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .cal-pill-btn.active{
+    background:var(--primary);
+    color:#fff;
+    border-color:var(--primary-2);
+  }
+  .cal-filter-wrap{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .cal-filter-input{
+    border-radius:999px;
+    padding:8px 12px;
+    border:1.5px solid #ccc;
+    min-width:220px;
+  }
+
+  .cal-grid{
+    margin-top:10px;
+    border-radius:16px;
+    background:rgba(255,255,255,.8);
+    border:2px solid #ddd;
+    overflow:hidden;
+  }
+  .cal-month-grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    border-top:1px solid #eee;
+  }
+  .cal-weekdays{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    background:#f7fafc;
+    border-bottom:1px solid #eee;
+  }
+  .cal-weekday,
+  .cal-day-header{
+    padding:6px 4px;
+    text-align:center;
+    font-size:.8rem;
+    font-weight:700;
+    color:#555;
+  }
+  .cal-day-cell{
+    min-height:86px;
+    border-right:1px solid #f1f1f1;
+    border-bottom:1px solid #f1f1f1;
+    padding:4px;
+    box-sizing:border-box;
+    position:relative;
+    background:#fff;
+  }
+  .cal-day-cell.other-month{
+    background:#f9fafb;
+  }
+  .cal-day-number{
+    font-size:.78rem;
+    font-weight:700;
+    color:#111;
+  }
+  .cal-day-number.today{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:22px;
+    height:22px;
+    border-radius:999px;
+    background:var(--primary);
+    color:#fff;
+  }
+  .cal-event-chip{
+    margin-top:3px;
+    padding:4px 6px;
+    border-radius:8px;
+    font-size:.75rem;
+    line-height:1.25;
+    cursor:pointer;
+    color:#111;
+    box-shadow:0 1px 3px rgba(0,0,0,.16);
+  }
+  .cal-event-chip .cal-evt-title{
+    font-weight:800;
+    display:block;
+  }
+  .cal-event-chip .cal-evt-time{
+    font-weight:600;
+    font-size:.7rem;
+  }
+  .cal-event-chip.programado{
+    background:#fed7aa;
+    border:1px solid #f97316;
+  }
+  .cal-event-chip.completado{
+    background:#bbf7d0;
+    border:1px solid #22c55e;
+  }
+
+  .cal-day-view,
+  .cal-week-view{
+    border-top:1px solid #eee;
+  }
+  .cal-day-header-row,
+  .cal-week-header-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:6px 10px;
+    background:#f7fafc;
+    border-bottom:1px solid #eee;
+    font-size:.85rem;
+    font-weight:700;
+  }
+  .cal-day-body,
+  .cal-week-body{
+    padding:8px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+
+  .cal-year-grid{
+    border-top:1px solid #eee;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:10px;
+    padding:10px;
+  }
+  .cal-year-month{
+    border-radius:12px;
+    background:#f9fafb;
+    padding:8px;
+    box-sizing:border-box;
+  }
+  .cal-year-month h4{
+    margin:0 0 4px;
+    font-size:.8rem;
+    text-align:center;
+    color:#111;
+  }
+  .cal-year-month table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:.7rem;
+    text-align:center;
+  }
+  .cal-year-month th{
+    font-weight:700;
+    color:#666;
+    padding:2px 0;
+  }
+  .cal-year-month td{
+    padding:2px 0;
+    color:#111;
+  }
+  .cal-year-dot{
+    width:6px;
+    height:6px;
+    border-radius:999px;
+    display:inline-block;
+    margin-left:2px;
+    background:#22c55e;
+  }
+
+  .cal-footer-actions{
+    margin-top:14px;
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+
+  /* FORMULARIO REGISTRAR EVENTO */
+  .cal-form-grid{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .cal-checklist{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .cal-check-item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:4px 8px;
+    border-radius:999px;
+    background:#f3f4f6;
+    font-size:.82rem;
+  }
+  .cal-check-item input[type="checkbox"]{
+    width:16px;
+    height:16px;
+  }
+
+  .picker-modal-cal{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:flex-start;
+    justify-content:center;
+    padding-top:32px;
+    background:rgba(0,0,0,.5);
+    z-index:9999;
+  }
+  .picker-modal-cal[aria-hidden="false"]{
+    display:flex;
+  }
+  .picker-box-cal{
+    width:90%;
+    max-width:520px;
+    background:#fff;
+    border-radius:8px;
+    padding:16px;
+    box-shadow:0 8px 18px rgba(0,0,0,.18);
+  }
+  .picker-grid-cal{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+    margin:12px 0;
+  }
   </style>
 </head>
 <body>
@@ -655,41 +913,201 @@
     </section>
 
     <!-- VISTA CALENDARIO INSTITUCIONAL -->
-<section id="view-calendario" class="view">
-  <div class="card">
-    <h2 style="color:var(--primary)">CALENDARIO INSTITUCIONAL</h2>
+    <section id="view-calendario" class="view">
+      <div class="card">
+        <div class="cal-wrapper">
+          <h2 style="color:var(--primary)">CALENDARIO INSTITUCIONAL</h2>
 
-    <div class="cal-header">
-      <button id="cal-today" class="chip">Hoy</button>
-      <div class="cal-nav">
-        <button id="cal-prev" class="chip">◀</button>
-        <span id="cal-month-label" class="chip"></span>
-        <button id="cal-next" class="chip">▶</button>
-      </div>
-      <div class="cal-view-switch">
-        <select id="cal-view-mode">
-          <option value="month">Mes</option>
-          <option value="week">Semana</option>
-          <option value="day">Día</option>
-          <option value="year">Año</option>
-        </select>
-      </div>
-      <div class="cal-search">
-        <button id="cal-search-toggle" class="chip">Filtrar</button>
-        <input id="cal-search-input" type="text" placeholder="Filtrar por nombre, secretaria, lugar, responsable" style="display:none;">
-      </div>
-    </div>
+          <div class="cal-header">
+            <div>
+              <div class="cal-title" id="cal-title-text">Mes actual</div>
+              <p class="muted" style="margin:2px 0 0;">Vista interactiva de eventos programados y completados</p>
+            </div>
+            <div class="cal-nav-group">
+              <button id="cal-btn-today" class="cal-pill-btn">Hoy</button>
+              <button id="cal-prev" class="cal-pill-btn" aria-label="Anterior">‹</button>
+              <button id="cal-next" class="cal-pill-btn" aria-label="Siguiente">›</button>
+            </div>
+            <div class="cal-filter-wrap">
+              <button id="cal-filter-toggle" class="cal-pill-btn">Filtrar</button>
+              <input id="cal-filter-input" class="cal-filter-input" type="text" placeholder="Filtrar por evento, secretaría o responsable" style="display:none;">
+            </div>
+            <div class="cal-nav-group">
+              <button id="cal-view-day" class="cal-pill-btn">Día</button>
+              <button id="cal-view-week" class="cal-pill-btn">Semana</button>
+              <button id="cal-view-month" class="cal-pill-btn active">Mes</button>
+              <button id="cal-view-year" class="cal-pill-btn">Año</button>
+            </div>
+          </div>
 
-    <div id="cal-grid" class="cal-grid">
-      <!-- aquí se dibuja el calendario desde JS -->
-    </div>
+          <div id="cal-container" class="cal-grid">
+            <!-- El contenido del calendario se construye desde JS -->
+            <div style="padding:14px; text-align:center; font-size:.9rem;" class="muted">
+              Cargando calendario…
+            </div>
+          </div>
 
-    <div class="btn-row spaced" style="margin-top:16px;">
-      <button id="cal-btn-nuevo" class="btn-primary">Ingresar Evento</button>
-      <button id="cal-btn-volver" class="danger">Regresar</button>
-    </div>
-  </div>
-</section>
+          <div class="cal-footer-actions">
+            <button id="cal-btn-new" class="btn-primary">Ingresar Evento</button>
+            <button id="cal-btn-back" class="danger">Regresar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VISTA REGISTRAR / EDITAR EVENTO -->
+    <section id="view-evento" class="view">
+      <div class="card narrow">
+        <h2 id="evento-title" style="color:var(--primary)">REGISTRAR EVENTO</h2>
+        <div class="cal-form-grid">
+
+          <label for="nombreEvento">Nombre del Evento</label>
+          <textarea id="nombreEvento" rows="2" placeholder="Título descriptivo del evento"></textarea>
+
+          <label>Fecha del Evento</label>
+          <input
+            id="fechaEvento"
+            type="text"
+            placeholder="dd/mm/aaaa"
+            readonly
+          />
+
+          <label for="horaInicio">Hora de Inicio</label>
+          <input id="horaInicio" type="time">
+
+          <label for="horaTerminacion">Hora de Terminación</label>
+          <input id="horaTerminacion" type="time">
+
+          <label for="secretaria">Secretaría</label>
+          <select id="secretaria">
+            <option value="" disabled selected>Selecciona secretaría</option>
+            <option value="DESPACHO MUNICIPAL">DESPACHO MUNICIPAL</option>
+            <option value="SECRETARÍA DE GOBIERNO Y SERVICIOS ADMINISTRATIVOS">SECRETARÍA DE GOBIERNO Y SERVICIOS ADMINISTRATIVOS</option>
+            <option value="SECRETARÍA DE HACIENDA">SECRETARÍA DE HACIENDA</option>
+            <option value="SECRETARÍA DE EDUCACIÓN, DESARROLLO ECONÓMICO Y SOCIAL">SECRETARÍA DE EDUCACIÓN, DESARROLLO ECONÓMICO Y SOCIAL</option>
+            <option value="SECRETARÍA DE PLANEACIÓN E INFRAESTRUCTURA">SECRETARÍA DE PLANEACIÓN E INFRAESTRUCTURA</option>
+            <option value="SECRETARÍA DE ASUNTOS AGROPECUARIOS">SECRETARÍA DE ASUNTOS AGROPECUARIOS</option>
+            <option value="SECRETARÍA DE SALUD">SECRETARÍA DE SALUD</option>
+          </select>
+
+          <label>Requerimientos</label>
+          <div id="requerimientos" class="cal-checklist">
+            <label class="cal-check-item">
+              <input type="checkbox" value="Cubrimiento Fotográfico">
+              <span>Cubrimiento Fotográfico</span>
+            </label>
+            <label class="cal-check-item">
+              <input type="checkbox" value="Cubrimiento Video">
+              <span>Cubrimiento Video</span>
+            </label>
+            <label class="cal-check-item">
+              <input type="checkbox" value="Diseño Pieza Publicitaria">
+              <span>Diseño Pieza Publicitaria</span>
+            </label>
+            <label class="cal-check-item">
+              <input type="checkbox" value="Perifoneo">
+              <span>Perifoneo</span>
+            </label>
+            <label class="cal-check-item">
+              <input type="checkbox" value="Apoyo Publicitario">
+              <span>Apoyo Publicitario</span>
+            </label>
+            <label class="cal-check-item">
+              <input type="checkbox" value="Producción Multimedia">
+              <span>Producción Multimedia</span>
+            </label>
+            <label class="cal-check-item">
+              <input type="checkbox" value="Publicación Página Web">
+              <span>Publicación Página Web</span>
+            </label>
+          </div>
+
+          <label for="otros">Otros</label>
+          <textarea id="otros" rows="2" placeholder="Requerimientos adicionales (opcional)"></textarea>
+
+          <label for="lugar">Lugar del Evento</label>
+          <textarea id="lugar" rows="2" placeholder="Lugar o puntos de encuentro (opcional)"></textarea>
+
+          <label for="detalles">Detalles del Evento o Requerimiento</label>
+          <textarea id="detalles" rows="6" placeholder="Describe el objetivo, participantes, logística u otra información relevante (opcional)"></textarea>
+
+          <label>Fecha de Publicación</label>
+          <input
+            id="publicacion"
+            type="text"
+            placeholder="dd/mm/aaaa"
+            readonly
+          />
+
+          <label for="nombre">Responsable</label>
+          <input id="nombre" type="text" list="dl-responsables" placeholder="Escribe y selecciona">
+          <datalist id="dl-responsables"></datalist>
+
+          <label for="contacto">Contacto (automático)</label>
+          <input id="contacto" type="text" readonly>
+
+          <label for="cargo">Cargo del Responsable</label>
+          <textarea id="cargo" rows="2" placeholder="Escribe el cargo del Responsable (opcional)"></textarea>
+
+          <input id="evento-codigo" type="hidden">
+        </div>
+
+        <div class="btn-row spaced" style="margin-top:14px;">
+          <button id="evento-guardar" class="btn-primary">Guardar Evento</button>
+          <button id="evento-volver" class="danger">Regresar</button>
+        </div>
+      </div>
+
+      <!-- Modal Fecha Evento (parte superior) -->
+      <div id="eventoFechaModal" class="picker-modal-cal" aria-hidden="true">
+        <div class="picker-box-cal">
+          <h3 style="margin:0 0 8px 0;">Selecciona la Fecha del Evento</h3>
+          <div class="picker-grid-cal">
+            <div>
+              <small>Día</small>
+              <select id="evtDia" size="10"></select>
+            </div>
+            <div>
+              <small>Mes</small>
+              <select id="evtMes" size="12"></select>
+            </div>
+            <div>
+              <small>Año</small>
+              <select id="evtAnio" size="10"></select>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; justify-content:flex-end;">
+            <button type="button" class="btn" id="evtFechaCancelar">Cancelar</button>
+            <button type="button" class="btn-primary" id="evtFechaOk">Ok</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Fecha Publicación (parte inferior) -->
+      <div id="publicacionFechaModal" class="picker-modal-cal" aria-hidden="true">
+        <div class="picker-box-cal">
+          <h3 style="margin:0 0 8px 0;">Selecciona la Fecha de Publicación</h3>
+          <div class="picker-grid-cal">
+            <div>
+              <small>Día</small>
+              <select id="pubDia" size="10"></select>
+            </div>
+            <div>
+              <small>Mes</small>
+              <select id="pubMes" size="12"></select>
+            </div>
+            <div>
+              <small>Año</small>
+              <select id="pubAnio" size="10"></select>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; justify-content:flex-end;">
+            <button type="button" class="btn" id="pubFechaCancelar">Cancelar</button>
+            <button type="button" class="btn-primary" id="pubFechaOk">Ok</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
   </div>
 
@@ -955,7 +1373,7 @@ document.getElementById('ovlClose').addEventListener('click', ()=>{
 
 /* Sonido 'logout' al seleccionar cualquiera de las opciones del overlay.
    Ubicar este bucle inmediatamente después de los listeners anteriores. */
-['go-actualizar','go-contratistas','go-revision','go-planes-pagos','go-requerimientos','go-comunicados','go-actualizar','go-soporte','go-calendario']
+['go-actualizar','go-contratistas','go-revision','go-planes-pagos','go-requerimientos','go-comunicados','go-soporte']
   .forEach(id => {
     const el = document.getElementById(id);
     if(el){
@@ -966,13 +1384,6 @@ document.getElementById('ovlClose').addEventListener('click', ()=>{
       });
     }
   });
-
-  document.getElementById('go-calendario').addEventListener('click', async ()=>{
-  calSetToday();
-  await calLoadEvents();
-  calRender();
-  showView('view-calendario');
-});
 
 /* ================== COMPLETAR REGISTRO ================== */
 // Previsualización simple (si compresión falla, usa original)
@@ -1783,540 +2194,6 @@ async function cerrarProcesoPlanPago(documento, informe){
   }
 }
 
-  /* ================== CALENDARIO INSTITUCIONAL ================== */
-
-let CAL_EVENTS = [];
-let CAL_CURRENT_DATE = new Date(2026, 0, 1);
-let CAL_VIEW_MODE = 'month';
-let CAL_EDITING_CODE = '';
-
-function calPad2(n){
-  return String(n).padStart(2,'0');
-}
-function calFormatDMY(date){
-  const d = calPad2(date.getDate());
-  const m = calPad2(date.getMonth() + 1);
-  const y = date.getFullYear();
-  return d + '/' + m + '/' + y;
-}
-function calParseDMY(str){
-  const parts = String(str || '').split('/');
-  if(parts.length !== 3) return null;
-  const d = parseInt(parts[0], 10);
-  const m = parseInt(parts[1], 10) - 1;
-  const y = parseInt(parts[2], 10);
-  if(!d || isNaN(d) || isNaN(m) || isNaN(y)) return null;
-  return new Date(y, m, d);
-}
-function calTimeToDisplay(hhmm){
-  const parts = String(hhmm || '').split(':');
-  if(parts.length < 2) return hhmm || '';
-  let h = parseInt(parts[0], 10);
-  let m = parseInt(parts[1], 10);
-  if(isNaN(h) || isNaN(m)) return hhmm || '';
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  let h12 = h % 12;
-  if(h12 === 0) h12 = 12;
-  const mm = calPad2(m);
-  return h12 + ':' + mm + ' ' + ampm;
-}
-function calTimeToCalendarParts(hhmm){
-  const parts = String(hhmm || '').split(':');
-  if(parts.length < 2) return { h: 0, m: 0 };
-  const h = parseInt(parts[0], 10) || 0;
-  const m = parseInt(parts[1], 10) || 0;
-  return { h, m };
-}
-function calSameDay(d1, d2){
-  return d1.getFullYear() === d2.getFullYear() &&
-         d1.getMonth() === d2.getMonth() &&
-         d1.getDate() === d2.getDate();
-}
-function calIsIn2026(date){
-  return date.getFullYear() === 2026;
-}
-
-  async function calLoadEvents(){
-  try{
-    const data = await apiGet('listCalendario', {});
-    CAL_EVENTS = Array.isArray(data) ? data : [];
-  }catch(e){
-    CAL_EVENTS = [];
-    Swal.fire({icon:'error',title:'Error',text:String(e.message||e)});
-  }
-}
-function calSetToday(){
-  const now = new Date();
-  if(now.getFullYear() !== 2026){
-    CAL_CURRENT_DATE = new Date(2026, now.getMonth(), now.getDate());
-  }else{
-    CAL_CURRENT_DATE = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  }
-}
-
-  function calGetFilteredEvents(){
-  const q = (document.getElementById('cal-filter-input')?.value || '').trim().toLowerCase();
-  if(!q) return CAL_EVENTS.slice();
-  return CAL_EVENTS.filter(ev=>{
-    return [
-      ev.nombreEvento,
-      ev.secretaria,
-      ev.lugar,
-      ev.nombre,
-      ev.cargo
-    ].some(v=>String(v || '').toLowerCase().includes(q));
-  });
-}
-
-function calBuildEventBlock(ev){
-  const state = String(ev.estado || '').toUpperCase();
-  const color = state === 'COMPLETADO' ? '#bbf7d0' : '#fed7aa';
-  const borderColor = state === 'COMPLETADO' ? '#16a34a' : '#f97316';
-
-  const div = document.createElement('div');
-  div.className = 'cal-event-block';
-  div.style.background = color;
-  div.style.border = '1.5px solid ' + borderColor;
-  div.style.borderRadius = '10px';
-  div.style.padding = '4px 6px';
-  div.style.marginBottom = '4px';
-  div.style.cursor = 'pointer';
-  div.style.fontSize = '.82rem';
-  div.style.boxShadow = '0 2px 4px rgba(0,0,0,.12)';
-  div.dataset.codigo = ev.codigo;
-
-  const title = document.createElement('div');
-  title.style.fontWeight = '800';
-  title.style.color = '#111';
-  title.textContent = ev.secretaria || '';
-
-  const times = document.createElement('div');
-  times.style.fontWeight = '600';
-  times.style.color = '#222';
-  times.textContent = (ev.horaInicioDisplay || '') + ' - ' + (ev.horaTerminacionDisplay || '');
-
-  div.appendChild(title);
-  div.appendChild(times);
-
-  div.addEventListener('click', ()=> calOpenEdit(ev.codigo));
-
-  return div;
-}
-
-function calRender(){
-  const grid = document.getElementById('cal-grid');
-  if(!grid) return;
-  const label = document.getElementById('cal-current-label');
-
-  const events = calGetFilteredEvents().map(ev=>{
-    const d = calParseDMY(ev.fechaEvento);
-    const hi = calTimeToDisplay(ev.horaInicio);
-    const hf = calTimeToDisplay(ev.horaTerminacion);
-    return Object.assign({}, ev, {
-      fechaObj: d,
-      horaInicioDisplay: hi,
-      horaTerminacionDisplay: hf
-    });
-  }).filter(ev=>ev.fechaObj && calIsIn2026(ev.fechaObj));
-
-  const mode = CAL_VIEW_MODE;
-
-  if(mode === 'year'){
-    calRenderYear(grid, label, events);
-  }else if(mode === 'week'){
-    calRenderWeek(grid, label, events);
-  }else if(mode === 'day'){
-    calRenderDay(grid, label, events);
-  }else{
-    calRenderMonth(grid, label, events);
-  }
-}
-
-const calTodayBtn = document.getElementById('cal-today');
-if(calTodayBtn){
-  calTodayBtn.addEventListener('click', ()=>{
-    calSetToday();
-    calRender();
-  });
-}
-
-  
-const calPrevBtn = document.getElementById('cal-prev');
-if(calPrevBtn){
-  calPrevBtn.addEventListener('click', ()=>{
-    if(CAL_VIEW_MODE === 'year'){
-      CAL_CURRENT_DATE = new Date(2026, 0, 1);
-    }else if(CAL_VIEW_MODE === 'week' || CAL_VIEW_MODE === 'day'){
-      CAL_CURRENT_DATE = new Date(
-        CAL_CURRENT_DATE.getFullYear(),
-        CAL_CURRENT_DATE.getMonth(),
-        CAL_CURRENT_DATE.getDate() - 7
-      );
-    }else{
-      CAL_CURRENT_DATE = new Date(
-        CAL_CURRENT_DATE.getFullYear(),
-        CAL_CURRENT_DATE.getMonth() - 1,
-        1
-      );
-    }
-    if(!calIsIn2026(CAL_CURRENT_DATE)){
-      CAL_CURRENT_DATE = new Date(2026, 0, 1);
-    }
-    calRender();
-  });
-}
-
-  
-const calNextBtn = document.getElementById('cal-next');
-if(calNextBtn){
-  calNextBtn.addEventListener('click', ()=>{
-    if(CAL_VIEW_MODE === 'year'){
-      CAL_CURRENT_DATE = new Date(2026, 11, 31);
-    }else if(CAL_VIEW_MODE === 'week' || CAL_VIEW_MODE === 'day'){
-      CAL_CURRENT_DATE = new Date(
-        CAL_CURRENT_DATE.getFullYear(),
-        CAL_CURRENT_DATE.getMonth(),
-        CAL_CURRENT_DATE.getDate() + 7
-      );
-    }else{
-      CAL_CURRENT_DATE = new Date(
-        CAL_CURRENT_DATE.getFullYear(),
-        CAL_CURRENT_DATE.getMonth() + 1,
-        1
-      );
-    }
-    if(!calIsIn2026(CAL_CURRENT_DATE)){
-      CAL_CURRENT_DATE = new Date(2026, 11, 31);
-    }
-    calRender();
-  });
-}
-
-const calViewModeSel = document.getElementById('cal-view-mode');
-if(calViewModeSel){
-  calViewModeSel.addEventListener('change', (e)=>{
-    CAL_VIEW_MODE = e.target.value || 'month';
-    calRender();
-  });
-}
-
-const calFilterToggleBtn = document.getElementById('cal-filter-toggle');
-if(calFilterToggleBtn){
-  calFilterToggleBtn.addEventListener('click', ()=>{
-    const bar = document.getElementById('cal-filter-bar');
-    if(!bar) return;
-    const visible = bar.style.display !== 'none';
-    bar.style.display = visible ? 'none' : 'block';
-    if(!visible){
-      const input = document.getElementById('cal-filter-input');
-      if(input) input.focus();
-    }
-  });
-}
-
-const calFilterInput = document.getElementById('cal-filter-input');
-if(calFilterInput){
-  calFilterInput.addEventListener('input', ()=>{
-    calRender();
-  });
-}
-
-const calBackBtn = document.getElementById('cal-back');
-if(calBackBtn){
-  calBackBtn.addEventListener('click', ()=>{
-    playSoundOnce(SOUNDS.back);
-    showView('view-inicio');
-  });
-}
-
-const calNewEventBtn = document.getElementById('cal-new-event');
-if(calNewEventBtn){
-  calNewEventBtn.addEventListener('click', ()=>{
-    calOpenCreate();
-  });
-}
-
-  let CAL_FECHA_EVENTO_ISO = '';
-let CAL_FECHA_PUB_ISO = '';
-
-function calInitDatePickerSelects(dId, mId){
-  const dSel = document.getElementById(dId);
-  const mSel = document.getElementById(mId);
-  if(dSel && !dSel.childElementCount){
-    for(let d=1; d<=31; d++){
-      const opt = document.createElement('option');
-      opt.value = calPad2(d);
-      opt.textContent = opt.value;
-      dSel.appendChild(opt);
-    }
-  }
-  if(mSel && !mSel.childElementCount){
-    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-    for(let i=0;i<12;i++){
-      const opt = document.createElement('option');
-      opt.value = calPad2(i + 1);
-      opt.textContent = meses[i];
-      mSel.appendChild(opt);
-    }
-  }
-}
-
-calInitDatePickerSelects('calFEvDia','calFEvMes');
-calInitDatePickerSelects('calFPubDia','calFPubMes');
-
-document.getElementById('fechaEvento').addEventListener('click', ()=>{
-  const m = document.getElementById('calFechaEventoModal');
-  if(m){
-    m.style.display = 'flex';
-    m.setAttribute('aria-hidden','false');
-  }
-});
-document.getElementById('calFEvCancel').addEventListener('click', ()=>{
-  const m = document.getElementById('calFechaEventoModal');
-  if(m){
-    m.style.display = 'none';
-    m.setAttribute('aria-hidden','true');
-  }
-});
-document.getElementById('calFEvOk').addEventListener('click', ()=>{
-  const dia = document.getElementById('calFEvDia')?.value || '01';
-  const mes = document.getElementById('calFEvMes')?.value || '01';
-  const anio = '2026';
-  const val = dia + '/' + mes + '/' + anio;
-  CAL_FECHA_EVENTO_ISO = val;
-  document.getElementById('fechaEvento').value = val;
-  const m = document.getElementById('calFechaEventoModal');
-  if(m){
-    m.style.display = 'none';
-    m.setAttribute('aria-hidden','true');
-  }
-});
-
-document.getElementById('publicacion').addEventListener('click', ()=>{
-  const m = document.getElementById('calFechaPubModal');
-  if(m){
-    m.style.display = 'flex';
-    m.setAttribute('aria-hidden','false');
-  }
-});
-document.getElementById('calFPubCancel').addEventListener('click', ()=>{
-  const m = document.getElementById('calFechaPubModal');
-  if(m){
-    m.style.display = 'none';
-    m.setAttribute('aria-hidden','true');
-  }
-});
-document.getElementById('calFPubOk').addEventListener('click', ()=>{
-  const dia = document.getElementById('calFPubDia')?.value || '01';
-  const mes = document.getElementById('calFPubMes')?.value || '01';
-  const anio = '2026';
-  const val = dia + '/' + mes + '/' + anio;
-  CAL_FECHA_PUB_ISO = val;
-  document.getElementById('publicacion').value = val;
-  const m = document.getElementById('calFechaPubModal');
-  if(m){
-    m.style.display = 'none';
-    m.setAttribute('aria-hidden','true');
-  }
-});
-
-  async function calSearchResponsables(query){
-  try{
-    const data = await apiGet('searchContratistasByNombre', { q: query });
-    return Array.isArray(data) ? data : [];
-  }catch(_){
-    return [];
-  }
-}
-
-(function bindCalNombreQuery(){
-  const input = document.getElementById('nombre');
-  const list = document.getElementById('cal-nombre-list');
-  if(!input || !list) return;
-
-  let t = null;
-  let cache = new Map();
-
-  input.addEventListener('input', ()=>{
-    const q = input.value.trim();
-    list.innerHTML = '';
-    document.getElementById('contacto').value = '';
-    if(!q){
-      return;
-    }
-    if(t) clearTimeout(t);
-    t = setTimeout(async ()=>{
-      if(cache.has(q)){
-        const arr = cache.get(q);
-        arr.forEach(item=>{
-          const opt = document.createElement('option');
-          opt.value = item.nombre;
-          opt.dataset.documento = item.documento;
-          opt.dataset.telefono = item.telefono;
-          list.appendChild(opt);
-        });
-        return;
-      }
-      const res = await calSearchResponsables(q);
-      cache.set(q, res);
-      res.forEach(item=>{
-        const opt = document.createElement('option');
-        opt.value = item.nombre;
-        opt.dataset.documento = item.documento;
-        opt.dataset.telefono = item.telefono;
-        list.appendChild(opt);
-      });
-    }, 200);
-  });
-
-  input.addEventListener('change', ()=>{
-    const val = input.value.trim();
-    if(!val){
-      document.getElementById('contacto').value = '';
-      return;
-    }
-    const options = list.options;
-    for(let i=0;i<options.length;i++){
-      if(String(options[i].value).trim() === val){
-        const tel = options[i].dataset.telefono || '';
-        document.getElementById('contacto').value = tel;
-        break;
-      }
-    }
-  });
-})();
-
-  function calResetForm(){
-  CAL_EDITING_CODE = '';
-  CAL_FECHA_EVENTO_ISO = '';
-  CAL_FECHA_PUB_ISO = '';
-  document.getElementById('cal-form-title').textContent = 'REGISTRAR EVENTO';
-  document.getElementById('nombreEvento').value = '';
-  document.getElementById('fechaEvento').value = '';
-  document.getElementById('horaInicio').value = '';
-  document.getElementById('horaTerminacion').value = '';
-  document.getElementById('secretaria').value = '';
-  document.querySelectorAll('#requerimientos input[type="checkbox"]').forEach(ch=>{ ch.checked = false; });
-  document.getElementById('otros').value = '';
-  document.getElementById('lugar').value = '';
-  document.getElementById('detalles').value = '';
-  document.getElementById('publicacion').value = '';
-  document.getElementById('nombre').value = '';
-  document.getElementById('contacto').value = '';
-  document.getElementById('cargo').value = '';
-}
-
-function calOpenCreate(){
-  calResetForm();
-  showView('view-calendario-form');
-}
-
-async function calOpenEdit(codigo){
-  try{
-    const data = await apiGet('getCalendarioEvento', { codigo });
-    if(!data){
-      Swal.fire({icon:'info',title:'No encontrado'});
-      return;
-    }
-    CAL_EDITING_CODE = data.codigo || '';
-    document.getElementById('cal-form-title').textContent = 'EDITAR EVENTO';
-
-    document.getElementById('nombreEvento').value = data.nombreEvento || '';
-    document.getElementById('fechaEvento').value = data.fechaEvento || '';
-    document.getElementById('horaInicio').value = data.horaInicio || '';
-    document.getElementById('horaTerminacion').value = data.horaTerminacion || '';
-    document.getElementById('secretaria').value = data.secretaria || '';
-    CAL_FECHA_EVENTO_ISO = data.fechaEvento || '';
-    CAL_FECHA_PUB_ISO = data.publicacion || '';
-
-    document.querySelectorAll('#requerimientos input[type="checkbox"]').forEach(ch=>{
-      ch.checked = false;
-    });
-    if(data.requerimientos){
-      const lines = String(data.requerimientos).split('\n').map(s=>s.replace(/^•\s*/,'').trim()).filter(Boolean);
-      document.querySelectorAll('#requerimientos input[type="checkbox"]').forEach(ch=>{
-        if(lines.includes(ch.value)) ch.checked = true;
-      });
-    }
-    document.getElementById('otros').value = data.otros || '';
-    document.getElementById('lugar').value = data.lugar || '';
-    document.getElementById('detalles').value = data.detalles || '';
-    document.getElementById('publicacion').value = data.publicacion || '';
-    document.getElementById('nombre').value = data.nombre || '';
-    document.getElementById('contacto').value = data.contacto || '';
-    document.getElementById('cargo').value = data.cargo || '';
-
-    showView('view-calendario-form');
-  }catch(e){
-    Swal.fire({icon:'error',title:'Error',text:String(e.message||e)});
-  }
-}
-
-document.getElementById('cal-form-cancel').addEventListener('click', ()=>{
-  playSoundOnce(SOUNDS.back);
-  showView('view-calendario');
-});
-
-document.getElementById('cal-form-save').addEventListener('click', async ()=>{
-  const nombreEvento = (document.getElementById('nombreEvento').value || '').trim();
-  const fechaEvento = (document.getElementById('fechaEvento').value || '').trim();
-  const horaInicio = (document.getElementById('horaInicio').value || '').trim();
-  const horaTerminacion = (document.getElementById('horaTerminacion').value || '').trim();
-  const secretaria = document.getElementById('secretaria').value || '';
-
-  if(!nombreEvento || !fechaEvento || !horaInicio || !horaTerminacion || !secretaria){
-    Swal.fire({icon:'warning',title:'Campos requeridos',text:'Nombre del Evento, Fecha, Hora de Inicio, Hora de Terminación y Secretaría son obligatorios.'});
-    return;
-  }
-
-  const reqLines = [];
-  document.querySelectorAll('#requerimientos input[type="checkbox"]').forEach(ch=>{
-    if(ch.checked){
-      reqLines.push('• ' + ch.value);
-    }
-  });
-  const requerimientos = reqLines.join('\n');
-
-  const otros = (document.getElementById('otros').value || '').trim();
-  const lugar = (document.getElementById('lugar').value || '').trim();
-  const detalles = (document.getElementById('detalles').value || '').trim();
-  const publicacion = (document.getElementById('publicacion').value || '').trim();
-  const nombre = (document.getElementById('nombre').value || '').trim();
-  const contacto = (document.getElementById('contacto').value || '').trim();
-  const cargo = (document.getElementById('cargo').value || '').trim();
-
-  const body = {
-    codigo: CAL_EDITING_CODE || '',
-    nombreEvento,
-    fechaEvento,
-    horaInicio,
-    horaTerminacion,
-    detalles,
-    requerimientos,
-    otros,
-    lugar,
-    publicacion,
-    nombre,
-    contacto,
-    secretaria,
-    cargo
-  };
-
-  try{
-    const res = await apiPost('saveCalendarioEvento', body);
-    if(!res || !res.success){
-      Swal.fire({icon:'error',title:'Error al guardar',text:res && res.message ? res.message : 'Error desconocido'});
-      return;
-    }
-    await calLoadEvents();
-    calRender();
-    Swal.fire({icon:'success',title:'Evento guardado',timer:1800,showConfirmButton:false});
-    showView('view-calendario');
-  }catch(e){
-    Swal.fire({icon:'error',title:'Error',text:String(e.message||e)});
-  }
-});
-
 /* ================== REQUERIMIENTOS ================== */
 let REQ_DATA=[];
 document.getElementById('go-requerimientos').addEventListener('click', async ()=>{
@@ -2589,6 +2466,859 @@ window.addEventListener('load', initPWAVista);
 function $id(base) {
   return document.getElementById('add-' + base) || document.getElementById(base);
 }
+
+  /* ================== CALENDARIO INSTITUCIONAL ================== */
+
+const CAL_API_ACTION_LIST = 'listEventosCalendario';
+const CAL_API_ACTION_SAVE = 'guardarEventoCalendario';
+const CAL_API_ACTION_GET  = 'getEventoCalendario';
+
+let CAL_EVENTS = [];
+let CAL_CURRENT_VIEW = 'month';
+let CAL_CURRENT_DATE = new Date();
+let CAL_SELECTED_EVENT = null;
+
+const CAL_MONTHS_SHORT = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+const CAL_WEEKDAYS_SHORT = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+
+function calPad2(n){
+  return String(n).padStart(2,'0');
+}
+function calFormatDMY(d){
+  if(!d) return '';
+  const dd = calPad2(d.getDate());
+  const mm = calPad2(d.getMonth()+1);
+  const yy = d.getFullYear();
+  return dd + '/' + mm + '/' + yy;
+}
+function calParseDMY(str){
+  if(!str) return null;
+  const p = String(str).split('/');
+  if(p.length !== 3) return null;
+  const d = parseInt(p[0],10);
+  const m = parseInt(p[1],10);
+  const y = parseInt(p[2],10);
+  if(!d || !m || !y) return null;
+  const dt = new Date(y,m-1,d);
+  if(isNaN(dt.getTime())) return null;
+  return dt;
+}
+function calMinutesFromTimeStr(str){
+  if(!str) return 0;
+  const p = String(str).split(':');
+  const h = parseInt(p[0]||'0',10);
+  const m = parseInt(p[1]||'0',10);
+  if(isNaN(h) || isNaN(m)) return 0;
+  return h*60 + m;
+}
+function calHMFromAmPm(str){
+  if(!str) return {h:0,m:0};
+  const s = String(str).trim().toUpperCase();
+  const parts = s.split(' ');
+  const hm = (parts[0]||'').split(':');
+  let h = parseInt(hm[0]||'0',10);
+  const m = parseInt(hm[1]||'0',10);
+  const ampm = parts[1] || 'AM';
+  if(ampm === 'PM' && h < 12) h += 12;
+  if(ampm === 'AM' && h === 12) h = 0;
+  return {h:isNaN(h)?0:h, m:isNaN(m)?0:m};
+}
+function calAmPmFromHM(h,m){
+  let hh = h;
+  let sufijo = 'AM';
+  if(h >= 12){
+    sufijo = 'PM';
+    if(h > 12) hh = h - 12;
+  }
+  if(h === 0){ hh = 12; sufijo = 'AM'; }
+  return calPad2(hh) + ':' + calPad2(m) + ' ' + sufijo;
+}
+
+function calStatusColorClass(estado){
+  const v = String(estado||'').trim().toUpperCase();
+  if(v === 'COMPLETADO') return 'cal-event-chip completado';
+  return 'cal-event-chip programado';
+}
+function calEventMatchesFilter(ev, query){
+  if(!query) return true;
+  const q = query.toLowerCase();
+  return [
+    ev.nombreEvento,
+    ev.secretaria,
+    ev.nombre,
+    ev.lugar,
+    ev.detalles
+  ].some(v => String(v||'').toLowerCase().includes(q));
+}
+
+function calUpdateTitle(){
+  const titleEl = document.getElementById('cal-title-text');
+  if(!titleEl) return;
+  if(CAL_CURRENT_VIEW === 'year'){
+    titleEl.textContent = CAL_CURRENT_DATE.getFullYear();
+    return;
+  }
+  if(CAL_CURRENT_VIEW === 'week'){
+    const start = calStartOfWeek(CAL_CURRENT_DATE);
+    const end = calEndOfWeek(CAL_CURRENT_DATE);
+    const label = CAL_MONTHS_SHORT[start.getMonth()] + ' ' + start.getDate() +
+      ' – ' + CAL_MONTHS_SHORT[end.getMonth()] + ' ' + end.getDate() +
+      ' ' + end.getFullYear();
+    titleEl.textContent = label;
+    return;
+  }
+  if(CAL_CURRENT_VIEW === 'day'){
+    const d = CAL_CURRENT_DATE;
+    const label = d.getDate() + ' ' + CAL_MONTHS_SHORT[d.getMonth()] + ' ' + d.getFullYear();
+    titleEl.textContent = label;
+    return;
+  }
+  const d = CAL_CURRENT_DATE;
+  titleEl.textContent = d.toLocaleDateString('es-CO', { month:'long', year:'numeric' }).toUpperCase();
+}
+
+function calStartOfWeek(d){
+  const dt = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const day = dt.getDay();
+  const diff = (day + 7 - 0) % 7;
+  dt.setDate(dt.getDate() - diff);
+  return dt;
+}
+function calEndOfWeek(d){
+  const start = calStartOfWeek(d);
+  const end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
+  return end;
+}
+
+function calRender(){
+  const cont = document.getElementById('cal-container');
+  if(!cont) return;
+  const filterVal = document.getElementById('cal-filter-input')?.value.trim().toLowerCase() || '';
+  cont.innerHTML = '';
+  calUpdateTitle();
+
+  if(CAL_CURRENT_VIEW === 'month'){
+    calRenderMonth(cont, filterVal);
+  }else if(CAL_CURRENT_VIEW === 'week'){
+    calRenderWeek(cont, filterVal);
+  }else if(CAL_CURRENT_VIEW === 'day'){
+    calRenderDay(cont, filterVal);
+  }else if(CAL_CURRENT_VIEW === 'year'){
+    calRenderYear(cont, filterVal);
+  }
+}
+
+function calEventsOnDay(isoDMY){
+  return CAL_EVENTS.filter(ev => ev.fechaEvento === isoDMY);
+}
+
+function calRenderMonth(cont, filterVal){
+  const header = document.createElement('div');
+  header.className = 'cal-weekdays';
+  CAL_WEEKDAYS_SHORT.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-weekday';
+    el.textContent = d;
+    header.appendChild(el);
+  });
+  cont.appendChild(header);
+
+  const grid = document.createElement('div');
+  grid.className = 'cal-month-grid';
+
+  const year = CAL_CURRENT_DATE.getFullYear();
+  const month = CAL_CURRENT_DATE.getMonth();
+  const firstDay = new Date(year,month,1);
+  const startWeekDay = firstDay.getDay();
+  const daysInMonth = new Date(year,month+1,0).getDate();
+
+  const prevMonthDays = (startWeekDay + 7 - 0) % 7;
+  const totalCells = prevMonthDays + daysInMonth;
+  const cells = totalCells <= 35 ? 35 : 42;
+
+  const todayDMY = calFormatDMY(new Date());
+
+  for(let i=0; i<cells; i++){
+    const cell = document.createElement('div');
+    cell.className = 'cal-day-cell';
+    const dayOffset = i - prevMonthDays + 1;
+    let cellDate;
+    let inThisMonth = true;
+
+    if(dayOffset < 1){
+      cellDate = new Date(year, month, dayOffset);
+      inThisMonth = false;
+    }else if(dayOffset > daysInMonth){
+      cellDate = new Date(year, month, dayOffset);
+      inThisMonth = false;
+    }else{
+      cellDate = new Date(year, month, dayOffset);
+    }
+
+    const iso = calFormatDMY(cellDate);
+    if(!inThisMonth) cell.classList.add('other-month');
+
+    const headerNum = document.createElement('div');
+    headerNum.className = 'cal-day-number';
+
+    if(iso === todayDMY){
+      headerNum.classList.add('today');
+      headerNum.textContent = cellDate.getDate();
+    }else{
+      headerNum.textContent = cellDate.getDate();
+    }
+
+    cell.appendChild(headerNum);
+
+    const events = calEventsOnDay(iso).filter(ev => calEventMatchesFilter(ev, filterVal));
+    events.sort((a,b)=>{
+      const ma = calMinutesFromTimeStr(a.horaInicio24 || '');
+      const mb = calMinutesFromTimeStr(b.horaInicio24 || '');
+      return ma - mb;
+    });
+
+    events.forEach(ev => {
+      const chip = document.createElement('div');
+      chip.className = calStatusColorClass(ev.estado);
+      chip.classList.add('cal-event-chip');
+
+      const title = document.createElement('span');
+      title.className = 'cal-evt-title';
+      title.textContent = ev.secretaria || '';
+
+      const time = document.createElement('span');
+      time.className = 'cal-evt-time';
+      time.textContent = (ev.horaInicioAMPM || '') + ' - ' + (ev.horaTerminacionAMPM || '');
+
+      chip.appendChild(title);
+      chip.appendChild(time);
+
+      chip.addEventListener('click', ()=> calOpenEventForEdit(ev.codigo));
+      cell.appendChild(chip);
+    });
+
+    grid.appendChild(cell);
+  }
+  cont.appendChild(grid);
+}
+
+function calRenderDay(cont, filterVal){
+  const header = document.createElement('div');
+  header.className = 'cal-day-header-row';
+  const d = CAL_CURRENT_DATE;
+  header.textContent = d.toLocaleDateString('es-CO',{ weekday:'long', day:'numeric', month:'long', year:'numeric' }).toUpperCase();
+  cont.appendChild(header);
+
+  const body = document.createElement('div');
+  body.className = 'cal-day-body';
+
+  const iso = calFormatDMY(d);
+  const events = calEventsOnDay(iso).filter(ev => calEventMatchesFilter(ev, filterVal));
+  events.sort((a,b)=>{
+    const ma = calMinutesFromTimeStr(a.horaInicio24 || '');
+    const mb = calMinutesFromTimeStr(b.horaInicio24 || '');
+    return ma - mb;
+  });
+
+  if(!events.length){
+    const p = document.createElement('p');
+    p.className = 'muted';
+    p.textContent = 'Sin eventos para este día.';
+    body.appendChild(p);
+  }else{
+    events.forEach(ev => {
+      const chip = document.createElement('div');
+      chip.className = calStatusColorClass(ev.estado);
+      chip.classList.add('cal-event-chip');
+
+      const title = document.createElement('span');
+      title.className = 'cal-evt-title';
+      title.textContent = ev.secretaria || '';
+
+      const time = document.createElement('span');
+      time.className = 'cal-evt-time';
+      time.textContent = (ev.horaInicioAMPM || '') + ' - ' + (ev.horaTerminacionAMPM || '');
+
+      const desc = document.createElement('div');
+      desc.style.fontSize = '.72rem';
+      desc.textContent = ev.nombreEvento || '';
+
+      chip.appendChild(title);
+      chip.appendChild(time);
+      chip.appendChild(desc);
+
+      chip.addEventListener('click', ()=> calOpenEventForEdit(ev.codigo));
+      body.appendChild(chip);
+    });
+  }
+
+  cont.appendChild(body);
+}
+
+function calRenderWeek(cont, filterVal){
+  const start = calStartOfWeek(CAL_CURRENT_DATE);
+  const end = calEndOfWeek(CAL_CURRENT_DATE);
+
+  const header = document.createElement('div');
+  header.className = 'cal-week-header-row';
+  header.textContent = 'Semana del ' +
+    start.getDate() + ' ' + CAL_MONTHS_SHORT[start.getMonth()] +
+    ' al ' +
+    end.getDate() + ' ' + CAL_MONTHS_SHORT[end.getMonth()] +
+    ' ' + end.getFullYear();
+  cont.appendChild(header);
+
+  const body = document.createElement('div');
+  body.className = 'cal-week-body';
+
+  for(let i=0;i<7;i++){
+    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+    const iso = calFormatDMY(d);
+
+    const row = document.createElement('div');
+    row.style.borderRadius = '10px';
+    row.style.padding = '6px 8px';
+    row.style.background = '#f9fafb';
+    row.style.marginBottom = '6px';
+
+    const head = document.createElement('div');
+    head.style.display = 'flex';
+    head.style.alignItems = 'center';
+    head.style.justifyContent = 'space-between';
+
+    const left = document.createElement('span');
+    left.style.fontWeight = '700';
+    left.style.fontSize = '.8rem';
+    left.textContent = CAL_WEEKDAYS_SHORT[d.getDay()] + ' ' + d.getDate() + ' ' + CAL_MONTHS_SHORT[d.getMonth()];
+
+    head.appendChild(left);
+    row.appendChild(head);
+
+    const evs = calEventsOnDay(iso).filter(ev => calEventMatchesFilter(ev, filterVal));
+    evs.sort((a,b)=>{
+      const ma = calMinutesFromTimeStr(a.horaInicio24 || '');
+      const mb = calMinutesFromTimeStr(b.horaInicio24 || '');
+      return ma - mb;
+    });
+
+    if(!evs.length){
+      const p = document.createElement('p');
+      p.className = 'muted';
+      p.style.fontSize = '.72rem';
+      p.textContent = 'Sin eventos';
+      row.appendChild(p);
+    }else{
+      evs.forEach(ev => {
+        const chip = document.createElement('div');
+        chip.className = calStatusColorClass(ev.estado);
+        chip.classList.add('cal-event-chip');
+
+        const title = document.createElement('span');
+        title.className = 'cal-evt-title';
+        title.textContent = ev.secretaria || '';
+
+        const time = document.createElement('span');
+        time.className = 'cal-evt-time';
+        time.textContent = (ev.horaInicioAMPM || '') + ' - ' + (ev.horaTerminacionAMPM || '');
+
+        chip.appendChild(title);
+        chip.appendChild(time);
+        chip.addEventListener('click', ()=> calOpenEventForEdit(ev.codigo));
+        row.appendChild(chip);
+      });
+    }
+
+    body.appendChild(row);
+  }
+
+  cont.appendChild(body);
+}
+
+function calRenderYear(cont, filterVal){
+  const grid = document.createElement('div');
+  grid.className = 'cal-year-grid';
+
+  const year = CAL_CURRENT_DATE.getFullYear();
+  const eventsByMonth = {};
+  CAL_EVENTS.forEach(ev => {
+    const d = calParseDMY(ev.fechaEvento);
+    if(!d || d.getFullYear() !== year) return;
+    const m = d.getMonth();
+    if(!eventsByMonth[m]) eventsByMonth[m] = [];
+    if(calEventMatchesFilter(ev, filterVal)){
+      eventsByMonth[m].push(ev);
+    }
+  });
+
+  for(let m=0;m<12;m++){
+    const box = document.createElement('div');
+    box.className = 'cal-year-month';
+
+    const h4 = document.createElement('h4');
+    h4.textContent = new Date(year,m,1).toLocaleDateString('es-CO',{ month:'long' }).toUpperCase();
+    box.appendChild(h4);
+
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    const trh = document.createElement('tr');
+    CAL_WEEKDAYS_SHORT.forEach(d => {
+      const th = document.createElement('th');
+      th.textContent = d.charAt(0);
+      trh.appendChild(th);
+    });
+    thead.appendChild(trh);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    const first = new Date(year,m,1);
+    const startDay = first.getDay();
+    const daysInMonth = new Date(year,m+1,0).getDate();
+
+    let day = 1;
+    let done = false;
+    while(!done){
+      const tr = document.createElement('tr');
+      for(let wd=0; wd<7; wd++){
+        const td = document.createElement('td');
+        if(wd < startDay && day === 1){
+          td.textContent = '';
+        }else if(day > daysInMonth){
+          td.textContent = '';
+          done = true;
+        }else{
+          td.textContent = day;
+          const dmy = calFormatDMY(new Date(year,m,day));
+          const hasEvent = (eventsByMonth[m]||[]).some(ev => ev.fechaEvento === dmy);
+          if(hasEvent){
+            const dot = document.createElement('span');
+            dot.className = 'cal-year-dot';
+            td.appendChild(dot);
+          }
+          day++;
+        }
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+
+    table.appendChild(tbody);
+    box.appendChild(table);
+    grid.appendChild(box);
+  }
+
+  cont.appendChild(grid);
+}
+
+/* Navegación y vistas */
+
+document.getElementById('go-calendario')?.addEventListener('click', async ()=>{
+  overlay.classList.remove('open');
+  await calLoadEvents();
+  CAL_CURRENT_VIEW = 'month';
+  CAL_CURRENT_DATE = new Date();
+  calSyncViewButtons();
+  showView('view-calendario');
+  calRender();
+});
+
+document.getElementById('cal-btn-back')?.addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  showView('view-inicio');
+});
+
+document.getElementById('cal-btn-today')?.addEventListener('click', ()=>{
+  CAL_CURRENT_DATE = new Date();
+  calRender();
+});
+
+document.getElementById('cal-prev')?.addEventListener('click', ()=>{
+  if(CAL_CURRENT_VIEW === 'year'){
+    CAL_CURRENT_DATE.setFullYear(CAL_CURRENT_DATE.getFullYear()-1);
+  }else if(CAL_CURRENT_VIEW === 'month'){
+    CAL_CURRENT_DATE.setMonth(CAL_CURRENT_DATE.getMonth()-1);
+  }else if(CAL_CURRENT_VIEW === 'week'){
+    CAL_CURRENT_DATE.setDate(CAL_CURRENT_DATE.getDate()-7);
+  }else if(CAL_CURRENT_VIEW === 'day'){
+    CAL_CURRENT_DATE.setDate(CAL_CURRENT_DATE.getDate()-1);
+  }
+  calRender();
+});
+document.getElementById('cal-next')?.addEventListener('click', ()=>{
+  if(CAL_CURRENT_VIEW === 'year'){
+    CAL_CURRENT_DATE.setFullYear(CAL_CURRENT_DATE.getFullYear()+1);
+  }else if(CAL_CURRENT_VIEW === 'month'){
+    CAL_CURRENT_DATE.setMonth(CAL_CURRENT_DATE.getMonth()+1);
+  }else if(CAL_CURRENT_VIEW === 'week'){
+    CAL_CURRENT_DATE.setDate(CAL_CURRENT_DATE.getDate()+7);
+  }else if(CAL_CURRENT_VIEW === 'day'){
+    CAL_CURRENT_DATE.setDate(CAL_CURRENT_DATE.getDate()+1);
+  }
+  calRender();
+});
+
+function calSyncViewButtons(){
+  ['cal-view-day','cal-view-week','cal-view-month','cal-view-year'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.remove('active');
+  });
+  if(CAL_CURRENT_VIEW === 'day') document.getElementById('cal-view-day')?.classList.add('active');
+  if(CAL_CURRENT_VIEW === 'week') document.getElementById('cal-view-week')?.classList.add('active');
+  if(CAL_CURRENT_VIEW === 'month') document.getElementById('cal-view-month')?.classList.add('active');
+  if(CAL_CURRENT_VIEW === 'year') document.getElementById('cal-view-year')?.classList.add('active');
+}
+
+document.getElementById('cal-view-day')?.addEventListener('click', ()=>{
+  CAL_CURRENT_VIEW = 'day';
+  calSyncViewButtons();
+  calRender();
+});
+document.getElementById('cal-view-week')?.addEventListener('click', ()=>{
+  CAL_CURRENT_VIEW = 'week';
+  calSyncViewButtons();
+  calRender();
+});
+document.getElementById('cal-view-month')?.addEventListener('click', ()=>{
+  CAL_CURRENT_VIEW = 'month';
+  calSyncViewButtons();
+  calRender();
+});
+document.getElementById('cal-view-year')?.addEventListener('click', ()=>{
+  CAL_CURRENT_VIEW = 'year';
+  calSyncViewButtons();
+  calRender();
+});
+
+document.getElementById('cal-filter-toggle')?.addEventListener('click', ()=>{
+  const input = document.getElementById('cal-filter-input');
+  if(!input) return;
+  const visible = input.style.display !== 'none';
+  if(visible){
+    input.style.display = 'none';
+    input.value = '';
+    calRender();
+  }else{
+    input.style.display = '';
+    input.focus();
+  }
+});
+document.getElementById('cal-filter-input')?.addEventListener('input', ()=>{
+  calRender();
+});
+
+async function calLoadEvents(){
+  try{
+    const list = await apiGet(CAL_API_ACTION_LIST, {});
+    CAL_EVENTS = Array.isArray(list) ? list.map(ev => calNormalizeEvent(ev)) : [];
+  }catch(e){
+    CAL_EVENTS = [];
+    Swal.fire({icon:'error',title:'Error cargando calendario',text:String(e.message||e)});
+  }
+}
+
+function calNormalizeEvent(ev){
+  const out = Object.assign({}, ev||{});
+  out.codigo = String(out.codigo||'');
+  out.fechaEvento = String(out.fechaEvento||'');
+  out.nombreEvento = String(out.nombreEvento||'');
+  out.secretaria = String(out.secretaria||'');
+  out.estado = String(out.estado||'').toUpperCase() || 'PROGRAMADO';
+  out.horaInicioAMPM = String(out.horaInicio||'');
+  out.horaTerminacionAMPM = String(out.horaTerminacion||'');
+  const hi = calHMFromAmPm(out.horaInicioAMPM);
+  const hf = calHMFromAmPm(out.horaTerminacionAMPM);
+  out.horaInicio24 = calPad2(hi.h) + ':' + calPad2(hi.m);
+  out.horaTerminacion24 = calPad2(hf.h) + ':' + calPad2(hf.m);
+  return out;
+}
+
+/* Formulario Registrar / Editar evento */
+
+document.getElementById('cal-btn-new')?.addEventListener('click', ()=>{
+  CAL_SELECTED_EVENT = null;
+  calResetEventoForm();
+  document.getElementById('evento-title').textContent = 'REGISTRAR EVENTO';
+  showView('view-evento');
+});
+
+document.getElementById('evento-volver')?.addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  showView('view-calendario');
+});
+
+function calResetEventoForm(){
+  document.getElementById('evento-codigo').value = '';
+  document.getElementById('nombreEvento').value = '';
+  document.getElementById('fechaEvento').value = '';
+  document.getElementById('horaInicio').value = '';
+  document.getElementById('horaTerminacion').value = '';
+  document.getElementById('secretaria').value = '';
+  document.getElementById('otros').value = '';
+  document.getElementById('lugar').value = '';
+  document.getElementById('detalles').value = '';
+  document.getElementById('publicacion').value = '';
+  document.getElementById('nombre').value = '';
+  document.getElementById('contacto').value = '';
+  document.getElementById('cargo').value = '';
+  const checks = document.querySelectorAll('#requerimientos input[type="checkbox"]');
+  checks.forEach(ch => ch.checked = false);
+}
+
+function calFillEventoForm(ev){
+  document.getElementById('evento-codigo').value = ev.codigo || '';
+  document.getElementById('nombreEvento').value = ev.nombreEvento || '';
+  document.getElementById('fechaEvento').value = ev.fechaEvento || '';
+  document.getElementById('horaInicio').value = ev.horaInicio24 || '';
+  document.getElementById('horaTerminacion').value = ev.horaTerminacion24 || '';
+  document.getElementById('secretaria').value = ev.secretaria || '';
+  document.getElementById('otros').value = ev.otros || '';
+  document.getElementById('lugar').value = ev.lugar || '';
+  document.getElementById('detalles').value = ev.detalles || '';
+  document.getElementById('publicacion').value = ev.publicacion || '';
+  document.getElementById('nombre').value = ev.nombre || '';
+  document.getElementById('contacto').value = ev.contacto || '';
+  document.getElementById('cargo').value = ev.cargo || '';
+
+  const checks = document.querySelectorAll('#requerimientos input[type="checkbox"]');
+  checks.forEach(ch => {
+    const labelVal = ch.value;
+    const src = String(ev.requerimientos||'');
+    ch.checked = src.indexOf(labelVal) !== -1;
+  });
+}
+
+async function calOpenEventForEdit(codigo){
+  try{
+    const data = await apiGet(CAL_API_ACTION_GET, { codigo });
+    if(!data){
+      Swal.fire({icon:'info',title:'Evento no encontrado'});
+      return;
+    }
+    const ev = calNormalizeEvent(data);
+    CAL_SELECTED_EVENT = ev;
+    calFillEventoForm(ev);
+    document.getElementById('evento-title').textContent = 'EDITAR EVENTO';
+    showView('view-evento');
+  }catch(e){
+    Swal.fire({icon:'error',title:'Error',text:String(e.message||e)});
+  }
+}
+
+/* Picker fechas formulario */
+
+function calInitSimplePicker(dSelId,mSelId,aSelId){
+  const dSel = document.getElementById(dSelId);
+  const mSel = document.getElementById(mSelId);
+  const aSel = document.getElementById(aSelId);
+  if(dSel && !dSel.childElementCount){
+    for(let d=1; d<=31; d++){
+      const opt = document.createElement('option');
+      opt.value = calPad2(d);
+      opt.textContent = opt.value;
+      dSel.appendChild(opt);
+    }
+  }
+  if(mSel && !mSel.childElementCount){
+    const mesesNombres=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    for(let i=0;i<12;i++){
+      const opt = document.createElement('option');
+      opt.value = calPad2(i+1);
+      opt.textContent = mesesNombres[i];
+      mSel.appendChild(opt);
+    }
+  }
+  if(aSel && !aSel.childElementCount){
+    const yNow = new Date().getFullYear();
+    for(let y=yNow-2; y<=yNow+2; y++){
+      const opt = document.createElement('option');
+      opt.value = String(y);
+      opt.textContent = String(y);
+      aSel.appendChild(opt);
+    }
+  }
+}
+
+calInitSimplePicker('evtDia','evtMes','evtAnio');
+calInitSimplePicker('pubDia','pubMes','pubAnio');
+
+document.getElementById('fechaEvento')?.addEventListener('click', ()=>{
+  const m = document.getElementById('eventoFechaModal');
+  if(m){
+    m.style.display = 'flex';
+    m.setAttribute('aria-hidden','false');
+  }
+});
+document.getElementById('evtFechaCancelar')?.addEventListener('click', ()=>{
+  const m = document.getElementById('eventoFechaModal');
+  if(m){
+    m.style.display = 'none';
+    m.setAttribute('aria-hidden','true');
+  }
+});
+document.getElementById('evtFechaOk')?.addEventListener('click', ()=>{
+  const d = document.getElementById('evtDia')?.value || '01';
+  const m = document.getElementById('evtMes')?.value || '01';
+  const y = document.getElementById('evtAnio')?.value || String(new Date().getFullYear());
+  document.getElementById('fechaEvento').value = d + '/' + m + '/' + y;
+  const modal = document.getElementById('eventoFechaModal');
+  if(modal){
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden','true');
+  }
+});
+
+document.getElementById('publicacion')?.addEventListener('click', ()=>{
+  const m = document.getElementById('publicacionFechaModal');
+  if(m){
+    m.style.display = 'flex';
+    m.setAttribute('aria-hidden','false');
+  }
+});
+document.getElementById('pubFechaCancelar')?.addEventListener('click', ()=>{
+  const m = document.getElementById('publicacionFechaModal');
+  if(m){
+    m.style.display = 'none';
+    m.setAttribute('aria-hidden','true');
+  }
+});
+document.getElementById('pubFechaOk')?.addEventListener('click', ()=>{
+  const d = document.getElementById('pubDia')?.value || '01';
+  const m = document.getElementById('pubMes')?.value || '01';
+  const y = document.getElementById('pubAnio')?.value || String(new Date().getFullYear());
+  document.getElementById('publicacion').value = d + '/' + m + '/' + y;
+  const modal = document.getElementById('publicacionFechaModal');
+  if(modal){
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden','true');
+  }
+});
+
+/* Autocompletar Responsable usando hoja CONTRATISTAS
+   Se hace vía backend (nueva acción en gs.md) para no recargar toda la hoja en front.
+   Usamos la misma lógica de bindQuery pero apuntando a acción getResponsablesCalendario. */
+
+function bindResponsablesQuery(){
+  const input = document.getElementById('nombre');
+  const list = document.getElementById('dl-responsables');
+  if(!input || !list) return;
+
+  let t = null;
+  input.addEventListener('input', ()=>{
+    const q = input.value.trim();
+    list.innerHTML = '';
+    if(t) clearTimeout(t);
+    if(!q) return;
+    t = setTimeout(async ()=>{
+      try{
+        const url = new URL(API_BASE);
+        url.search = new URLSearchParams({
+          action: 'getResponsablesCalendario',
+          query: q
+        }).toString();
+        const r = await fetch(url.toString(), { method:'GET' });
+        const j = await r.json();
+        const data = (j && j.ok && Array.isArray(j.data)) ? j.data : [];
+        list.innerHTML = '';
+        data.forEach(item=>{
+          const opt = document.createElement('option');
+          opt.value = item.nombre;
+          opt.dataset.contacto = item.contacto;
+          list.appendChild(opt);
+        });
+      }catch(_){}
+    }, 180);
+  });
+
+  input.addEventListener('change', ()=>{
+    const val = input.value.trim();
+    if(!val) return;
+    const opts = Array.from(list.options);
+    const found = opts.find(o => o.value === val);
+    if(found){
+      const tel = String(found.dataset.contacto||'').replace(/\D/g,'');
+      const full = tel ? ('57' + tel) : '';
+      document.getElementById('contacto').value = full;
+    }
+  });
+}
+bindResponsablesQuery();
+
+/* Guardar evento */
+
+document.getElementById('evento-guardar')?.addEventListener('click', async ()=>{
+  const codigo = document.getElementById('evento-codigo').value.trim();
+  const nombreEvento = document.getElementById('nombreEvento').value.trim();
+  const fechaEvento = document.getElementById('fechaEvento').value.trim();
+  const horaInicio = document.getElementById('horaInicio').value.trim();
+  const horaTerminacion = document.getElementById('horaTerminacion').value.trim();
+  const secretaria = document.getElementById('secretaria').value;
+  const otros = document.getElementById('otros').value.trim();
+  const lugar = document.getElementById('lugar').value.trim();
+  const detalles = document.getElementById('detalles').value.trim();
+  const publicacion = document.getElementById('publicacion').value.trim();
+  const responsable = document.getElementById('nombre').value.trim();
+  const contacto = document.getElementById('contacto').value.trim();
+  const cargo = document.getElementById('cargo').value.trim();
+
+  if(!nombreEvento || !fechaEvento || !horaInicio || !horaTerminacion || !secretaria){
+    Swal.fire({icon:'warning',title:'Campos requeridos',text:'Nombre, fecha, horas y secretaría son obligatorios.'});
+    return;
+  }
+
+  const checks = document.querySelectorAll('#requerimientos input[type="checkbox"]');
+  const reqs = [];
+  checks.forEach(ch => { if(ch.checked) reqs.push(ch.value); });
+  const requerimientosStr = reqs.join(', ');
+
+  const allFilled = Boolean(
+    nombreEvento &&
+    fechaEvento &&
+    horaInicio &&
+    horaTerminacion &&
+    secretaria &&
+    detalles &&
+    requerimientosStr &&
+    otros &&
+    lugar &&
+    publicacion &&
+    responsable &&
+    contacto &&
+    cargo
+  );
+  const estado = allFilled ? 'COMPLETADO' : 'PROGRAMADO';
+
+  const body = {
+    codigo,
+    nombreEvento,
+    fechaEvento,
+    horaInicio,
+    horaTerminacion,
+    detalles,
+    requerimientos: requerimientosStr,
+    otros,
+    lugar,
+    publicacion,
+    nombre: responsable,
+    contacto,
+    secretaria,
+    cargo,
+    estado
+  };
+
+  try{
+    const res = await apiPost(CAL_API_ACTION_SAVE, body);
+    if(!res || !res.success){
+      Swal.fire({icon:'error',title:'Error al guardar',text:res && res.message ? res.message : 'Intenta nuevamente.'});
+      return;
+    }
+    await calLoadEvents();
+    Swal.fire({icon:'success',title:'Evento guardado',timer:1800,showConfirmButton:false});
+    showView('view-calendario');
+    calRender();
+  }catch(e){
+    Swal.fire({icon:'error',title:'Error',text:String(e.message||e)});
+  }
+});
 
 /* ================== FIN ================== */
 </script>
