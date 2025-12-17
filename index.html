@@ -1038,15 +1038,19 @@
             readonly
           />
 
-          <label for="nombre">Responsable</label>
-          <input id="nombre" type="text" list="dl-responsables" placeholder="Escribe y selecciona">
-          <datalist id="dl-responsables"></datalist>
+         <label>Responsable</label>
+<input
+  id="cal-nombre"
+  list="cal-dl-responsables"
+  placeholder="Escribe y selecciona"
+  autocomplete="off">
+<datalist id="cal-dl-responsables"></datalist>
 
-          <label for="contacto">Contacto (automático)</label>
-          <input id="contacto" type="text" readonly>
+<label>Contacto</label>
+<input id="cal-contacto" type="tel" readonly>
 
-          <label for="cargo">Cargo del Responsable</label>
-          <textarea id="cargo" rows="2" placeholder="Escribe el cargo del Responsable (opcional)"></textarea>
+<label>Cargo del Responsable</label>
+<textarea id="cal-cargo" rows="2" placeholder="Escribe el cargo del Responsable"></textarea>
 
           <input id="evento-codigo" type="hidden">
         </div>
