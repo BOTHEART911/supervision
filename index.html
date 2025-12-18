@@ -3231,23 +3231,26 @@ function bindResponsablesQuery(){
           list.appendChild(opt);
         });
       }catch(_){}
-    }, 180);
+    }, 200);
   });
 
   input.addEventListener('change', ()=>{
     const val = input.value.trim();
     if(!val) return;
-    const opts = Array.from(list.options);
+    const opts = Array.from(list.options || []);
     const found = opts.find(o => o.value === val);
     if(found){
       const tel = String(found.dataset.contacto||'').replace(/\D/g,'');
       const full = tel ? ('57' + tel) : '';
-      document.getElementById('contacto').value = full;
+      const contactoInput = document.getElementById('contacto');
+      if(contactoInput){
+        contactoInput.value = full;
+      }
     }
   });
 }
 bindResponsablesQuery();
-
+  
 /* Guardar evento */
 document.getElementById('evento-guardar')?.addEventListener('click', async ()=>{
   const codigo = document.getElementById('evento-codigo').value.trim();
