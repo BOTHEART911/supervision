@@ -3014,9 +3014,23 @@ document.getElementById('cal-filter-input')?.addEventListener('input', ()=>{
 async function calLoadEvents(){
   try{
     const list = await apiGet(CAL_API_ACTION_LIST, {});
-    console.log('CAL_EVENTS raw from backend:', list);  // ← log 1
+    console.log('CAL_EVENTS raw from backend:', list);
     CAL_EVENTS = Array.isArray(list) ? list.map(ev => calNormalizeEvent(ev)) : [];
-    console.log('CAL_EVENTS normalized:', CAL_EVENTS);  // ← log 2
+    console.log('CAL_EVENTS normalized:', CAL_EVENTS);
+
+    // NUEVO: log por evento, para ver campos clave que usa el calendario
+    CAL_EVENTS.forEach((ev, idx) => {
+      console.log(`EV[${idx}]`, {
+        codigo: ev.codigo,
+        fechaEvento: ev.fechaEvento,
+        horaInicioAMPM: ev.horaInicioAMPM,
+        horaTerminacionAMPM: ev.horaTerminacionAMPM,
+        horaInicio24: ev.horaInicio24,
+        horaTerminacion24: ev.horaTerminacion24,
+        secretaria: ev.secretaria,
+        estado: ev.estado
+      });
+    });
   }catch(e){
     CAL_EVENTS = [];
     Swal.fire({icon:'error',title:'Error cargando calendario',text:String(e.message||e)});
