@@ -3014,7 +3014,9 @@ document.getElementById('cal-filter-input')?.addEventListener('input', ()=>{
 async function calLoadEvents(){
   try{
     const list = await apiGet(CAL_API_ACTION_LIST, {});
+    console.log('CAL_EVENTS raw from backend:', list);  // ← log 1
     CAL_EVENTS = Array.isArray(list) ? list.map(ev => calNormalizeEvent(ev)) : [];
+    console.log('CAL_EVENTS normalized:', CAL_EVENTS);  // ← log 2
   }catch(e){
     CAL_EVENTS = [];
     Swal.fire({icon:'error',title:'Error cargando calendario',text:String(e.message||e)});
