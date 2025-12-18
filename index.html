@@ -588,6 +588,15 @@
     gap:8px;
     margin:12px 0;
   }
+
+/* Forzar que el modal de FECHA DE PUBLICACIÓN quede pegado abajo */
+#publicacionFechaModal{
+  align-items:flex-end;
+  justify-content:center;
+  padding-top:0;
+  padding-bottom:16px;
+}
+    
   </style>
 </head>
 <body>
@@ -3240,7 +3249,6 @@ function bindResponsablesQuery(){
 bindResponsablesQuery();
 
 /* Guardar evento */
-
 document.getElementById('evento-guardar')?.addEventListener('click', async ()=>{
   const codigo = document.getElementById('evento-codigo').value.trim();
   const nombreEvento = document.getElementById('nombreEvento').value.trim();
