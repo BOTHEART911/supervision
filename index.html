@@ -1045,8 +1045,8 @@
           />
 
           <label for="nombre">Responsable</label>
-          <input id="nombre" type="text" list="dl-responsables" placeholder="Escribe y selecciona">
-          <datalist id="dl-responsables"></datalist>
+<input id="nombre" type="text" list="dl-responsables" placeholder="Escribe y selecciona">
+<datalist id="dl-responsables"></datalist>
 
           <label for="contacto">Contacto (automático)</label>
           <input id="contacto" type="text" readonly>
@@ -3204,33 +3204,38 @@ document.getElementById('pubFechaOk')?.addEventListener('click', ()=>{
    Usamos la misma lógica de bindQuery pero apuntando a acción getResponsablesCalendario. */
 
 function bindResponsablesQuery(){
-  const input = document.getElementById('nombre');          // campo RESPONSABLE
-  const list  = document.getElementById('dl-responsables'); // datalist
-  if(!input || !list) return;
+  const input = document.getElementById('nombre');          // campo Responsable
+  const list  = document.getElementById('dl-responsables'); // datalist asociado
+  const contactoInput = document.getElementById('contacto');
+
+  if(!input || !list || !contactoInput) return;
 
   let t = null;
   let abortCtrl = null;
-  const cache = new Map(); // cache por término, para ahorrar llamadas
+  const cache = new Map(); // cache por término
 
   input.addEventListener('input', ()=> {
     const q = input.value.trim();
     list.innerHTML = '';
-    if(t) clearTimeout(t);
+
+    // si se borra el texto, limpiar contacto
     if(!q){
       if(abortCtrl) abortCtrl.abort();
-      document.getElementById('contacto').value = '';
+      contactoInput.value = '';
       return;
     }
 
+    if(t) clearTimeout(t);
+
     t = setTimeout(async ()=> {
-      // cache hit
+      // cache-hit
       if(cache.has(q)){
-        const options = cache.get(q);
+        const arr = cache.get(q);
         list.innerHTML = '';
-        options.forEach(item => {
+        arr.forEach(item => {
           const opt = document.createElement('option');
-          opt.value = item.nombre;              // Columna B
-          opt.dataset.contacto = item.contacto; // Columna I
+          opt.value = item.nombre;              // columna B
+          opt.dataset.contacto = item.contacto; // columna I (solo dígitos)
           list.appendChild(opt);
         });
         return;
@@ -3246,6 +3251,7 @@ function bindResponsablesQuery(){
           action: 'getResponsablesCalendario',
           query: q
         }).toString();
+
         const r = await fetch(url.toString(), { method:'GET', signal: abortCtrl.signal });
         const j = await r.json();
         const data = (j && j.ok && Array.isArray(j.data)) ? j.data : [];
@@ -3255,36 +3261,35 @@ function bindResponsablesQuery(){
         list.innerHTML = '';
         data.forEach(item => {
           const opt = document.createElement('option');
-          opt.value = item.nombre;              // texto mostrado
-          opt.dataset.contacto = item.contacto; // solo dígitos, viene de la Columna I
+          opt.value = item.nombre;              // texto que el usuario ve
+          opt.dataset.contacto = item.contacto; // p ej 3103230712
           list.appendChild(opt);
         });
       }catch(_){
-        // silencio en error para no romper la UI
+        // no lanzamos error para no romper el formulario
       }
-    }, 200);
+    }, 120);
   });
 
-  // Cuando el usuario selecciona un responsable, llenar CONTACTO con el teléfono tal cual
+  // Cuando el usuario selecciona un nombre del datalist
   input.addEventListener('change', ()=> {
     const val = input.value.trim();
     if(!val){
-      document.getElementById('contacto').value = '';
+      contactoInput.value = '';
       return;
     }
     const opts = Array.from(list.options || []);
     const found = opts.find(o => o.value === val);
     if(found){
-      // Columna I viene como 3103230712 y se debe guardar igual, sin wa.me ni 57
+      // Teléfono tal cual viene de la columna I (sólo dígitos)
       const tel = String(found.dataset.contacto || '').replace(/\D/g,'');
-      document.getElementById('contacto').value = tel;
+      contactoInput.value = tel;
     }else{
-      document.getElementById('contacto').value = '';
+      contactoInput.value = '';
     }
   });
 }
 
-// Llama a la función una sola vez, al final del script principal
 bindResponsablesQuery();
   
 /* Guardar evento */
