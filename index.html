@@ -3200,25 +3200,25 @@ document.getElementById('pubFechaOk')?.addEventListener('click', ()=>{
 });
 
 /* Autocompletar Responsable usando hoja CONTRATISTAS
-   Se hace vía backend (nueva acción en gs.md) para no recargar toda la hoja en front.
-   Usamos la misma lógica de bindQuery pero apuntando a acción getResponsablesCalendario. */
-
+   Igual que el query de MUNICIPIOS en indexref, pero apuntando a getResponsablesCalendario.
+*/
 function bindResponsablesQuery(){
-  const input = document.getElementById('nombre');          // campo Responsable
-  const list  = document.getElementById('dl-responsables'); // datalist asociado
-  const contactoInput = document.getElementById('contacto');
+  const input         = document.getElementById('nombre');          // campo Responsable
+  const list          = document.getElementById('dl-responsables'); // datalist
+  const contactoInput = document.getElementById('contacto');        // campo Contacto (automático)
 
   if(!input || !list || !contactoInput) return;
 
   let t = null;
   let abortCtrl = null;
-  const cache = new Map(); // cache por término
+  const cache = new Map(); // cache local por texto buscado
 
-  input.addEventListener('input', ()=> {
+  // Cada vez que se escribe en RESPONSABLE
+  input.addEventListener('input', ()=>{
     const q = input.value.trim();
     list.innerHTML = '';
 
-    // si se borra el texto, limpiar contacto
+    // Si se borra el texto, también limpiamos el contacto
     if(!q){
       if(abortCtrl) abortCtrl.abort();
       contactoInput.value = '';
@@ -3227,21 +3227,21 @@ function bindResponsablesQuery(){
 
     if(t) clearTimeout(t);
 
-    t = setTimeout(async ()=> {
-      // cache-hit
+    t = setTimeout(async ()=>{
+      // cache
       if(cache.has(q)){
-        const arr = cache.get(q);
+        const data = cache.get(q);
         list.innerHTML = '';
-        arr.forEach(item => {
+        data.forEach(item=>{
           const opt = document.createElement('option');
-          opt.value = item.nombre;              // columna B
-          opt.dataset.contacto = item.contacto; // columna I (solo dígitos)
+          opt.value = item.nombre;              // lo que verá y seleccionará el usuario
+          opt.dataset.contacto = item.contacto; // teléfono en crudo, ej: 3103230712
           list.appendChild(opt);
         });
         return;
       }
 
-      // cancelar petición anterior
+      // cancelar petición previa, si existía
       if(abortCtrl) abortCtrl.abort();
       abortCtrl = new AbortController();
 
@@ -3252,27 +3252,31 @@ function bindResponsablesQuery(){
           query: q
         }).toString();
 
-        const r = await fetch(url.toString(), { method:'GET', signal: abortCtrl.signal });
+        const r = await fetch(url.toString(), {
+          method: 'GET',
+          signal: abortCtrl.signal
+        });
         const j = await r.json();
         const data = (j && j.ok && Array.isArray(j.data)) ? j.data : [];
 
         cache.set(q, data);
 
         list.innerHTML = '';
-        data.forEach(item => {
+        data.forEach(item=>{
           const opt = document.createElement('option');
-          opt.value = item.nombre;              // texto que el usuario ve
-          opt.dataset.contacto = item.contacto; // p ej 3103230712
+          opt.value = item.nombre;              // columna B
+          opt.dataset.contacto = item.contacto; // columna I
           list.appendChild(opt);
         });
-      }catch(_){
-        // no lanzamos error para no romper el formulario
+      }catch(e){
+        // no rompemos la UI por errores de red
+        console.warn('Error getResponsablesCalendario', e);
       }
-    }, 120);
+    }, 150); // pequeño debounce
   });
 
   // Cuando el usuario selecciona un nombre del datalist
-  input.addEventListener('change', ()=> {
+  input.addEventListener('change', ()=>{
     const val = input.value.trim();
     if(!val){
       contactoInput.value = '';
@@ -3281,15 +3285,17 @@ function bindResponsablesQuery(){
     const opts = Array.from(list.options || []);
     const found = opts.find(o => o.value === val);
     if(found){
-      // Teléfono tal cual viene de la columna I (sólo dígitos)
+      // Teléfono tal cual viene, solo dígitos
       const tel = String(found.dataset.contacto || '').replace(/\D/g,'');
       contactoInput.value = tel;
     }else{
+      // Si escribe algo que no corresponde a ninguna opción, limpiamos contacto
       contactoInput.value = '';
     }
   });
 }
 
+// activar el binding al cargar el script
 bindResponsablesQuery();
   
 /* Guardar evento */
