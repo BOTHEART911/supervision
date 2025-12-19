@@ -3204,52 +3204,87 @@ document.getElementById('pubFechaOk')?.addEventListener('click', ()=>{
    Usamos la misma lógica de bindQuery pero apuntando a acción getResponsablesCalendario. */
 
 function bindResponsablesQuery(){
-  const input = document.getElementById('nombre');
-  const list = document.getElementById('dl-responsables');
+  const input = document.getElementById('nombre');          // campo RESPONSABLE
+  const list  = document.getElementById('dl-responsables'); // datalist
   if(!input || !list) return;
 
   let t = null;
-  input.addEventListener('input', ()=>{
+  let abortCtrl = null;
+  const cache = new Map(); // cache por término, para ahorrar llamadas
+
+  input.addEventListener('input', ()=> {
     const q = input.value.trim();
     list.innerHTML = '';
     if(t) clearTimeout(t);
-    if(!q) return;
-    t = setTimeout(async ()=>{
+    if(!q){
+      if(abortCtrl) abortCtrl.abort();
+      document.getElementById('contacto').value = '';
+      return;
+    }
+
+    t = setTimeout(async ()=> {
+      // cache hit
+      if(cache.has(q)){
+        const options = cache.get(q);
+        list.innerHTML = '';
+        options.forEach(item => {
+          const opt = document.createElement('option');
+          opt.value = item.nombre;              // Columna B
+          opt.dataset.contacto = item.contacto; // Columna I
+          list.appendChild(opt);
+        });
+        return;
+      }
+
+      // cancelar petición anterior
+      if(abortCtrl) abortCtrl.abort();
+      abortCtrl = new AbortController();
+
       try{
         const url = new URL(API_BASE);
         url.search = new URLSearchParams({
           action: 'getResponsablesCalendario',
           query: q
         }).toString();
-        const r = await fetch(url.toString(), { method:'GET' });
+        const r = await fetch(url.toString(), { method:'GET', signal: abortCtrl.signal });
         const j = await r.json();
         const data = (j && j.ok && Array.isArray(j.data)) ? j.data : [];
+
+        cache.set(q, data);
+
         list.innerHTML = '';
-        data.forEach(item=>{
+        data.forEach(item => {
           const opt = document.createElement('option');
-          opt.value = item.nombre;
-          opt.dataset.contacto = item.contacto;
+          opt.value = item.nombre;              // texto mostrado
+          opt.dataset.contacto = item.contacto; // solo dígitos, viene de la Columna I
           list.appendChild(opt);
         });
-      }catch(_){}
+      }catch(_){
+        // silencio en error para no romper la UI
+      }
     }, 200);
   });
 
-  input.addEventListener('change', ()=>{
+  // Cuando el usuario selecciona un responsable, llenar CONTACTO con el teléfono tal cual
+  input.addEventListener('change', ()=> {
     const val = input.value.trim();
-    if(!val) return;
+    if(!val){
+      document.getElementById('contacto').value = '';
+      return;
+    }
     const opts = Array.from(list.options || []);
     const found = opts.find(o => o.value === val);
     if(found){
-      const tel = String(found.dataset.contacto||'').replace(/\D/g,'');
-      const full = tel ? ('57' + tel) : '';
-      const contactoInput = document.getElementById('contacto');
-      if(contactoInput){
-        contactoInput.value = full;
-      }
+      // Columna I viene como 3103230712 y se debe guardar igual, sin wa.me ni 57
+      const tel = String(found.dataset.contacto || '').replace(/\D/g,'');
+      document.getElementById('contacto').value = tel;
+    }else{
+      document.getElementById('contacto').value = '';
     }
   });
 }
+
+// Llama a la función una sola vez, al final del script principal
 bindResponsablesQuery();
   
 /* Guardar evento */
