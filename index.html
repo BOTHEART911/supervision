@@ -562,6 +562,33 @@
     height:16px;
   }
 
+      .contacto-wrap{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .contacto-wrap input#contacto{
+    flex:1 1 auto;
+  }
+  .contacto-wa-btn{
+    flex:0 0 auto;
+    padding:6px !important;
+    border:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+    cursor:pointer;
+    transition:transform .12s ease;
+  }
+  .contacto-wa-btn img{
+    width:32px;
+    height:32px;
+    display:block;
+    object-fit:contain;
+    pointer-events:none;
+  }
+  .contacto-wa-btn:hover{ transform:scale(1.05); }
+  .contacto-wa-btn:active{ transform:scale(.93); }
+
   .picker-modal-cal{
     position:fixed;
     inset:0;
@@ -1050,7 +1077,21 @@
           <datalist id="dl-responsables"></datalist>
 
           <label for="contacto">Contacto (automático)</label>
-          <input id="contacto" type="text" readonly>
+          <div class="contacto-wrap">
+            <input id="contacto" type="text" readonly>
+            <button
+              type="button"
+              id="contacto-wa-btn"
+              class="btn-icon contacto-wa-btn"
+              aria-label="Abrir WhatsApp con el contacto"
+              title="Abrir WhatsApp"
+            >
+              <img
+                src="https://res.cloudinary.com/dqqeavica/image/upload/v1759166341/WhatsApp_mljaqm.webp"
+                alt="WhatsApp"
+              >
+            </button>
+          </div>
 
           <label for="cargo">Cargo del Responsable</label>
           <textarea id="cargo" rows="2" placeholder="Escribe el cargo del Responsable (opcional)"></textarea>
@@ -3369,6 +3410,24 @@ document.getElementById('evento-guardar')?.addEventListener('click', async ()=>{
     Swal.fire({icon:'error',title:'Error',text:String(e.message||e)});
   }
 });
+
+  // Botón WhatsApp en formulario de Evento (usa el campo "contacto")
+(function bindEventoWhatsappButton(){
+  const btn = document.getElementById('contacto-wa-btn');
+  const contactoInput = document.getElementById('contacto');
+  if(!btn || !contactoInput) return;
+
+  btn.addEventListener('click', ()=>{
+    const raw = contactoInput.value || '';
+    const tel = normalizeNumber57(raw);
+    if(!tel){
+      Swal.fire({icon:'info',title:'Sin teléfono válido',text:'No hay un número de contacto válido para este evento.'});
+      return;
+    }
+    const url = 'https://wa.me/' + tel;
+    window.open(url,'_blank');
+  });
+})();
 
 /* ================== FIN ================== */
 </script>
