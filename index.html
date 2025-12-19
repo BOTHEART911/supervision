@@ -3201,18 +3201,26 @@ document.getElementById('pubFechaOk')?.addEventListener('click', ()=>{
 
 // AUTOCOMPLETE RESPONSABLE (simple, sin AbortController)
 function bindResponsablesQuery(){
-  const input = document.getElementById('nombre');
-  const list = document.getElementById('dl-responsables');
-  if(!input || !list) return;
+  const input = document.getElementById('nombre');          // Responsable
+  const list  = document.getElementById('dl-responsables'); // datalist
+  const contactoInput = document.getElementById('contacto'); // Contacto (automático)
+  if(!input || !list || !contactoInput) return;
 
   let t = null;
 
-  // Autocompletar nombres desde la hoja CONTRATISTAS (columna B)
+  // Cargar sugerencias desde la hoja CONTRATISTAS (columna B, devuelve también teléfono)
   input.addEventListener('input', ()=>{
     const q = input.value.trim();
-    list.innerHTML = '';
+
+    // Siempre que cambia el texto, limpiamos el contacto hasta que haya match
+    contactoInput.value = '';
+
+    // Si el usuario aún no ha escrito nada, no consultamos
     if(t) clearTimeout(t);
-    if(!q) return;
+    if(!q){
+      list.innerHTML = '';
+      return;
+    }
 
     t = setTimeout(async ()=>{
       try{
@@ -3229,33 +3237,38 @@ function bindResponsablesQuery(){
         list.innerHTML = '';
         data.forEach(item=>{
           const opt = document.createElement('option');
-          opt.value = item.nombre;         // texto que ve el usuario
+          opt.value = item.nombre;                        // texto visible
           opt.setAttribute('data-contacto', item.contacto || '');
           list.appendChild(opt);
         });
+
+        // Después de recargar el datalist, intentamos rellenar contacto
+        // si el valor escrito ya coincide exactamente con alguna opción.
+        rellenarContactoDesdeDatalist(input.value, list, contactoInput);
       }catch(_){}
     }, 200);
   });
 
-  // Cuando el usuario selecciona un Responsable, llenar Contacto
+  // También al salir del campo o al confirmar manualmente
   input.addEventListener('change', ()=>{
-    const val = input.value.trim();
-    if(!val) return;
-
-    // Buscar el option cuyo value coincide exactamente con lo escrito
-    const opt = Array.from(list.querySelectorAll('option')).find(o => o.value === val);
-    if(!opt) return;
-
-    // Leer el teléfono de data-contacto, limpiar a solo dígitos y ponerlo en Contacto
-    const telRaw = opt.getAttribute('data-contacto') || '';
-    const tel = telRaw.replace(/\D/g, '');   // debe quedar 3103230712
-
-    const contactoInput = document.getElementById('contacto');
-    if(contactoInput){
-      contactoInput.value = tel;
-    }
+    rellenarContactoDesdeDatalist(input.value, list, contactoInput);
   });
 }
+
+// Función auxiliar: busca el option por value y copia data-contacto a Contacto
+function rellenarContactoDesdeDatalist(valor, list, contactoInput){
+  const val = String(valor || '').trim();
+  if(!val) return;
+
+  const opt = Array.from(list.querySelectorAll('option')).find(o => o.value === val);
+  if(!opt) return;
+
+  const telRaw = opt.getAttribute('data-contacto') || '';
+  const tel    = telRaw.replace(/\D/g, '');   // debe quedar 3103230712
+
+  contactoInput.value = tel;
+}
+
 bindResponsablesQuery();
   
 /* Guardar evento */
