@@ -3201,73 +3201,52 @@ document.getElementById('pubFechaOk')?.addEventListener('click', ()=>{
 
 // AUTOCOMPLETE RESPONSABLE (simple, sin AbortController)
 function bindResponsablesQuery(){
-  const input         = document.getElementById('nombre');          // Responsable
-  const list          = document.getElementById('dl-responsables'); // datalist
-  const contactoInput = document.getElementById('contacto');        // Contacto (automático)
+  const input = document.getElementById('nombre');
+  const list = document.getElementById('dl-responsables');
+  if(!input || !list) return;
 
-  if(!input || !list || !contactoInput){
-    console.warn('bindResponsablesQuery: faltan elementos');
-    return;
-  }
-
-  // Cada vez que se escribe en RESPONSABLE, hace un fetch directo
-  input.addEventListener('input', async () => {
+  let t = null;
+  input.addEventListener('input', ()=>{
     const q = input.value.trim();
     list.innerHTML = '';
-    contactoInput.value = '';
-
-    if(!q){
-      return;
-    }
-
-    try{
-      const url = new URL(API_BASE);
-      url.search = new URLSearchParams({
-        action: 'getResponsablesCalendario',
-        query: q
-      }).toString();
-
-      const r = await fetch(url.toString(), { method:'GET' });
-      const j = await r.json();
-
-      if(!j.ok || !Array.isArray(j.data)){
-        console.warn('getResponsablesCalendario: respuesta no ok', j);
-        return;
-      }
-
-      const data = j.data;
-      list.innerHTML = '';
-
-      data.forEach(item => {
-        const opt = document.createElement('option');
-        opt.value = item.nombre;              // columna B
-        opt.dataset.contacto = item.contacto; // columna I (teléfono crudo)
-        list.appendChild(opt);
-      });
-    }catch(e){
-      console.error('Error getResponsablesCalendario', e);
-    }
+    if(t) clearTimeout(t);
+    if(!q) return;
+    t = setTimeout(async ()=>{
+      try{
+        const url = new URL(API_BASE);
+        url.search = new URLSearchParams({
+          action: 'getResponsablesCalendario',
+          query: q
+        }).toString();
+        const r = await fetch(url.toString(), { method:'GET' });
+        const j = await r.json();
+        const data = (j && j.ok && Array.isArray(j.data)) ? j.data : [];
+        list.innerHTML = '';
+        data.forEach(item=>{
+          const opt = document.createElement('option');
+          opt.value = item.nombre;
+          opt.dataset.contacto = item.contacto;
+          list.appendChild(opt);
+        });
+      }catch(_){}
+    }, 200);
   });
 
-  // Cuando el usuario selecciona una opción del datalist
-  input.addEventListener('change', () => {
+  input.addEventListener('change', ()=>{
     const val = input.value.trim();
-    if(!val){
-      contactoInput.value = '';
-      return;
-    }
+    if(!val) return;
     const opts = Array.from(list.options || []);
     const found = opts.find(o => o.value === val);
     if(found){
-      const tel = String(found.dataset.contacto || '').replace(/\D/g,'');
-      contactoInput.value = tel; // se guarda tal cual: 3103230712
-    }else{
-      contactoInput.value = '';
+      const tel = String(found.dataset.contacto||'').replace(/\D/g,'');
+      const contactoInput = document.getElementById('contacto');
+      if(contactoInput){
+        // se guarda tal cual: 3103230712
+        contactoInput.value = tel;
+      }
     }
   });
 }
-
-// activar
 bindResponsablesQuery();
   
 /* Guardar evento */
