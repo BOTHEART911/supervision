@@ -436,12 +436,12 @@
     background:var(--primary);
     color:#fff;
   }
-   .cal-event-chip{
+    .cal-event-chip{
     margin-top:3px;
-    padding:3px 4px;
+    padding:2px 3px;
     border-radius:8px;
-    font-size:clamp(.50rem, 1.0vw, .70rem);
-    line-height:1.25;
+    font-size:clamp(.42rem, 0.9vw, .68rem);
+    line-height:1.2;
     cursor:pointer;
     color:#111;
     box-shadow:0 1px 3px rgba(0,0,0,.16);
@@ -449,11 +449,11 @@
   .cal-event-chip .cal-evt-title{
     font-weight:800;
     display:block;
-    font-size:clamp(.52rem, 1.1vw, .78rem);
+    font-size:clamp(.44rem, 1.0vw, .76rem);
   }
   .cal-event-chip .cal-evt-time{
     font-weight:600;
-    font-size:clamp(.46rem, 0.95vw, .68rem);
+    font-size:clamp(.40rem, 0.85vw, .64rem);
   }
   .cal-event-chip.programado{
     background:#fed7aa;
@@ -3158,13 +3158,11 @@ function calInitSimplePicker(dSelId,mSelId,aSelId){
     }
   }
   if(aSel && !aSel.childElementCount){
-    const yNow = new Date().getFullYear();
-    for(let y=yNow-2; y<=yNow+2; y++){
-      const opt = document.createElement('option');
-      opt.value = String(y);
-      opt.textContent = String(y);
-      aSel.appendChild(opt);
-    }
+    const fixedYear = 2026;
+    const opt = document.createElement('option');
+    opt.value = String(fixedYear);
+    opt.textContent = String(fixedYear);
+    aSel.appendChild(opt);
   }
 }
 
