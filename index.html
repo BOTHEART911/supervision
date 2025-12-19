@@ -1045,8 +1045,8 @@
           />
 
           <label for="nombre">Responsable</label>
-<input id="nombre" type="text" list="dl-responsables" placeholder="Escribe y selecciona">
-<datalist id="dl-responsables"></datalist>
+          <input id="nombre" type="text" list="dl-responsables" placeholder="Escribe y selecciona">
+          <datalist id="dl-responsables"></datalist>
 
           <label for="contacto">Contacto (automático)</label>
           <input id="contacto" type="text" readonly>
@@ -3199,84 +3199,58 @@ document.getElementById('pubFechaOk')?.addEventListener('click', ()=>{
   }
 });
 
-/* Autocompletar Responsable usando hoja CONTRATISTAS
-   Igual que el query de MUNICIPIOS en indexref, pero apuntando a getResponsablesCalendario.
-*/
+// AUTOCOMPLETE RESPONSABLE (simple, sin AbortController)
 function bindResponsablesQuery(){
-  const input         = document.getElementById('nombre');          // campo Responsable
+  const input         = document.getElementById('nombre');          // Responsable
   const list          = document.getElementById('dl-responsables'); // datalist
-  const contactoInput = document.getElementById('contacto');        // campo Contacto (automático)
+  const contactoInput = document.getElementById('contacto');        // Contacto (automático)
 
-  if(!input || !list || !contactoInput) return;
+  if(!input || !list || !contactoInput){
+    console.warn('bindResponsablesQuery: faltan elementos');
+    return;
+  }
 
-  let t = null;
-  let abortCtrl = null;
-  const cache = new Map(); // cache local por texto buscado
-
-  // Cada vez que se escribe en RESPONSABLE
-  input.addEventListener('input', ()=>{
+  // Cada vez que se escribe en RESPONSABLE, hace un fetch directo
+  input.addEventListener('input', async () => {
     const q = input.value.trim();
     list.innerHTML = '';
+    contactoInput.value = '';
 
-    // Si se borra el texto, también limpiamos el contacto
     if(!q){
-      if(abortCtrl) abortCtrl.abort();
-      contactoInput.value = '';
       return;
     }
 
-    if(t) clearTimeout(t);
+    try{
+      const url = new URL(API_BASE);
+      url.search = new URLSearchParams({
+        action: 'getResponsablesCalendario',
+        query: q
+      }).toString();
 
-    t = setTimeout(async ()=>{
-      // cache
-      if(cache.has(q)){
-        const data = cache.get(q);
-        list.innerHTML = '';
-        data.forEach(item=>{
-          const opt = document.createElement('option');
-          opt.value = item.nombre;              // lo que verá y seleccionará el usuario
-          opt.dataset.contacto = item.contacto; // teléfono en crudo, ej: 3103230712
-          list.appendChild(opt);
-        });
+      const r = await fetch(url.toString(), { method:'GET' });
+      const j = await r.json();
+
+      if(!j.ok || !Array.isArray(j.data)){
+        console.warn('getResponsablesCalendario: respuesta no ok', j);
         return;
       }
 
-      // cancelar petición previa, si existía
-      if(abortCtrl) abortCtrl.abort();
-      abortCtrl = new AbortController();
+      const data = j.data;
+      list.innerHTML = '';
 
-      try{
-        const url = new URL(API_BASE);
-        url.search = new URLSearchParams({
-          action: 'getResponsablesCalendario',
-          query: q
-        }).toString();
-
-        const r = await fetch(url.toString(), {
-          method: 'GET',
-          signal: abortCtrl.signal
-        });
-        const j = await r.json();
-        const data = (j && j.ok && Array.isArray(j.data)) ? j.data : [];
-
-        cache.set(q, data);
-
-        list.innerHTML = '';
-        data.forEach(item=>{
-          const opt = document.createElement('option');
-          opt.value = item.nombre;              // columna B
-          opt.dataset.contacto = item.contacto; // columna I
-          list.appendChild(opt);
-        });
-      }catch(e){
-        // no rompemos la UI por errores de red
-        console.warn('Error getResponsablesCalendario', e);
-      }
-    }, 150); // pequeño debounce
+      data.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.nombre;              // columna B
+        opt.dataset.contacto = item.contacto; // columna I (teléfono crudo)
+        list.appendChild(opt);
+      });
+    }catch(e){
+      console.error('Error getResponsablesCalendario', e);
+    }
   });
 
-  // Cuando el usuario selecciona un nombre del datalist
-  input.addEventListener('change', ()=>{
+  // Cuando el usuario selecciona una opción del datalist
+  input.addEventListener('change', () => {
     const val = input.value.trim();
     if(!val){
       contactoInput.value = '';
@@ -3285,17 +3259,15 @@ function bindResponsablesQuery(){
     const opts = Array.from(list.options || []);
     const found = opts.find(o => o.value === val);
     if(found){
-      // Teléfono tal cual viene, solo dígitos
       const tel = String(found.dataset.contacto || '').replace(/\D/g,'');
-      contactoInput.value = tel;
+      contactoInput.value = tel; // se guarda tal cual: 3103230712
     }else{
-      // Si escribe algo que no corresponde a ninguna opción, limpiamos contacto
       contactoInput.value = '';
     }
   });
 }
 
-// activar el binding al cargar el script
+// activar
 bindResponsablesQuery();
   
 /* Guardar evento */
