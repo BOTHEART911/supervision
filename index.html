@@ -440,7 +440,7 @@
     margin-top:3px;
     padding:4px 6px;
     border-radius:8px;
-    font-size:.75rem;
+    font-size:clamp(.58rem, 1.2vw, .75rem);
     line-height:1.25;
     cursor:pointer;
     color:#111;
@@ -449,10 +449,11 @@
   .cal-event-chip .cal-evt-title{
     font-weight:800;
     display:block;
+    font-size:clamp(.6rem, 1.4vw, .8rem);
   }
   .cal-event-chip .cal-evt-time{
     font-weight:600;
-    font-size:.7rem;
+    font-size:clamp(.52rem, 1.1vw, .7rem);
   }
   .cal-event-chip.programado{
     background:#fed7aa;
@@ -3071,16 +3072,39 @@ function calResetEventoForm(){
 }
 
 function calFillEventoForm(ev){
+  // Asegurar que fechaEvento y publicacion queden en dd/mm/aaaa
+  function ensureDMY(v){
+    if (!v) return '';
+    if (Object.prototype.toString.call(v) === '[object Date]' && !isNaN(v.getTime())){
+      const dd = String(v.getDate()).padStart(2,'0');
+      const mm = String(v.getMonth()+1).padStart(2,'0');
+      const yy = v.getFullYear();
+      return dd + '/' + mm + '/' + yy;
+    }
+    const s = String(v);
+    // Si ya viene como dd/mm/aaaa, se respeta
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(s.trim())) return s.trim();
+    // Intentar parsear otras formas
+    const d = new Date(s);
+    if (!isNaN(d.getTime())){
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const yy = d.getFullYear();
+      return dd + '/' + mm + '/' + yy;
+    }
+    return s;
+  }
+
   document.getElementById('evento-codigo').value = ev.codigo || '';
   document.getElementById('nombreEvento').value = ev.nombreEvento || '';
-  document.getElementById('fechaEvento').value = ev.fechaEvento || '';
+  document.getElementById('fechaEvento').value = ensureDMY(ev.fechaEvento || '');
   document.getElementById('horaInicio').value = ev.horaInicio24 || '';
   document.getElementById('horaTerminacion').value = ev.horaTerminacion24 || '';
   document.getElementById('secretaria').value = ev.secretaria || '';
   document.getElementById('otros').value = ev.otros || '';
   document.getElementById('lugar').value = ev.lugar || '';
   document.getElementById('detalles').value = ev.detalles || '';
-  document.getElementById('publicacion').value = ev.publicacion || '';
+  document.getElementById('publicacion').value = ensureDMY(ev.publicacion || '');
   document.getElementById('nombre').value = ev.nombre || '';
   document.getElementById('contacto').value = ev.contacto || '';
   document.getElementById('cargo').value = ev.cargo || '';
