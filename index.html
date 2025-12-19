@@ -3206,11 +3206,14 @@ function bindResponsablesQuery(){
   if(!input || !list) return;
 
   let t = null;
+
+  // Autocompletar nombres desde la hoja CONTRATISTAS (columna B)
   input.addEventListener('input', ()=>{
     const q = input.value.trim();
     list.innerHTML = '';
     if(t) clearTimeout(t);
     if(!q) return;
+
     t = setTimeout(async ()=>{
       try{
         const url = new URL(API_BASE);
@@ -3218,32 +3221,38 @@ function bindResponsablesQuery(){
           action: 'getResponsablesCalendario',
           query: q
         }).toString();
+
         const r = await fetch(url.toString(), { method:'GET' });
         const j = await r.json();
         const data = (j && j.ok && Array.isArray(j.data)) ? j.data : [];
+
         list.innerHTML = '';
         data.forEach(item=>{
           const opt = document.createElement('option');
-          opt.value = item.nombre;
-          opt.dataset.contacto = item.contacto;
+          opt.value = item.nombre;         // texto que ve el usuario
+          opt.setAttribute('data-contacto', item.contacto || '');
           list.appendChild(opt);
         });
       }catch(_){}
     }, 200);
   });
 
+  // Cuando el usuario selecciona un Responsable, llenar Contacto
   input.addEventListener('change', ()=>{
     const val = input.value.trim();
     if(!val) return;
-    const opts = Array.from(list.options || []);
-    const found = opts.find(o => o.value === val);
-    if(found){
-      const tel = String(found.dataset.contacto||'').replace(/\D/g,'');
-      const contactoInput = document.getElementById('contacto');
-      if(contactoInput){
-        // se guarda tal cual: 3103230712
-        contactoInput.value = tel;
-      }
+
+    // Buscar el option cuyo value coincide exactamente con lo escrito
+    const opt = Array.from(list.querySelectorAll('option')).find(o => o.value === val);
+    if(!opt) return;
+
+    // Leer el teléfono de data-contacto, limpiar a solo dígitos y ponerlo en Contacto
+    const telRaw = opt.getAttribute('data-contacto') || '';
+    const tel = telRaw.replace(/\D/g, '');   // debe quedar 3103230712
+
+    const contactoInput = document.getElementById('contacto');
+    if(contactoInput){
+      contactoInput.value = tel;
     }
   });
 }
