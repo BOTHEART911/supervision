@@ -562,32 +562,40 @@
     height:16px;
   }
 
-      .contacto-wrap{
-    display:flex;
-    align-items:center;
-    gap:8px;
+   .contacto-wrap{
+    position:relative;
+    width:100%;
   }
   .contacto-wrap input#contacto{
-    flex:1 1 auto;
+    width:100%;
+    padding-right:44px; /* espacio para el icono dentro del mismo campo */
   }
   .contacto-wa-btn{
-    flex:0 0 auto;
-    padding:6px !important;
+    position:absolute;
+    top:50%;
+    right:8px;
+    transform:translateY(-50%);
+    width:32px;
+    height:32px;
+    padding:0 !important;
+    margin:0;
     border:0 !important;
     background:transparent !important;
     box-shadow:none !important;
     cursor:pointer;
-    transition:transform .12s ease;
+    display:flex;
+    align-items:center;
+    justify-content:center;
   }
   .contacto-wa-btn img{
-    width:32px;
-    height:32px;
+    width:26px;
+    height:26px;
     display:block;
     object-fit:contain;
     pointer-events:none;
   }
-  .contacto-wa-btn:hover{ transform:scale(1.05); }
-  .contacto-wa-btn:active{ transform:scale(.93); }
+  .contacto-wa-btn:hover img{ transform:scale(1.06); }
+  .contacto-wa-btn:active img{ transform:scale(.92); }
 
   .picker-modal-cal{
     position:fixed;
