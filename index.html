@@ -2856,9 +2856,21 @@ function calAmPmFromHM(h,m){
   return calPad2(hh) + ':' + calPad2(m) + ' ' + sufijo;
 }
 
-function calStatusColorClass(estado, secretaria){
-  const v = String(secretaria||'').trim().toUpperCase();
-  const st = String(estado||'').trim().toUpperCase();
+ function calStatusColorClass(estado, secretaria){
+    // Normaliza y quita acentos para comparar de forma estable
+    function normalizeSec(s){
+      if(!s) return '';
+      return String(s)
+        .normalize('NFD')                // separa letras y tildes
+        .replace(/[\u0300-\u036f]/g,'') // quita tildes
+        .toUpperCase()
+        .trim();
+    }
+
+    const vRaw = String(secretaria||'');
+    const v = normalizeSec(vRaw);
+    const st = String(estado||'').trim().toUpperCase();
+
 
   const base =
    v === 'DESPACHO MUNICIPAL' ? 'sec-despacho' :
