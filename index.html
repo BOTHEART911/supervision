@@ -2857,30 +2857,16 @@ function calAmPmFromHM(h,m){
 }
 
  function calStatusColorClass(estado, secretaria){
-    // Normaliza y quita acentos para comparar de forma estable
-    function normalizeSec(s){
-      if(!s) return '';
-      return String(s)
-        .normalize('NFD')                // separa letras y tildes
-        .replace(/[\u0300-\u036f]/g,'') // quita tildes
-        .toUpperCase()
-        .trim();
-    }
-
-    const vRaw = String(secretaria||'');
-    const v = normalizeSec(vRaw);
-    const st = String(estado||'').trim().toUpperCase();
-
-
-  const base =
-   v === 'DESPACHO MUNICIPAL' ? 'sec-despacho' :
-      v === 'SECRETARIA DE GOBIERNO Y SERVICIOS ADMINISTRATIVOS' ? 'sec-gobierno' :
-      v === 'SECRETARIA DE HACIENDA' ? 'sec-hacienda' :
-      v === 'SECRETARIA DE EDUCACION, DESARROLLO ECONOMICO Y SOCIAL' ? 'sec-educacion' :
-      v === 'SECRETARIA DE PLANEACION E INFRAESTRUCTURA' ? 'sec-planeacion' :
-      v === 'SECRETARIA DE ASUNTOS AGROPECUARIOS' ? 'sec-agro' :
-      v === 'SECRETARIA DE SALUD' ? 'sec-salud' :
-    'sec-default';
+  const v = String(secretaria||'').trim().toUpperCase();
+  if(v === 'DESPACHO MUNICIPAL') return 'cal-event-chip sec-despacho';
+  if(v === 'SECRETARÍA DE GOBIERNO Y SERVICIOS ADMINISTRATIVOS') return 'cal-event-chip sec-gobierno';
+  if(v === 'SECRETARÍA DE HACIENDA') return 'cal-event-chip sec-hacienda';
+  if(v === 'SECRETARÍA DE EDUCACIÓN, DESARROLLO ECONÓMICO Y SOCIAL') return 'cal-event-chip sec-educacion';
+  if(v === 'SECRETARÍA DE PLANEACIÓN E INFRAESTRUCTURA') return 'cal-event-chip sec-planeacion';
+  if(v === 'SECRETARÍA DE ASUNTOS AGROPECUARIOS') return 'cal-event-chip sec-agro';
+  if(v === 'SECRETARÍA DE SALUD') return 'cal-event-chip sec-salud';
+  return 'cal-event-chip sec-default';
+}
 
   // PROGRAMADO: solo borde (clase base)
   if(st === 'PROGRAMADO'){
