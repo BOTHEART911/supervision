@@ -11,7 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <style>
+    <style>
   :root{
     --primary:#06402B;    /* verde institucional */
     --primary-2:#04281C;
@@ -74,110 +74,113 @@
   }
   .danger{ background:#e11; border-color:#e11; color:#fff; }
 
-  /* Botones de icono */
-  .btn-icon{
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
-    padding: 10px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .btn-icon:hover,
-  .btn-icon:active{
-    background: transparent !important;
-    color: inherit !important;
-    border: 0 !important;
-  }
-  .btn-icon:focus-visible{
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(4,40,28,.28);
-    border-radius: 10px;
-  }
-  .btn-icon img{
-    width: 80px;
-    height: 80px;
-    display: block;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    pointer-events: none;
-  }
+ /* Botones de icono: sin recuadro ni fondo, con enfoque accesible */
+.btn-icon{
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 10px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-icon:hover,
+.btn-icon:active{
+  background: transparent !important;
+  color: inherit !important;
+  border: 0 !important;
+}
+.btn-icon:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(4,40,28,.28);
+  border-radius: 10px;
+}
+.btn-icon img{
+  width: 80px;
+  height: 80px;
+  display: block;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  pointer-events: none;
+}
 
-  /* Alinear íconos WhatsApp y Drive en UNA MISMA LÍNEA dentro de cada contratista */
+/* Alinear íconos WhatsApp y Drive en UNA MISMA LÍNEA dentro de cada contratista */
+.contr-actions{
+  display:flex;
+  flex-wrap:nowrap;
+}
+.contr-actions .left-group{
+  display:flex;
+  gap:12px;
+  flex:1 1 auto;
+}
+.contr-actions .right-group{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:12px;
+  margin-left:12px;
+  flex:0 0 auto;
+  min-width:auto;
+}
+
+/* Afinar íconos en el grupo derecho (tamaño y efecto) */
+.contr-actions .right-group .btn-icon{
+  flex:0 0 auto;
+  width:auto;
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  padding:6px !important;
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  cursor:pointer;
+  transition:transform .12s ease;
+}
+.contr-actions .right-group .btn-icon:hover{ transform:scale(1.08); }
+.contr-actions .right-group .btn-icon:active{ transform:scale(.94); }
+.contr-actions .right-group .btn-icon img{
+  width:44px !important;
+  height:44px !important;
+  display:block;
+  object-fit:contain;
+  pointer-events:none;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));
+}
+
+/* Responsive: en móviles, íconos arriba y botones grandes abajo */
+@media (max-width:700px){
   .contr-actions{
-    display:flex;
-    flex-wrap:nowrap;
-  }
-  .contr-actions .left-group{
-    display:flex;
-    gap:12px;
-    flex:1 1 auto;
+    flex-wrap: wrap !important;
+    align-items: center;
   }
   .contr-actions .right-group{
-    display:flex;
-    align-items:center;
-    justify-content:flex-end;
-    gap:12px;
-    margin-left:12px;
-    flex:0 0 auto;
-    min-width:auto;
+    order: 1 !important;
+    flex: 0 0 100% !important;
+    justify-content: flex-end !important;
+    margin-left: 0 !important;
+    margin-top: 0 !important;
   }
-  .contr-actions .right-group .btn-icon{
-    flex:0 0 auto;
-    width:auto;
-    display:inline-flex !important;
-    align-items:center;
-    justify-content:center;
-    padding:6px !important;
-    border:0 !important;
-    background:transparent !important;
-    box-shadow:none !important;
-    cursor:pointer;
-    transition:transform .12s ease;
+  .contr-actions .left-group{
+    order: 2 !important;
+    flex: 0 0 100% !important;
+    min-width: 0;
+    margin-top: 8px;
+    display: flex;
+    gap: 12px;
   }
-  .contr-actions .right-group .btn-icon:hover{ transform:scale(1.08); }
-  .contr-actions .right-group .btn-icon:active{ transform:scale(.94); }
-  .contr-actions .right-group .btn-icon img{
-    width:44px !important;
-    height:44px !important;
-    display:block;
-    object-fit:contain;
-    pointer-events:none;
-    filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));
+  .contr-actions .left-group > button{
+    flex: 1 1 48%;
   }
-
-  @media (max-width:700px){
-    .contr-actions{
-      flex-wrap: wrap !important;
-      align-items: center;
-    }
-    .contr-actions .right-group{
-      order: 1 !important;
-      flex: 0 0 100% !important;
-      justify-content: flex-end !important;
-      margin-left: 0 !important;
-      margin-top: 0 !important;
-    }
-    .contr-actions .left-group{
-      order: 2 !important;
-      flex: 0 0 100% !important;
-      min-width: 0;
-      margin-top: 8px;
-      display: flex;
-      gap: 12px;
-    }
-    .contr-actions .left-group > button{
-      flex: 1 1 48%;
-    }
+}
+/* Extra: si la pantalla es muy estrecha, apila los botones verticalmente */
+@media (max-width:400px){
+  .contr-actions .left-group > button{
+    flex: 1 1 100%;
   }
-  @media (max-width:400px){
-    .contr-actions .left-group > button{
-      flex: 1 1 100%;
-    }
-  }
-
+}
   /* Loader centrado */
   .loader{
     position:fixed; inset:0;
@@ -238,6 +241,7 @@
   .item-title{ font-weight:900; font-size:1rem; color:var(--primary); margin:0; }
   .item-sub{ font-size:.72rem; font-weight:700; color:#333; margin:0; }
 
+
   /* Secciones expandibles en Revisión */
   .section-toggle{ margin:12px 0; }
   .section-content{
@@ -260,7 +264,7 @@
     border-radius:10px; border:2px solid #ddd; background:#eee; cursor:zoom-in; display:block; margin:0 auto;
   }
 
-  /* Overlay Menú lateral */
+  /* Overlay Menú lateral (inspirado en referencia.md) */
   .overlay{ position: fixed; inset: 0; pointer-events:none; }
   .overlay .scrim{ position:absolute; inset:0; background:var(--scrim); opacity:0; transition:opacity .25s ease; }
   .overlay .panel{
@@ -278,28 +282,25 @@
     border-radius:999px; padding:12px; box-shadow: 0 6px 12px rgba(0,0,0,.18);
   }
 
-  /* Avatar inicio */
-  .avatar-emoji{
-    width:120px;
-    height:120px;
-    display:block;
-    margin:0 auto;
-  }
-  .avatar-img{
-    width:160px;
-    height:160px;
-    border-radius:999px;
-    border:2px solid #fff;
-    object-fit:cover;
-    display:block;
-    margin:0 auto;
-  }
+/* Avatar inicio: ajusta tamaño aquí */
+.avatar-emoji{
+  width:120px;
+  height:120px;
+  display:block;
+  margin:0 auto;           /* centra horizontalmente */
+}
+.avatar-img{
+  width:160px;
+  height:160px;
+  border-radius:999px;
+  border:2px solid #fff;
+  object-fit:cover;
+  display:block;
+  margin:0 auto;           /* centra horizontalmente */
+}
 
   /* Firma preview */
-  .firma-preview{
-    max-width:260px; border-radius:12px; border:1.5px solid #d8e4ff;
-    margin:8px auto 0; display:block;
-  }
+  .firma-preview{ max-width:260px; border-radius:12px; border:1.5px solid #d8e4ff; margin:8px auto 0; display:block; }
 
   @media (max-width: 700px){
     .btn-row{ flex-direction:column; }
@@ -315,26 +316,26 @@
   }
   .toggle-cedula img{ width:22px; height:22px; display:block; }
 
-  .modal-backdrop{
-    position:fixed; inset:0;
-    background:rgba(0,0,0,.55);
-    display:flex; align-items:center; justify-content:center;
-    z-index:9998; padding:20px;
-  }
-  .modal-backdrop.hidden{ display:none !important; }
-  .modal{
-    background:#fff; border-radius:16px;
-    max-width:520px; width:100%;
-    padding:20px 20px 14px;
-    box-shadow:0 8px 22px rgba(0,0,0,.25);
-    animation:modalIn .25s ease;
-  }
-  @keyframes modalIn{
-    from{ opacity:0; transform:translateY(12px); }
-    to{ opacity:1; transform:translateY(0); }
-  }
+    .modal-backdrop{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.55);
+  display:flex; align-items:center; justify-content:center;
+  z-index:9998; padding:20px;
+}
+.modal-backdrop.hidden{ display:none !important; }
+.modal{
+  background:#fff; border-radius:16px;
+  max-width:520px; width:100%;
+  padding:20px 20px 14px;
+  box-shadow:0 8px 22px rgba(0,0,0,.25);
+  animation:modalIn .25s ease;
+}
+@keyframes modalIn{
+  from{ opacity:0; transform:translateY(12px); }
+  to{ opacity:1; transform:translateY(0); }
+}
 
-    /* ================== CALENDARIO INSTITUCIONAL (CONTRATISTA) ================== */
+  /* CALENDARIO INSTITUCIONAL */
   .cal-wrapper{
     max-width: 960px;
     margin: 0 auto;
@@ -435,8 +436,7 @@
     background:var(--primary);
     color:#fff;
   }
-
-  .cal-event-chip{
+      .cal-event-chip{
     margin-top:2px;
     padding:1px 2px;
     border-radius:8px;
@@ -455,39 +455,13 @@
     font-weight:600;
     font-size:clamp(.30rem, 0.65vw, .56rem);
   }
-
-  /* Colores por secretaría (fondos claros distintos) */
-  .sec-despacho{
-    background:#fee2e2;
-    border:1px solid #f87171;
+  .cal-event-chip.programado{
+    background:#fed7aa;
+    border:1px solid #f97316;
   }
-  .sec-gobierno{
-    background:#dbeafe;
-    border:1px solid #60a5fa;
-  }
-  .sec-hacienda{
-    background:#fef3c7;
-    border:1px solid #facc15;
-  }
-  .sec-educacion{
-    background:#dcfce7;
+  .cal-event-chip.completado{
+    background:#bbf7d0;
     border:1px solid #22c55e;
-  }
-  .sec-planeacion{
-    background:#ede9fe;
-    border:1px solid #a855f7;
-  }
-  .sec-agro{
-    background:#f5f3ff;
-    border:1px solid #8b5cf6;
-  }
-  .sec-salud{
-    background:#cffafe;
-    border:1px solid #06b6d4;
-  }
-  .sec-default{
-    background:#e5e7eb;
-    border:1px solid #9ca3af;
   }
 
   .cal-day-view,
@@ -563,59 +537,160 @@
     flex-wrap:wrap;
   }
 
-  /* Solo reducir tamaño de la LEYENDA de secretarías en pantallas pequeñas */
+      .cal-event-chip{
+    margin-top:2px;
+    padding:1px 2px;
+    border-radius:8px;
+    font-size:clamp(.32rem, 0.7vw, .58rem);
+    line-height:1.1;
+    cursor:pointer;
+    color:#111;
+    box-shadow:0 1px 3px rgba(0,0,0,.16);
+  }
+  .cal-event-chip .cal-evt-title{
+    font-weight:800;
+    display:block;
+    font-size:clamp(.34rem, 0.8vw, .66rem);
+  }
+  .cal-event-chip .cal-evt-time{
+    font-weight:600;
+    font-size:clamp(.30rem, 0.65vw, .56rem);
+  }
+
+  /* Colores por secretaría (fondos y bordes) */
+  .sec-despacho{
+    background:#fee2e2;
+    border:1px solid #f87171;
+  }
+  .sec-gobierno{
+    background:#dbeafe;
+    border:1px solid #60a5fa;
+  }
+  .sec-hacienda{
+    background:#fef3c7;
+    border:1px solid #facc15;
+  }
+  .sec-educacion{
+    background:#dcfce7;
+    border:1px solid #22c55e;
+  }
+  .sec-planeacion{
+    background:#ede9fe;
+    border:1px solid #a855f7;
+  }
+  .sec-agro{
+    background:#f5f3ff;
+    border:1px solid #8b5cf6;
+  }
+  .sec-salud{
+    background:#cffafe;
+    border:1px solid #06b6d4;
+  }
+  .sec-default{
+    background:#e5e7eb;
+    border:1px solid #9ca3af;
+  }
+
+  /* Versión solo borde (incompletos) */
+  .sec-despacho-outline{
+    background:transparent;
+    border:1px solid #f87171;
+  }
+  .sec-gobierno-outline{
+    background:transparent;
+    border:1px solid #60a5fa;
+  }
+  .sec-hacienda-outline{
+    background:transparent;
+    border:1px solid #facc15;
+  }
+  .sec-educacion-outline{
+    background:transparent;
+    border:1px solid #22c55e;
+  }
+  .sec-planeacion-outline{
+    background:transparent;
+    border:1px solid #a855f7;
+  }
+  .sec-agro-outline{
+    background:transparent;
+    border:1px solid #8b5cf6;
+  }
+  .sec-salud-outline{
+    background:transparent;
+    border:1px solid #06b6d4;
+  }
+  .sec-default-outline{
+    background:transparent;
+    border:1px solid #9ca3af;
+  }
+
+  /* Leyenda responsiva igual que index.md (si quieres mostrarla luego) */
+  .cal-legend{
+    margin-top:4px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    font-size:.75rem;
+    color:#6b7280;
+  }
+  .cal-legend-item{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    white-space:nowrap;
+  }
+  .cal-legend-dot{
+    width:10px;
+    height:10px;
+    border-radius:999px;
+    display:inline-block;
+    border:1px solid transparent;
+  }
+  .cal-legend-despacho{
+    background:#fee2e2;
+    border-color:#f87171;
+  }
+  .cal-legend-gobierno{
+    background:#dbeafe;
+    border-color:#60a5fa;
+  }
+  .cal-legend-hacienda{
+    background:#fef3c7;
+    border-color:#facc15;
+  }
+  .cal-legend-educacion{
+    background:#dcfce7;
+    border-color:#22c55e;
+  }
+  .cal-legend-planeacion{
+    background:#ede9fe;
+    border-color:#a855f7;
+  }
+  .cal-legend-agro{
+    background:#f5f3ff;
+    border-color:#8b5cf6;
+  }
+  .cal-legend-salud{
+    background:#cffafe;
+    border-color:#06b6d4;
+  }
+
   @media (max-width: 480px){
     .cal-legend{
-      font-size: 0.45rem !important;
-      gap: 2px !important;
+      font-size:0.45rem !important;
+      gap:2px !important;
     }
-
     .cal-legend-item{
-      gap: 2px !important;
+      gap:2px !important;
     }
-
     .cal-legend-dot{
-      width: 5px !important;
-      height: 5px !important;
+      width:5px !important;
+      height:5px !important;
     }
   }
 
-  /* Picker modales para fechas en calendario/solicitud prensa */
-  .picker-modal-cal{
-    position:fixed;
-    inset:0;
-    display:none;
-    align-items:flex-start;
-    justify-content:center;
-    padding-top:32px;
-    background:rgba(0,0,0,.5);
-    z-index:9999;
-  }
-  .picker-modal-cal[aria-hidden="false"]{
-    display:flex;
-  }
-  .picker-box-cal{
-    width:90%;
-    max-width:520px;
-    background:#fff;
-    border-radius:8px;
-    padding:16px;
-    box-shadow:0 8px 18px rgba(0,0,0,.18);
-  }
-  .picker-grid-cal{
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr;
-    gap:8px;
-    margin:12px 0;
-  }
-
-  /* Forzar que el modal de FECHA DE PUBLICACIÓN quede pegado abajo en solicitud prensa */
-  #publicacionFechaModal{
-    align-items:flex-end;
-    justify-content:center;
-    padding-top:0;
-    padding-bottom:16px;
-  }
   /* FORMULARIO REGISTRAR EVENTO */
   .cal-form-grid{
     display:flex;
@@ -641,13 +716,13 @@
     height:16px;
   }
 
-  .contacto-wrap{
+   .contacto-wrap{
     position:relative;
     width:100%;
   }
   .contacto-wrap input#contacto{
     width:100%;
-    padding-right:44px;
+    padding-right:44px; /* espacio para el icono dentro del mismo campo */
   }
   .contacto-wa-btn{
     position:absolute;
@@ -704,69 +779,14 @@
     margin:12px 0;
   }
 
-  /* Modal de FECHA DE PUBLICACIÓN pegado abajo */
-  #publicacionFechaModal{
-    align-items:flex-end;
-    justify-content:center;
-    padding-top:0;
-    padding-bottom:16px;
-  }
-
-      .contact-list{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  }
-  .contact-item{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-    background: rgba(255,255,255,.9);
-    border:2px solid #ddd;
-    border-radius:16px;
-    padding:10px 12px;
-    box-shadow:0 6px 14px rgba(0,0,0,.12);
-  }
-  .contact-main{
-    display:flex;
-    flex-direction:column;
-    gap:2px;
-  }
-  .contact-name{
-    font-weight:900;
-    color:#06402B;
-  }
-  .contact-address{
-    font-size:.9rem;
-    color:#333;
-  }
-  .contact-actions-row{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:10px;
-    margin-top:6px;
-  }
-  .contact-actions-row a,
-  .contact-actions-row button{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:40px;
-    height:40px;
-    border-radius:10px;
-    border:2px solid var(--primary);
-    background:#fff;
-    box-shadow:0 4px 10px rgba(0,0,0,.16);
-    cursor:pointer;
-  }
-  .contact-actions-row img{
-    width:22px;
-    height:22px;
-    object-fit:contain;
-    border-radius:6px;
-    background:#fff;
-  }
+/* Forzar que el modal de FECHA DE PUBLICACIÓN quede pegado abajo */
+#publicacionFechaModal{
+  align-items:flex-end;
+  justify-content:center;
+  padding-top:0;
+  padding-bottom:16px;
+}
+    
   </style>
 </head>
 <body>
@@ -881,8 +901,6 @@
         <button class="menu-btn" id="go-actualizar">ACTUALIZAR FIRMA E IMAGEN</button>
         <button class="menu-btn" id="go-soporte">SOPORTE</button>
         <button class="menu-btn" id="go-calendario">CALENDARIO INSTITUCIONAL</button>
-        <button class="menu-btn" id="go-directorio">DIRECTORIO INSTITUCIONAL</button>
-        <button class="menu-btn" id="go-secop2">IR A SECOP II</button>
         <div style="height:24px"></div>
         <img class="brand" alt="Banner" src="https://res.cloudinary.com/dqqeavica/image/upload/v1763921425/Digital_sw3wk9.gif" />
         <p class="center muted">Copyright © <b>GOBIERNO DIGITAL</b></p>
@@ -1089,22 +1107,11 @@
       </div>
     </section>
 
-        <!-- VISTA DIRECTORIO INSTITUCIONAL -->
-    <section id="view-directorio" class="view">
-      <div class="card narrow">
-        <h2 style="color:var(--primary)">DIRECTORIO INSTITUCIONAL</h2>
-        <div id="dir-list" class="contact-list"></div>
-        <div class="btn-row spaced">
-          <button id="dir-volver" class="danger">REGRESAR</button>
-        </div>
-      </div>
-    </section>
-
-       <!-- VISTA CALENDARIO INSTITUCIONAL -->
+    <!-- VISTA CALENDARIO INSTITUCIONAL -->
     <section id="view-calendario" class="view">
       <div class="card">
         <div class="cal-wrapper">
-          <h2 style="color:var(--primary)">ACTIVIDADES INSTITUCIONALES ALCALDÍA DE FLANDES</h2>
+          <h2 style="color:var(--primary)">CALENDARIO INSTITUCIONAL</h2>
 
           <div class="cal-header">
             <div>
@@ -1128,51 +1135,21 @@
             </div>
           </div>
 
-          <!-- LEYENDA DE COLORES -->
-          <div class="cal-legend">
-            <span class="cal-legend-item">
-              <span class="cal-legend-dot cal-legend-despacho"></span>
-              DESPACHO MUNICIPAL
-            </span>
-            <span class="cal-legend-item">
-              <span class="cal-legend-dot cal-legend-gobierno"></span>
-              SECRETARÍA DE GOBIERNO Y SERVICIOS ADMINISTRATIVOS
-            </span>
-            <span class="cal-legend-item">
-              <span class="cal-legend-dot cal-legend-hacienda"></span>
-              SECRETARÍA DE HACIENDA
-            </span>
-            <span class="cal-legend-item">
-              <span class="cal-legend-dot cal-legend-educacion"></span>
-              SECRETARÍA DE EDUCACIÓN, DESARROLLO ECONÓMICO Y SOCIAL
-            </span>
-            <span class="cal-legend-item">
-              <span class="cal-legend-dot cal-legend-planeacion"></span>
-              SECRETARÍA DE PLANEACIÓN E INFRAESTRUCTURA
-            </span>
-            <span class="cal-legend-item">
-              <span class="cal-legend-dot cal-legend-agro"></span>
-              SECRETARÍA DE ASUNTOS AGROPECUARIOS
-            </span>
-            <span class="cal-legend-item">
-              <span class="cal-legend-dot cal-legend-salud"></span>
-              SECRETARÍA DE SALUD
-            </span>
-          </div>
-
           <div id="cal-container" class="cal-grid">
+            <!-- El contenido del calendario se construye desde JS -->
             <div style="padding:14px; text-align:center; font-size:.9rem;" class="muted">
               Cargando calendario…
             </div>
           </div>
 
           <div class="cal-footer-actions">
+            <button id="cal-btn-new" class="btn-primary">Ingresar Evento</button>
             <button id="cal-btn-back" class="danger">Regresar</button>
           </div>
         </div>
       </div>
     </section>
-    
+
     <!-- VISTA REGISTRAR / EDITAR EVENTO -->
     <section id="view-evento" class="view">
       <div class="card narrow">
@@ -2552,111 +2529,6 @@ document.getElementById('soporte-volver').addEventListener('click', ()=>{
   showView('view-inicio');
 });
 
-  /* ================== DIRECTORIO INSTITUCIONAL ================== */
-
-  document.getElementById('go-directorio')?.addEventListener('click', async ()=>{
-  overlay.classList.remove('open');
-  try{
-    const list = await apiGet('listDirectorio', {});
-    renderDirectorio(Array.isArray(list) ? list : []);
-    showView('view-directorio');
-  }catch(e){
-    Swal.fire({icon:'error', title:'Error', text:String(e.message||e)});
-  }
-});
-
-document.getElementById('dir-volver')?.addEventListener('click', ()=>{
-  playSoundOnce(SOUNDS.back);
-  showView('view-inicio');
-});
-
-  /* ================== SECOP II ================== */
-  
-  document.getElementById('go-secop2')?.addEventListener('click', ()=>{
-  playSoundOnce(SOUNDS.login);
-  overlay.classList.remove('open');
-  window.open(
-    'https://community.secop.gov.co/STS/Users/Login/Index?SkinName=CCE&currentLanguage=es-CO&Page=login&Country=CO',
-    '_blank',
-    'noopener'
-  );
-});
-
-  function renderDirectorio(list){
-  const wrap = document.getElementById('dir-list');
-  if(!wrap) return;
-  wrap.innerHTML = '';
-
-  if(!Array.isArray(list) || !list.length){
-    const p = document.createElement('p');
-    p.className = 'muted center';
-    p.textContent = 'No hay contactos en el directorio.';
-    wrap.appendChild(p);
-    return;
-  }
-
-  list.forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'contact-item';
-
-    const main = document.createElement('div');
-    main.className = 'contact-main';
-
-    const name = document.createElement('div');
-    name.className = 'contact-name';
-    name.textContent = item.nombre || '';
-
-    const addr = document.createElement('div');
-    addr.className = 'contact-address';
-    addr.textContent = item.direccion || '';
-
-    main.appendChild(name);
-    main.appendChild(addr);
-
-    const actions = document.createElement('div');
-    actions.className = 'contact-actions-row';
-
-    if(item.maps){
-      const aMap = document.createElement('a');
-      aMap.href = item.maps;
-      aMap.target = '_blank';
-      aMap.rel = 'noopener';
-      aMap.innerHTML = '<img src="https://res.cloudinary.com/dqqeavica/image/upload/v1759166341/Maps_kx5czo.webp" alt="Maps">';
-      actions.appendChild(aMap);
-    }
-
-    if(item.correo){
-      const aMail = document.createElement('a');
-      aMail.href = 'mailto:' + item.correo;
-      aMail.innerHTML = '<img src="https://res.cloudinary.com/dqqeavica/image/upload/v1759166341/Correo_electronico_eiyzqp.webp" alt="Correo">';
-      actions.appendChild(aMail);
-    }
-
-    if(item.whatsapp){
-      const aWa = document.createElement('a');
-      const tel = String(item.whatsapp||'').replace(/\D/g,'');
-      const dest = tel ? 'https://wa.me/57' + tel : '#';
-      aWa.href = dest;
-      aWa.target = '_blank';
-      aWa.rel = 'noopener';
-      aWa.innerHTML = '<img src="https://res.cloudinary.com/dqqeavica/image/upload/v1759166341/WhatsApp_mljaqm.webp" alt="WhatsApp">';
-      actions.appendChild(aWa);
-    }
-
-    if(item.telefono){
-      const aTel = document.createElement('a');
-      const tel = String(item.telefono||'').replace(/\D/g,'');
-      aTel.href = 'tel:' + tel;
-      aTel.innerHTML = '<img src="https://res.cloudinary.com/dqqeavica/image/upload/v1759166341/Llamada_telefonica_nhxzdq.webp" alt="Llamar">';
-      actions.appendChild(aTel);
-    }
-
-    div.appendChild(main);
-    div.appendChild(actions);
-    wrap.appendChild(div);
-  });
-}
-
 /* ================== PWA AVANZADO ================== */
 let deferredPrompt = null;
 let __installStartShown = false;    // bandera: ya mostramos "App instalándose"
@@ -2871,34 +2743,11 @@ function calAmPmFromHM(h,m){
   return calPad2(hh) + ':' + calPad2(m) + ' ' + sufijo;
 }
 
-function calStatusColorClass(estado, secretaria){
-  const sec = String(secretaria||'').trim().toUpperCase();
-  const st  = String(estado||'').trim().toUpperCase();
-  const completo = (st === 'COMPLETADO');
-
-  // Mapeo de colores por secretaría (igual que index, pero con 2 variantes)
-  let baseClass = '';
-  if(sec === 'DESPACHO MUNICIPAL'){
-    baseClass = completo ? 'sec-despacho-full' : 'sec-despacho-border';
-  }else if(sec === 'SECRETARÍA DE GOBIERNO Y SERVICIOS ADMINISTRATIVOS'){
-    baseClass = completo ? 'sec-gobierno-full' : 'sec-gobierno-border';
-  }else if(sec === 'SECRETARÍA DE HACIENDA'){
-    baseClass = completo ? 'sec-hacienda-full' : 'sec-hacienda-border';
-  }else if(sec === 'SECRETARÍA DE EDUCACIÓN, DESARROLLO ECONÓMICO Y SOCIAL'){
-    baseClass = completo ? 'sec-educacion-full' : 'sec-educacion-border';
-  }else if(sec === 'SECRETARÍA DE PLANEACIÓN E INFRAESTRUCTURA'){
-    baseClass = completo ? 'sec-planeacion-full' : 'sec-planeacion-border';
-  }else if(sec === 'SECRETARÍA DE ASUNTOS AGROPECUARIOS'){
-    baseClass = completo ? 'sec-agro-full' : 'sec-agro-border';
-  }else if(sec === 'SECRETARÍA DE SALUD'){
-    baseClass = completo ? 'sec-salud-full' : 'sec-salud-border';
-  }else{
-    baseClass = completo ? 'sec-default-full' : 'sec-default-border';
-  }
-
-  return 'cal-event-chip ' + baseClass;
+function calStatusColorClass(estado){
+  const v = String(estado||'').trim().toUpperCase();
+  if(v === 'COMPLETADO') return 'cal-event-chip completado';
+  return 'cal-event-chip programado';
 }
-  
 function calEventMatchesFilter(ev, query){
   if(!query) return true;
   const q = query.toLowerCase();
@@ -3039,7 +2888,7 @@ function calRenderMonth(cont, filterVal){
 
     events.forEach(ev => {
       const chip = document.createElement('div');
-      chip.className = calStatusColorClass(ev.estado, ev.secretaria);
+      chip.className = calStatusColorClass(ev.estado);
       chip.classList.add('cal-event-chip');
 
       const title = document.createElement('span');
@@ -3088,7 +2937,7 @@ function calRenderDay(cont, filterVal){
   }else{
     events.forEach(ev => {
       const chip = document.createElement('div');
-      chip.className = calStatusColorClass(ev.estado, ev.secretaria);
+      chip.className = calStatusColorClass(ev.estado);
       chip.classList.add('cal-event-chip');
 
       const title = document.createElement('span');
@@ -3170,7 +3019,7 @@ function calRenderWeek(cont, filterVal){
     }else{
       evs.forEach(ev => {
         const chip = document.createElement('div');
-        chip.className = calStatusColorClass(ev.estado, ev.secretaria);
+        chip.className = calStatusColorClass(ev.estado);
         chip.classList.add('cal-event-chip');
 
         const title = document.createElement('span');
@@ -3741,240 +3590,6 @@ document.getElementById('evento-guardar')?.addEventListener('click', async ()=>{
     window.open(url,'_blank');
   });
 })();
-
-  // ================== DIRECTORIO INSTITUCIONAL ==================
-const ICON_DIR_MAPS   = 'https://res.cloudinary.com/dqqeavica/image/upload/v1760108968/ubicacion_zicnod.png';
-const ICON_DIR_MAIL   = 'https://res.cloudinary.com/dqqeavica/image/upload/v1766266810/correo_czyyra.webp';
-const ICON_DIR_WA     = 'https://res.cloudinary.com/dqqeavica/image/upload/v1759166341/WhatsApp_mljaqm.webp';
-const ICON_DIR_TEL    = 'https://res.cloudinary.com/dqqeavica/image/upload/v1759952569/Llamada_hra2ch.webp';
-const ICON_DIR_SHARE  = 'https://res.cloudinary.com/dqqeavica/image/upload/v1766267125/compartir_szoxv7.webp';
-
-function normalizePhoneDigits(raw){
-  return String(raw || '').replace(/\D/g,'');
-}
-
-function openWhatsAppFromNumber(raw){
-  const digits = normalizePhoneDigits(raw);
-  if(!digits) return;
-  let num = digits;
-  if(/^\d{10}$/.test(num)){
-    num = '57' + num;
-  }
-  const url = 'https://wa.me/' + num;
-  window.open(url, '_blank');
-}
-
-function openTelFromNumber(raw){
-  const digits = normalizePhoneDigits(raw);
-  if(!digits) return;
-  window.location.href = 'tel:' + digits;
-}
-
-function buildShareText(item){
-  const nombre   = item.nombre   || '';
-  const dir      = item.direccion|| '';
-  const maps     = item.maps     || '';
-  const correo   = item.correo   || '';
-  const wa       = item.whatsapp || '';
-  const tel      = item.telefono || '';
-
-  const waDigits = normalizePhoneDigits(wa);
-  const waUrl    = waDigits ? ('wa.me/' + waDigits) : '';
-
-  return (
-    '*INFORMACIÓN DE CONTACTO:*\n\n' +
-    '*CONTACTO:* ' + (nombre || '-') + '\n' +
-    '*DIRECCIÓN:* ' + (dir || '-') + '\n' +
-    '*UBICACIÓN:* ' + (maps || '-') + '\n' +
-    '*CORREO:* ' + (correo || '-') + '\n' +
-    '*WHATSAPP:* ' + (waUrl || '-') + '\n' +
-    '*TELEFONO:* ' + (tel || '-')
-  );
-}
-
-function buildClipboardText(item){
-  const nombre   = item.nombre   || '';
-  const dir      = item.direccion|| '';
-  const correo   = item.correo   || '';
-  const wa       = item.whatsapp || '';
-  const tel      = item.telefono || '';
-
-  return (
-    'CONTACTO: ' + (nombre || '-') + '\n' +
-    'DIRECCIÓN: ' + (dir || '-') + '\n' +
-    'CORREO: ' + (correo || '-') + '\n' +
-    'WHATSAPP: ' + (wa || '-') + '\n' +
-    'TELEFONO: ' + (tel || '-')
-  );
-}
-
-async function showDirectorioShareDialog(item){
-  const html =
-    '<b>CONTACTO:</b> ' + (item.nombre || '-') + '<br>' +
-    '<b>DIRECCIÓN:</b> ' + (item.direccion || '-') + '<br>' +
-    '<b>CORREO:</b> ' + (item.correo || '-') + '<br>' +
-    '<b>WHATSAPP:</b> ' + (item.whatsapp || '-') + '<br>' +
-    '<b>TELEFONO:</b> ' + (item.telefono || '-');
-
-  const result = await Swal.fire({
-    icon:'success',
-    title:'Información de Contacto',
-    html:html,
-    showDenyButton:true,
-    showCancelButton:true,
-    confirmButtonText:'Copiar Portapapeles',
-    denyButtonText:'Compartir',
-    cancelButtonText:'Atrás'
-  });
-
-  if(result.isConfirmed){
-    const text = buildClipboardText(item);
-    try{
-      if(navigator.clipboard && navigator.clipboard.writeText){
-        await navigator.clipboard.writeText(text);
-      }
-      await Swal.fire({
-        icon:'success',
-        title:'Información Copiada',
-        timer:2000,
-        showConfirmButton:false
-      });
-    }catch(e){
-      await Swal.fire({
-        icon:'error',
-        title:'No se pudo copiar',
-        text:String(e.message||e)
-      });
-    }
-    return;
-  }
-
-  if(result.isDenied){
-    const shareText = buildShareText(item);
-    const esMovil = /android|iphone|ipad|mobile/i.test(navigator.userAgent || '');
-    const enc = encodeURIComponent(shareText);
-    const url = esMovil
-      ? 'whatsapp://send?text=' + enc
-      : 'https://api.whatsapp.com/send?text=' + enc;
-    window.open(url,'_blank');
-  }
-}
-
-function renderDirectorio(items){
-  const wrap = document.getElementById('dir-list');
-  if(!wrap) return;
-  wrap.innerHTML = '';
-
-  if(!items.length){
-    const p = document.createElement('p');
-    p.className = 'muted center';
-    p.textContent = 'No hay contactos institucionales disponibles.';
-    wrap.appendChild(p);
-    return;
-  }
-
-  items.forEach(it => {
-    const item = document.createElement('div');
-    item.className = 'contact-item';
-
-    const main = document.createElement('div');
-    main.className = 'contact-main';
-
-    const nameEl = document.createElement('div');
-    nameEl.className = 'contact-name';
-    nameEl.textContent = it.nombre || '';
-
-    const addrEl = document.createElement('div');
-    addrEl.className = 'contact-address';
-    addrEl.textContent = it.direccion || '';
-
-    main.appendChild(nameEl);
-    main.appendChild(addrEl);
-    item.appendChild(main);
-
-    const actions = document.createElement('div');
-    actions.className = 'contact-actions-row';
-
-    if(it.maps){
-      const a = document.createElement('a');
-      a.href = it.maps;
-      a.target = '_blank';
-      a.rel = 'noopener';
-      const img = document.createElement('img');
-      img.src = ICON_DIR_MAPS;
-      img.alt = '';
-      a.appendChild(img);
-      actions.appendChild(a);
-    }
-
-    if(it.correo){
-      const a = document.createElement('a');
-      a.href = 'mailto:' + it.correo;
-      const img = document.createElement('img');
-      img.src = ICON_DIR_MAIL;
-      img.alt = '';
-      a.appendChild(img);
-      actions.appendChild(a);
-    }
-
-    if(it.whatsapp){
-      const a = document.createElement('a');
-      a.href = 'javascript:void(0)';
-      a.addEventListener('click', ()=> openWhatsAppFromNumber(it.whatsapp));
-      const img = document.createElement('img');
-      img.src = ICON_DIR_WA;
-      img.alt = '';
-      a.appendChild(img);
-      actions.appendChild(a);
-    }
-
-    if(it.telefono){
-      const a = document.createElement('a');
-      a.href = 'javascript:void(0)';
-      a.addEventListener('click', ()=> openTelFromNumber(it.telefono));
-      const img = document.createElement('img');
-      img.src = ICON_DIR_TEL;
-      img.alt = '';
-      a.appendChild(img);
-      actions.appendChild(a);
-    }
-
-    const btnShare = document.createElement('button');
-    const imgShare = document.createElement('img');
-    imgShare.src = ICON_DIR_SHARE;
-    imgShare.alt = '';
-    btnShare.appendChild(imgShare);
-    btnShare.addEventListener('click', ()=> showDirectorioShareDialog(it));
-    actions.appendChild(btnShare);
-
-    item.appendChild(actions);
-    wrap.appendChild(item);
-  });
-}
-
-// Botón Regresar en vista directorio
-document.getElementById('dir-volver')?.addEventListener('click', ()=>{
-  playSoundOnce(SOUNDS.back);
-  showView('view-inicio');
-});
-
-// Abrir DIRECTORIO desde el menú lateral (ya existe go-directorio)
-document.getElementById('go-directorio')?.addEventListener('click', async ()=>{
-  playSoundOnce(SOUNDS.login);
-  overlay.classList.remove('open');
-
-  if(!currentUser){
-    Swal.fire({icon:'warning', title:'Sesión inválida'});
-    return;
-  }
-  try{
-    const list = await apiGet('listDirectorio', {});
-    renderDirectorio(Array.isArray(list) ? list : []);
-    showView('view-directorio');
-  }catch(e){
-    Swal.fire({icon:'error', title:'Error', text:String(e.message||e)});
-  }
-});
 
 /* ================== FIN ================== */
 </script>
