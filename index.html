@@ -2861,13 +2861,13 @@ function calStatusColorClass(estado, secretaria){
   const st = String(estado||'').trim().toUpperCase();
 
   const base =
-    v === 'DESPACHO MUNICIPAL' ? 'sec-despacho' :
-    v === 'SECRETARÍA DE GOBIERNO Y SERVICIOS ADMINISTRATIVOS' ? 'sec-gobierno' :
-    v === 'SECRETARÍA DE HACIENDA' ? 'sec-hacienda' :
-    v === 'SECRETARÍA DE EDUCACIÓN, DESARROLLO ECONÓMICO Y SOCIAL' ? 'sec-educacion' :
-    v === 'SECRETARÍA DE PLANEACIÓN E INFRAESTRUCTURA' ? 'sec-planeacion' :
-    v === 'SECRETARÍA DE ASUNTOS AGROPECUARIOS' ? 'sec-agro' :
-    v === 'SECRETARÍA DE SALUD' ? 'sec-salud' :
+   v === 'DESPACHO MUNICIPAL' ? 'sec-despacho' :
+      v === 'SECRETARIA DE GOBIERNO Y SERVICIOS ADMINISTRATIVOS' ? 'sec-gobierno' :
+      v === 'SECRETARIA DE HACIENDA' ? 'sec-hacienda' :
+      v === 'SECRETARIA DE EDUCACION, DESARROLLO ECONOMICO Y SOCIAL' ? 'sec-educacion' :
+      v === 'SECRETARIA DE PLANEACION E INFRAESTRUCTURA' ? 'sec-planeacion' :
+      v === 'SECRETARIA DE ASUNTOS AGROPECUARIOS' ? 'sec-agro' :
+      v === 'SECRETARIA DE SALUD' ? 'sec-salud' :
     'sec-default';
 
   // PROGRAMADO: solo borde (clase base)
