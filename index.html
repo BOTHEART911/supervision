@@ -2314,9 +2314,14 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
         );
       }
 
-                            // Aprobar (solo spinner local "FIRMANDO DOCUMENTO...", sin loader global)
+                                // Aprobar (mantiene lógica existente, SOLO spinner local, sin loader global)
       el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
-        // Mostrar spinner local tipo "FIRMANDO DOCUMENTO..."
+        // Desactivar loader global SOLO en este flujo
+        const hadSuppress = (typeof suppressLoader !== 'undefined');
+        const prevSuppress = hadSuppress ? suppressLoader : false;
+        if (hadSuppress) suppressLoader = true;
+
+        // Spinner local "FIRMANDO DOCUMENTO...."
         const waitSwal = Swal.fire({
           title:'FIRMANDO DOCUMENTO....',
           html:'El Informe de Supervisión se está firmando, por favor espera unos segundos.',
@@ -2326,21 +2331,23 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
         });
 
         try{
-          // Llamado original, SIN tocar suppressLoader ni el loader global
+          // llamada original (ya no disparará el loader global porque suppressLoader=true)
           await apiPost('aprobarCuentaSupervisor',{documento,informe,supervisor});
           if(telContratista){ sendBuilderbotMessage(telContratista, msgAprobadoContratista()); }
           sendBuilderbotMessage(grupoId, msgAprobadoGrupo());
 
-          await Swal.close(); // cierra spinner local
+          await Swal.close(); // cierra "FIRMANDO DOCUMENTO..."
           Swal.fire({icon:'success',title:'Cuenta Aprobada',timer:1800,showConfirmButton:false});
-          await cargarCuentas(); 
+          await cargarCuentas();
           showView('view-revision');
         }catch(e){
-          await Swal.close(); // cierra spinner local si hay error
+          await Swal.close(); // cierra "FIRMANDO DOCUMENTO..." si hay error
           Swal.fire({icon:'error',title:'Error',text:e.message});
+        }finally{
+          // Restaurar comportamiento del loader global
+          if (hadSuppress) suppressLoader = prevSuppress;
         }
       });
-
       
       // Devolver (mantiene lógica existente)
       el.querySelector('#opt-devolver')?.addEventListener('click', async ()=>{
