@@ -2314,13 +2314,13 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
         );
       }
 
-            // Aprobar: mostrar spinner local "FIRMANDO DOCUMENTO..." y NO usar loader global
+                 // Aprobar: spinner local "FIRMANDO DOCUMENTO..." sin loader global
       el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
         // Cierra el modal de opciones
         Swal.close();
 
-        // Muestra spinner tipo "FIRMANDO DOCUMENTO...."
-        const waitSwal = Swal.fire({
+        // Muestra spinner local
+        await Swal.fire({
           title: 'FIRMANDO DOCUMENTO....',
           html: 'El Informe de Supervisión se está firmando, por favor espera unos segundos.',
           allowOutsideClick: false,
@@ -2331,8 +2331,15 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
         });
 
         try{
-          // Llamada a Apps Script SIN usar loader global (solo este Swal)
-          await apiPost('aprobarCuentaSupervisor',{documento,informe,supervisor});
+          // LLAMADA DIRECTA A APPS SCRIPT (SIN startLoading/stopLoading)
+          const url = API_BASE + '?action=' + encodeURIComponent('aprobarCuentaSupervisor');
+          const r = await fetch(url, {
+            method:'POST',
+            headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+            body: JSON.stringify({ documento, informe, supervisor })
+          });
+          const j = await r.json();
+          if(!j.ok) throw new Error(j.error || 'Error');
 
           // Envío de mensajes
           if(telContratista){
@@ -2340,7 +2347,6 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
           }
           sendBuilderbotMessage(grupoId, msgAprobadoGrupo());
 
-          // Cierra el spinner y muestra confirmación
           await Swal.close();
           await Swal.fire({
             icon:'success',
@@ -2349,7 +2355,6 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
             showConfirmButton:false
           });
 
-          // Refresca listado y vuelve a la vista de revisión
           await cargarCuentas();
           showView('view-revision');
         }catch(e){
@@ -2358,6 +2363,7 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
         }
       });
 
+      
       // Devolver (mantiene lógica existente)
       el.querySelector('#opt-devolver')?.addEventListener('click', async ()=>{
         try{
