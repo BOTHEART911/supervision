@@ -2314,19 +2314,10 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
         );
       }
 
-               // Aprobar (mantiene lógica existente, pero sin loader global y con spinner local)
+              // Aprobar (mantiene lógica existente, spinner local sin usar loader global)
 el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
-  // Guardar estado previo del loader y suprimirlo
-  const prevSuppress = typeof suppressLoader !== 'undefined' ? suppressLoader : false;
-  if (typeof suppressLoader !== 'undefined') suppressLoader = true;
-  if (typeof loadingCount !== 'undefined') loadingCount = 0;
-  if (typeof loaderTimer !== 'undefined' && loaderTimer){ clearTimeout(loaderTimer); loaderTimer = null; }
-  if (typeof loader !== 'undefined' && loader){
-    loader.classList.add('hidden');
-  }
-
-  // Spinner local tipo alerta (similar a "CREANDO DOCUMENTOS..." de indexref.md)
-  await Swal.fire({
+  // Mostrar spinner local, pero SIN await para no bloquear la ejecución
+  Swal.fire({
     title: 'FIRMANDO DOCUMENTO....',
     html: 'El Informe de Supervisión se está firmando, por favor espera unos segundos.',
     allowOutsideClick: false,
@@ -2337,10 +2328,15 @@ el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
   });
 
   try{
+    // Aquí sí se ejecuta la lógica normal mientras el spinner está visible
     await apiPost('aprobarCuentaSupervisor',{documento,informe,supervisor});
-    if(telContratista){ sendBuilderbotMessage(telContratista, msgAprobadoContratista()); }
+
+    if(telContratista){
+      sendBuilderbotMessage(telContratista, msgAprobadoContratista());
+    }
     sendBuilderbotMessage(grupoId, msgAprobadoGrupo());
 
+    // Cerrar spinner y mostrar resultado
     Swal.close();
     await Swal.fire({
       icon:'success',
@@ -2352,13 +2348,11 @@ el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
     await cargarCuentas();
     showView('view-revision');
   }catch(e){
+    // Cerrar spinner y mostrar error
     Swal.close();
     Swal.fire({icon:'error',title:'Error',text:e.message});
-  }finally{
-    // Restaurar comportamiento normal del loader global
-    if (typeof suppressLoader !== 'undefined') suppressLoader = prevSuppress;
   }
-});;
+});
       
       // Devolver (mantiene lógica existente)
       el.querySelector('#opt-devolver')?.addEventListener('click', async ()=>{
