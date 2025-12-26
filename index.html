@@ -2314,38 +2314,16 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
         );
       }
 
-                  // Aprobar (mantiene lógica existente, con spinner local y SIN loader global)
+                // Aprobar (mantiene lógica existente)
       el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
-        // Desactivar loader global solo para este flujo
-        const hadSuppress = (typeof suppressLoader !== 'undefined');
-        const prevSuppress = hadSuppress ? suppressLoader : false;
-        if (hadSuppress) suppressLoader = true;
-
-        // Spinner local "FIRMANDO DOCUMENTO...."
-        const waitSwal = Swal.fire({
-          title:'FIRMANDO DOCUMENTO....',
-          html:'El Informe de Supervisión se está firmando, por favor espera unos segundos.',
-          allowOutsideClick:false,
-          allowEscapeKey:false,
-          didOpen:()=>{ Swal.showLoading(); }
-        });
-
         try{
-          // MISMA LÓGICA QUE TU FUNCIÓN ORIGINAL
           await apiPost('aprobarCuentaSupervisor',{documento,informe,supervisor});
           if(telContratista){ sendBuilderbotMessage(telContratista, msgAprobadoContratista()); }
           sendBuilderbotMessage(grupoId, msgAprobadoGrupo());
-          await Swal.close(); // cierra "FIRMANDO DOCUMENTO...."
+          Swal.close();
           Swal.fire({icon:'success',title:'Cuenta Aprobada',timer:1800,showConfirmButton:false});
-          await cargarCuentas(); 
-          showView('view-revision');
-        }catch(e){
-          await Swal.close(); // cierra "FIRMANDO DOCUMENTO...." si falla
-          Swal.fire({icon:'error',title:'Error',text:e.message});
-        }finally{
-          // Restaurar comportamiento normal del loader global
-          if (hadSuppress) suppressLoader = prevSuppress;
-        }
+          await cargarCuentas(); showView('view-revision');
+        }catch(e){ Swal.close(); Swal.fire({icon:'error',title:'Error',text:e.message}); }
       });
       
       // Devolver (mantiene lógica existente)
