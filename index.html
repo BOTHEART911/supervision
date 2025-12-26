@@ -2314,52 +2314,36 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
         );
       }
 
-                 // Aprobar: spinner local "FIRMANDO DOCUMENTO..." sin loader global
+                       // Aprobar (mantiene lógica existente, pero con spinner local y sin loader global)
       el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
-        // Cierra el modal de opciones
-        Swal.close();
+        // Desactivar loader global solo para este flujo
+        const prevSuppress = typeof suppressLoader !== 'undefined' ? suppressLoader : false;
+        if (typeof suppressLoader !== 'undefined') suppressLoader = true;
 
-        // Muestra spinner local
-        await Swal.fire({
-          title: 'FIRMANDO DOCUMENTO....',
-          html: 'El Informe de Supervisión se está firmando, por favor espera unos segundos.',
-          allowOutsideClick: false,
-          allowEscapeKey: false,
-          didOpen: () => {
-            Swal.showLoading();
-          }
+        // Mostrar spinner local tipo "CREANDO DOCUMENTOS..."
+        const waitSwal = Swal.fire({
+          title:'FIRMANDO DOCUMENTO....',
+          html:'El Informe de Supervisión se está firmando, por favor espera unos segundos.',
+          allowOutsideClick:false,
+          allowEscapeKey:false,
+          didOpen:()=>{ Swal.showLoading(); }
         });
 
         try{
-          // LLAMADA DIRECTA A APPS SCRIPT (SIN startLoading/stopLoading)
-          const url = API_BASE + '?action=' + encodeURIComponent('aprobarCuentaSupervisor');
-          const r = await fetch(url, {
-            method:'POST',
-            headers:{ 'Content-Type':'text/plain;charset=utf-8' },
-            body: JSON.stringify({ documento, informe, supervisor })
-          });
-          const j = await r.json();
-          if(!j.ok) throw new Error(j.error || 'Error');
-
-          // Envío de mensajes
-          if(telContratista){
-            sendBuilderbotMessage(telContratista, msgAprobadoContratista());
-          }
+          await apiPost('aprobarCuentaSupervisor',{documento,informe,supervisor});
+          if(telContratista){ sendBuilderbotMessage(telContratista, msgAprobadoContratista()); }
           sendBuilderbotMessage(grupoId, msgAprobadoGrupo());
 
-          await Swal.close();
-          await Swal.fire({
-            icon:'success',
-            title:'Cuenta Aprobada',
-            timer:1800,
-            showConfirmButton:false
-          });
-
-          await cargarCuentas();
+          await Swal.close(); // cierra spinner local
+          Swal.fire({icon:'success',title:'Cuenta Aprobada',timer:1800,showConfirmButton:false});
+          await cargarCuentas(); 
           showView('view-revision');
         }catch(e){
-          await Swal.close();
+          await Swal.close(); // cierra spinner local si hay error
           Swal.fire({icon:'error',title:'Error',text:e.message});
+        }finally{
+          // Restaurar comportamiento del loader global
+          if (typeof suppressLoader !== 'undefined') suppressLoader = prevSuppress;
         }
       });
 
