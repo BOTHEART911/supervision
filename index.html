@@ -2319,9 +2319,9 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
         );
       }
 
-              // Aprobar (mantiene lógica existente, pero sin loader global y con spinner local)
+             // Aprobar (sin loader global durante la firma, pero con loader al recargar listas)
 el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
-  // Desactivar loader global SOLO en este flujo
+  // Desactivar loader global SOLO mientras se firma
   const prevSuppress = suppressLoader;
   suppressLoader = true;
 
@@ -2341,7 +2341,10 @@ el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
     if(telContratista){ sendBuilderbotMessage(telContratista, msgAprobadoContratista()); }
     sendBuilderbotMessage(grupoId, msgAprobadoGrupo());
 
+    // Cerrar spinner local
     Swal.close();
+
+    // Mostrar alerta de éxito
     await Swal.fire({
       icon:'success',
       title:'Cuenta Aprobada',
@@ -2349,14 +2352,17 @@ el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
       showConfirmButton:false
     });
 
+    // A partir de aquí volvemos a permitir el loader global
+    suppressLoader = prevSuppress;
+
+    // Estas llamadas ya podrán mostrar el cargue global si lo necesitan
     await cargarCuentas();
     showView('view-revision');
   }catch(e){
     Swal.close();
-    Swal.fire({icon:'error',title:'Error',text:e.message});
-  }finally{
-    // Restaurar comportamiento normal del loader global
+    // En error también restauramos el valor previo del loader
     suppressLoader = prevSuppress;
+    Swal.fire({icon:'error',title:'Error',text:e.message});
   }
 });
       
