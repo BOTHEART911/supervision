@@ -2314,16 +2314,48 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
         );
       }
 
-      // Aprobar (mantiene lógica existente)
+            // Aprobar: mostrar spinner local "FIRMANDO DOCUMENTO..." y NO usar loader global
       el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
+        // Cierra el modal de opciones
+        Swal.close();
+
+        // Muestra spinner tipo "FIRMANDO DOCUMENTO...."
+        const waitSwal = Swal.fire({
+          title: 'FIRMANDO DOCUMENTO....',
+          html: 'El Informe de Supervisión se está firmando, por favor espera unos segundos.',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
         try{
+          // Llamada a Apps Script SIN usar loader global (solo este Swal)
           await apiPost('aprobarCuentaSupervisor',{documento,informe,supervisor});
-          if(telContratista){ sendBuilderbotMessage(telContratista, msgAprobadoContratista()); }
+
+          // Envío de mensajes
+          if(telContratista){
+            sendBuilderbotMessage(telContratista, msgAprobadoContratista());
+          }
           sendBuilderbotMessage(grupoId, msgAprobadoGrupo());
-          Swal.close();
-          Swal.fire({icon:'success',title:'Cuenta Aprobada',timer:1800,showConfirmButton:false});
-          await cargarCuentas(); showView('view-revision');
-        }catch(e){ Swal.close(); Swal.fire({icon:'error',title:'Error',text:e.message}); }
+
+          // Cierra el spinner y muestra confirmación
+          await Swal.close();
+          await Swal.fire({
+            icon:'success',
+            title:'Cuenta Aprobada',
+            timer:1800,
+            showConfirmButton:false
+          });
+
+          // Refresca listado y vuelve a la vista de revisión
+          await cargarCuentas();
+          showView('view-revision');
+        }catch(e){
+          await Swal.close();
+          Swal.fire({icon:'error',title:'Error',text:e.message});
+        }
       });
 
       // Devolver (mantiene lógica existente)
