@@ -2344,6 +2344,28 @@ el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
   try{
     const resp = await apiPost('aprobarCuentaSupervisor',{documento,informe,supervisor});
 
+if(!resp || !resp.base64){
+  throw new Error('El servidor no devolvió el PDF (base64 vacío).');
+}
+
+const byteChars = atob(resp.base64);
+const byteNumbers = new Array(byteChars.length);
+for(let i=0;i<byteChars.length;i++){
+  byteNumbers[i] = byteChars.charCodeAt(i);
+}
+const byteArray = new Uint8Array(byteNumbers);
+const blob = new Blob([byteArray], { type: resp.mimeType || 'application/pdf' });
+const url = URL.createObjectURL(blob);
+
+const a = document.createElement('a');
+a.href = url;
+a.download = resp.fileName || 'INF_SUP_CTA.pdf';
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+
+setTimeout(()=> URL.revokeObjectURL(url), 20000);
+
 if(resp && resp.base64){
   const byteChars = atob(resp.base64);
   const byteNumbers = new Array(byteChars.length);
