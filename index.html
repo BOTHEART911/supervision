@@ -2255,9 +2255,9 @@ document.getElementById('rc-volver').addEventListener('click', ()=>{
   
 document.getElementById('rc-guardar').addEventListener('click', async ()=>{
   if(!REV_CUENTA?.cuenta){ Swal.fire({icon:'warning',title:'Sin cuenta cargada'}); return; }
-  const documento = REV_CUENTA.contratista.documento;
+  const documento = String(REV_CUENTA.contratista.documento || '').trim();
   const nombre    = REV_CUENTA.contratista.nombre;
-  const informe   = REV_CUENTA.cuenta.informe;
+  const informe = String(REV_CUENTA.cuenta.informe || '').trim();
   const supervisor = supervisorNombreCompleto;
   const grupoId = 'L5yaZR3aSHUGenlpJAAbXk'; // grupo de contratación
   const telContratistaRaw = REV_CUENTA.contratista.telefono;
@@ -2342,7 +2342,29 @@ el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
   });
 
   try{
-    await apiPost('aprobarCuentaSupervisor',{documento,informe,supervisor});
+    const resp = await apiPost('aprobarCuentaSupervisor',{documento,informe,supervisor});
+
+if(resp && resp.base64){
+  const byteChars = atob(resp.base64);
+  const byteNumbers = new Array(byteChars.length);
+  for(let i=0;i<byteChars.length;i++){
+    byteNumbers[i] = byteChars.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: resp.mimeType || 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = resp.fileName || 'INF_SUP_CTA.pdf';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  setTimeout(()=> URL.revokeObjectURL(url), 20000);
+} else {
+  throw new Error('No se recibió el PDF para descargar.');
+}
     if(telContratista){ sendBuilderbotMessage(telContratista, msgAprobadoContratista()); }
     sendBuilderbotMessage(grupoId, msgAprobadoGrupo());
 
