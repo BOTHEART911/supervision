@@ -2037,6 +2037,11 @@ function pintarCuentas(list){
     const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC: '+(c.documento||''); div.appendChild(pDoc);
     const pInf=document.createElement('p'); pInf.className='item-sub'; pInf.textContent='INFORME: '+(c.informe||'')+' de: '+(c.totalInformes||''); div.appendChild(pInf);
 
+    const pContrato = document.createElement('p');
+pContrato.className = 'item-sub';
+pContrato.textContent = 'CONTRATO: ' + (c.contrato || '');
+div.appendChild(pContrato);
+
     const btnRow=document.createElement('div'); btnRow.className='btn-row';
 
     // Botón REVISAR (como lo tienes)
@@ -2378,11 +2383,19 @@ el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
       });
 
       // Incompleta (solo envía mensaje; NO llama backend)
-      el.querySelector('#opt-incompleta')?.addEventListener('click', ()=>{
-        if(telContratista){ sendBuilderbotMessage(telContratista, msgIncompleta()); }
-        Swal.close();
-        Swal.fire({icon:'success',title:'Mensaje enviado al contratista',timer:2200,showConfirmButton:false});
-      });
+      el.querySelector('#opt-incompleta')?.addEventListener('click', async ()=>{
+  try{
+    await apiPost('marcarCuentaIncompletaSupervisor', { documento, informe, observaciones: observ });
+    if(telContratista){ sendBuilderbotMessage(telContratista, msgIncompleta()); }
+    Swal.close();
+    Swal.fire({icon:'success',title:'Cuenta marcada como INCOMPLETA',timer:2200,showConfirmButton:false});
+    await cargarCuentas();
+    showView('view-revision');
+  }catch(e){
+    Swal.close();
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }
+});
 
       // Cancelar
       el.querySelector('#opt-cancelar')?.addEventListener('click', ()=>{
@@ -2450,6 +2463,10 @@ function pintarPlanesPagos(list){
 
     const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC: '+(c.documento||''); div.appendChild(pDoc);
     const pInf=document.createElement('p'); pInf.className='item-sub'; pInf.textContent='INFORME: '+(c.informe||'')+' de: '+(c.totalInformes||''); div.appendChild(pInf);
+    const pContrato = document.createElement('p');
+pContrato.className = 'item-sub';
+pContrato.textContent = 'CONTRATO: ' + (c.contrato || '');
+div.appendChild(pContrato);
 
       const pEgreso=document.createElement('p');
     pEgreso.className='item-sub';
