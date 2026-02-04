@@ -1838,7 +1838,10 @@ div.appendChild(header);
     const pNombre = document.createElement('p'); pNombre.className = 'item-sub'; pNombre.textContent = (c.nombre || ''); div.appendChild(pNombre);
     const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC: '+(c.documento||''); div.appendChild(pDoc);
     const pSec=document.createElement('p'); pSec.className='item-sub'; pSec.textContent='SECRETARÍA: '+(c.secretaria||''); div.appendChild(pSec);
-    const pSup=document.createElement('p'); pSup.className='item-sub'; pSup.innerHTML='SUPERVISOR: '+(c.supervisor||'') + (c.matchSupervisor ? ' <b>(ASIGNADO A TI)</b>' : '');
+    const pSup=document.createElement('p'); 
+pSup.className='item-sub'; 
+pSup.innerHTML='SUPERVISOR: '+(c.supervisor||'');
+div.appendChild(pSup);
     div.appendChild(pSup);
 
     const actionsRow = document.createElement('div');
