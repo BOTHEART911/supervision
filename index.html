@@ -2521,17 +2521,20 @@ function pintarFirmados(list){
 
     const p1 = document.createElement('p');
     p1.className = 'item-sub';
-    p1.textContent = `ID_FIRMA: ${f.idFirma || ''}     FECHA / HORA DE FIRMA: ${formatFechaHora12SegFrom24(f.fechaHora)}`;
+    p1.innerHTML =
+  `<b>ID_FIRMA:</b> ${f.idFirma || ''}     <b>FECHA / HORA DE FIRMA:</b> ${formatFechaHora12SegFrom24(f.fechaHora)}`;
     div.appendChild(p1);
 
     const p2 = document.createElement('p');
     p2.className = 'item-sub';
-    p2.textContent = `CONTRATISTA: ${f.contratista || ''}     DOCUMENTO: ${f.documento || ''}`;
+    p2.innerHTML =
+  `<b>CONTRATISTA:</b> ${f.contratista || ''}     <b>DOCUMENTO:</b> ${f.documento || ''}`;
     div.appendChild(p2);
 
     const p3 = document.createElement('p');
     p3.className = 'item-sub';
-    p3.textContent = `CONTRATO: ${f.contrato || ''}     INFORME: ${f.informe || ''}     RADICADO: ${f.radicado || ''}`;
+    p3.innerHTML =
+  `<b>CONTRATO:</b> ${f.contrato || ''}     <b>INFORME:</b> ${f.informe || ''}     <b>RADICADO:</b> ${f.radicado || ''}`;
     div.appendChild(p3);
 
     wrap.appendChild(div);
