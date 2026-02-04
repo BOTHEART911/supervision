@@ -939,6 +939,7 @@
         <button class="menu-btn" id="go-actualizar">ACTUALIZAR FIRMA E IMAGEN</button>
         <button class="menu-btn" id="go-calendario">CALENDARIO INSTITUCIONAL</button>
         <button class="menu-btn" id="go-directorio">DIRECTORIO INSTITUCIONAL</button>
+        <button class="menu-btn" id="go-firmados">SUPERVISIÓN FIRMADOS</button>
         <button class="menu-btn" id="go-secop2">IR A SECOP II</button>
         <button class="menu-btn" id="go-soporte">SOPORTE</button>
         <div style="height:24px"></div>
@@ -1092,6 +1093,29 @@
       <button id="planes-volver" class="danger">REGRESAR</button>
     </div>
     <div id="planes-list" class="list-grid"></div>
+  </div>
+</section>
+
+        <!-- VISTA FIRMAS DE SUPERVISIÓN -->
+
+    <section id="view-firmados" class="view">
+  <div class="card">
+    <h2 style="color:var(--primary)">SUPERVISIÓN FIRMADOS</h2>
+
+    <div class="center">
+      <div id="firmados-count" class="chip" style="display:none;">0</div>
+      <p class="muted" style="margin:6px 0 12px;">Informes de Supervisión Firmados</p>
+    </div>
+
+    <input id="firmados-filter" class="chip" style="width:100%; border-radius:999px;" type="text"
+      placeholder="Filtrar por ID_FIRMA, fecha/hora, contratista, documento, contrato, informe o radicado">
+
+    <div class="btn-row spaced">
+      <button id="firmados-descargar" class="btn-primary">DESCARGAR FIRMAS</button>
+      <button id="firmados-volver" class="danger">REGRESAR</button>
+    </div>
+
+    <div id="firmados-list" class="list-grid"></div>
   </div>
 </section>
 
@@ -1670,7 +1694,7 @@ document.getElementById('ovlClose').addEventListener('click', ()=>{
 
 /* Sonido 'logout' al seleccionar cualquiera de las opciones del overlay.
    Ubicar este bucle inmediatamente después de los listeners anteriores. */
-['go-actualizar','go-contratistas','go-revision','go-planes-pagos','go-requerimientos','go-comunicados','go-soporte', 'go-directorio', 'go-secop2']
+['go-actualizar','go-contratistas','go-revision','go-firmados','go-planes-pagos','go-requerimientos','go-comunicados','go-soporte', 'go-directorio', 'go-secop2']
   .forEach(id => {
     const el = document.getElementById(id);
     if(el){
@@ -2427,6 +2451,142 @@ setTimeout(()=> URL.revokeObjectURL(url), 20000);
       });
     }
   });
+});
+
+  /* ================== SUPERVISIÓN FIRMADOS ================== */
+let FIRMADOS_DATA = [];
+
+function formatFechaHora12SegFrom24(str){
+  // Entrada: "3/02/2026 18:24:20"  (d/m/yyyy H:mm:ss)
+  // Salida:  "3/02/2026 6:24:20 PM"
+  const s = String(str || '').trim();
+  const m = s.match(/^(\d{1,2}\/\d{1,2}\/\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})$/);
+  if(!m) return s;
+
+  const fecha = m[1];
+  let hh = parseInt(m[2],10);
+  const mm = m[3];
+  const ss = m[4];
+
+  if(isNaN(hh)) return s;
+
+  const ampm = (hh >= 12) ? 'PM' : 'AM';
+  let h12 = hh % 12;
+  if(h12 === 0) h12 = 12;
+
+  return `${fecha} ${h12}:${mm}:${ss} ${ampm}`;
+}
+
+document.getElementById('go-firmados')?.addEventListener('click', async ()=>{
+  overlay.classList.remove('open');
+  playSoundOnce(SOUNDS.logout);
+
+  await cargarFirmados();
+  showView('view-firmados');
+});
+
+async function cargarFirmados(){
+  try{
+    const list = await apiGet('listFirmasSupervisor', { supervisor: supervisorNombreCompleto });
+    FIRMADOS_DATA = Array.isArray(list) ? list : [];
+    pintarFirmados(FIRMADOS_DATA);
+    actualizarResumenFirmados(FIRMADOS_DATA);
+  }catch(e){
+    FIRMADOS_DATA = [];
+    pintarFirmados(FIRMADOS_DATA);
+    actualizarResumenFirmados(FIRMADOS_DATA);
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }
+}
+
+function actualizarResumenFirmados(list){
+  const box = document.getElementById('firmados-count');
+  if(!list.length){ box.style.display='none'; box.textContent=''; return; }
+  box.textContent = String(list.length);
+  box.style.display = 'inline-block';
+}
+
+function pintarFirmados(list){
+  const wrap = document.getElementById('firmados-list');
+  wrap.innerHTML = '';
+
+  if(!list.length){
+    wrap.innerHTML = '<p class="muted center">No hay informes firmados.</p>';
+    return;
+  }
+
+  for(const f of list){
+    const div = document.createElement('div');
+    div.className = 'item-card';
+
+    const p1 = document.createElement('p');
+    p1.className = 'item-sub';
+    p1.textContent = `ID_FIRMA: ${f.idFirma || ''}     FECHA / HORA DE FIRMA: ${formatFechaHora12SegFrom24(f.fechaHora)}`;
+    div.appendChild(p1);
+
+    const p2 = document.createElement('p');
+    p2.className = 'item-sub';
+    p2.textContent = `CONTRATISTA: ${f.contratista || ''}     DOCUMENTO: ${f.documento || ''}`;
+    div.appendChild(p2);
+
+    const p3 = document.createElement('p');
+    p3.className = 'item-sub';
+    p3.textContent = `CONTRATO: ${f.contrato || ''}     INFORME: ${f.informe || ''}     RADICADO: ${f.radicado || ''}`;
+    div.appendChild(p3);
+
+    wrap.appendChild(div);
+  }
+}
+
+document.getElementById('firmados-filter')?.addEventListener('input', ()=>{
+  const q = (document.getElementById('firmados-filter').value || '').trim().toLowerCase();
+  const filtered = FIRMADOS_DATA.filter(f=>{
+    return [
+      f.idFirma,
+      f.fechaHora,
+      f.contratista,
+      f.documento,
+      f.contrato,
+      f.informe,
+      f.radicado
+    ].some(v => String(v||'').toLowerCase().includes(q));
+  });
+
+  pintarFirmados(filtered);
+  actualizarResumenFirmados(filtered);
+});
+
+document.getElementById('firmados-volver')?.addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  showView('view-inicio');
+});
+
+document.getElementById('firmados-descargar')?.addEventListener('click', async ()=>{
+  playSoundOnce(SOUNDS.info);
+  try{
+    const data = await apiGet('descargarFirmasSupervisor', { supervisor: supervisorNombreCompleto });
+    if(!data?.created || !data?.exportUrl){
+      Swal.fire({icon:'info',title:'Sin datos para descargar'});
+      return;
+    }
+
+    const url = data.exportUrl;
+    const isMobile = /android|iphone|ipad|mobile/i.test(navigator.userAgent);
+
+    if(isMobile){
+      window.open(url,'_blank');
+    }else{
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_self';
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  }catch(e){
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }
 });
 
   /* ================== PLAN DE PAGOS ================== */
