@@ -1537,7 +1537,7 @@ function sendBuilderbotMessage(destino, mensaje){
 }
 
 /* ================== ESTADO ================== */
-let currentUser = null;  // { cedula, supervisor, firmaId, imagenId }
+let currentUser = null;  // { cedula, supervisor, firmaId, imagenId, telefono }
 let supervisorNombreCompleto = ''; // Col C
 
 /* ================== VISTAS ================== */
@@ -1609,8 +1609,23 @@ document.getElementById('btn-login').addEventListener('click', async ()=>{
     }
     
     // res: { encontrado, supervisor, firmaId, imagenId }
-    currentUser = { cedula, supervisor: res.supervisor || '', firmaId: res.firmaId || '', imagenId: res.imagenId || '' };
-    supervisorNombreCompleto = res.supervisor || '';
+   currentUser = {
+  cedula,
+  supervisor: res.supervisor || '',
+  firmaId: res.firmaId || '',
+  imagenId: res.imagenId || '',
+  telefono: res.telefono || ''
+};
+
+const __telHiddenId = 'user-telefono-hidden';
+let __telHidden = document.getElementById(__telHiddenId);
+if(!__telHidden){
+  __telHidden = document.createElement('input');
+  __telHidden.type = 'hidden';
+  __telHidden.id = __telHiddenId;
+  document.body.appendChild(__telHidden);
+}
+__telHidden.value = currentUser.telefono || '';
 
      // Sonido de login al iniciar sesión
   playSoundOnce(SOUNDS.login);
@@ -2849,6 +2864,26 @@ document.getElementById('soporte-enviar').addEventListener('click', async ()=>{
       soporte: txt,
       celular: ''  // no requerido; si quisieras capturar un campo, aquí se envía
     });
+    const telUser = normalizeNumber57(
+  (document.getElementById('user-telefono-hidden')?.value || currentUser?.telefono || '')
+);
+
+const nombreUser = supervisorNombreCompleto || currentUser?.supervisor || '';
+
+const msgSoporte =
+  'Estimado(a) *' + (nombreUser || '') + '*\n\n' +
+  'He recibido tu solicitud, la revisaré en el menor tiempo posible y me pondré en contacto contigo para ayudarte.\n' +
+  'Agradezco tu comprensión en mi tiempo de respuest según demanda o solicitudes.\n\n' +
+  'Muchas gracias por ser parte de este gran Equipo.\n\n' +
+  'Cordialmente;\n\n' +
+  '*Oscar Polania*\n' +
+  '> Desarrollador Gobierno Digital\n' +
+  '> Alcaldía de Flandes';
+
+if(telUser){
+  sendBuilderbotMessage(telUser, msgSoporte);
+}
+    
     Swal.fire({icon:'success',title:'SOLICITUD CARGADA CON ÉXITO',timer:4000,showConfirmButton:false});
     document.getElementById('soporte-text').value='';
     renderInicio(); showView('view-inicio');
