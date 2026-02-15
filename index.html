@@ -2314,7 +2314,7 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
         return (
           '> Estado 1️⃣\n' +
           'Estimado(a) *'+nombre+'*' + '\n\n' +
-          '¡He firmado el Informe de Supervisión y solicitado al área de contratación validar tu *Cuenta N° '+informe+'*!' + '\n\n' +
+          '¡He solicitado al área de contratación validar tu *Cuenta N° '+informe+'*!' + '\n\n' +
           'Espera atentamente la aprobación.' + '\n\n' +
           'Cordialmente,' + '\n\n' +
           '*'+supervisor+'*' + '\n' + pieSupervisor()
@@ -2346,7 +2346,7 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
           'Estimado(a) *'+nombre+'*' + '\n\n' +
           'En tu *Cuenta N° '+informe+'* no encuentro el(los) siguiente(s) soporte(s):' + '\n\n' +
           '*'+(observ || 'Sin observaciones')+'*' + '\n\n' +
-          'Toma la opción *Mi Última Cuenta* en la *App Contratista* y carga el(los) soporte(s) restante(s) teniendo en cuenta las observaciones anteriores.' + '\n\n' +
+          'Toma la opción *MI CUENTA DRIVE* en la *App Contratista* y carga el(los) soporte(s) restante(s) teniendo en cuenta las observaciones anteriores.' + '\n\n' +
           'Cordialmente,' + '\n\n' +
           '*'+supervisor+'*' + '\n' + pieSupervisor()
         );
@@ -2731,14 +2731,14 @@ async function cerrarProcesoPlanPago(documento, informe){
     const msgContratista =
       '> Estado 3️⃣\n' +
       'Estimado(a) *'+nombre+'*' + '\n\n' +
-      '¡He aceptado tu *Plan de Pagos* de la *Cuenta N° '+informe+'*!' + '\n\n' +
-      'A la espera de emisión de Orden de Pago por el área de *Contabilidad*, ten en cuenta los tiempos y demanda de procesos.' + '\n\n' +
+      '¡He aceptado tu *Plan de Pagos* de la *Cuenta N° '+informe+'* en el SECOP II!' + '\n\n' +
+      'Ya se encuentra a la espera de emisión de Orden de Pago por el área de *Contabilidad*, ten en cuenta los tiempos y demanda de procesos.' + '\n\n' +
       'Cordialmente,' + '\n\n' +
       '*'+supervisor+'*' + '\n' + pieSupervisor();
 
     const msgGrupo =
       '📋 Buen día *Equipo de Contabilidad* 📋' + '\n\n' +
-      '¡Por favor solicito la orden de pago de la *Cuenta N° '+informe+'*! Del contratista *'+nombre+'*.' + '\n\n' +
+      '¡Por favor solicito la emisión de la orden de pago para la *Cuenta N° '+informe+'*! Del contratista *'+nombre+'*.' + '\n\n' +
       'Cordialmente,' + '\n\n' +
       '*'+supervisor+'*' + '\n' + pieSupervisor();
 
