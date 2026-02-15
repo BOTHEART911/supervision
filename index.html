@@ -2354,20 +2354,28 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
 
              // Aprobar (sin loader global durante la firma, pero con loader al recargar listas)
 el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
-  // Desactivar loader global SOLO mientras se firma
-  const prevSuppress = suppressLoader;
-  suppressLoader = true;
+  try{
+    const resp = await apiPost('aprobarCuentaSupervisor', { documento, informe, supervisor });
 
-  // Spinner local tipo alerta
-  Swal.fire({
-    title: 'FIRMANDO DOCUMENTO....',
-    html: 'El Informe de Supervisión se está firmando, por favor espera unos segundos.',
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-    didOpen: () => {
-      Swal.showLoading();
-    }
-  });
+    if(telContratista){ sendBuilderbotMessage(telContratista, msgAprobadoContratista()); }
+    sendBuilderbotMessage(grupoId, msgAprobadoGrupo());
+
+    Swal.close();
+
+    await Swal.fire({
+      icon:'success',
+      title:'Cuenta Aprobada',
+      timer:1800,
+      showConfirmButton:false
+    });
+
+    await cargarCuentas();
+    showView('view-revision');
+  }catch(e){
+    Swal.close();
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }
+});
 
   try{
     const resp = await apiPost('aprobarCuentaSupervisor', { documento, informe, supervisor });
@@ -2673,10 +2681,22 @@ btnFirmar.textContent = 'FIRMAR INFORME';
 btnFirmar.addEventListener('click', async ()=> {
   playSoundOnce(SOUNDS.info);
 
+  const prevSuppress = suppressLoader;
+  suppressLoader = true;
+
+  Swal.fire({
+    title: 'FIRMANDO DOCUMENTO....',
+    html: 'El Informe de Supervisión se está firmando, por favor espera unos segundos.',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+
   try{
     const supervisor = supervisorNombreCompleto;
 
-    // Llama al nuevo endpoint que solo genera y devuelve el PDF
     const resp = await apiPost('firmarInformePlanPagoSupervisor', {
       documento: c.documento,
       informe: c.informe,
@@ -2706,8 +2726,12 @@ btnFirmar.addEventListener('click', async ()=> {
 
     setTimeout(()=> URL.revokeObjectURL(url), 20000);
 
-    // IMPORTANTE: no refresca vista, no cambia estado
+    Swal.close();
+    suppressLoader = prevSuppress;
+
   }catch(e){
+    Swal.close();
+    suppressLoader = prevSuppress;
     Swal.fire({icon:'error',title:'Error',text:e.message});
   }
 });
