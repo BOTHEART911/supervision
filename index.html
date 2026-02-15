@@ -2376,20 +2376,6 @@ el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
     Swal.fire({icon:'error',title:'Error',text:e.message});
   }
 });
-
-    // A partir de aquí volvemos a permitir el loader global
-    suppressLoader = prevSuppress;
-
-    // Estas llamadas ya podrán mostrar el cargue global si lo necesitan
-    await cargarCuentas();
-    showView('view-revision');
-  }catch(e){
-    Swal.close();
-    // En error también restauramos el valor previo del loader
-    suppressLoader = prevSuppress;
-    Swal.fire({icon:'error',title:'Error',text:e.message});
-  }
-});
       
       // Devolver (mantiene lógica existente)
       el.querySelector('#opt-devolver')?.addEventListener('click', async ()=>{
