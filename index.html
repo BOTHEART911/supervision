@@ -1836,7 +1836,7 @@ header.appendChild(title);
 div.appendChild(header);
 
     const pNombre = document.createElement('p'); pNombre.className = 'item-sub'; pNombre.textContent = (c.nombre || ''); div.appendChild(pNombre);
-    const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC: '+(c.documento||''); div.appendChild(pDoc);
+    const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC / NIT: '+(c.documento||''); div.appendChild(pDoc);
     const pSec=document.createElement('p'); pSec.className='item-sub'; pSec.textContent='SECRETARÍA: '+(c.secretaria||''); div.appendChild(pSec);
     const pSup=document.createElement('p'); 
 pSup.className='item-sub'; 
@@ -1978,7 +1978,7 @@ async function mostrarDetallesContratista(documento){
     else {
       const lines=[
         `<b>NOMBRE:</b> ${d.nombre||''}`,
-        `<b>CC:</b> ${d.documento||''} <b>de:</b> ${d.expedida||''}`,
+        `<b>CC / NIT:</b> ${d.documento||''} <b>de:</b> ${d.expedida||''}`,
         `<b>TELEFONO:</b> ${d.telefono||'SIN REGISTRO'}`,
         `<b>CORREO:</b> ${d.correo||'SIN REGISTRO'}`,
         `<b>CUENTA:</b> ${d.cuenta||''} ${d.tipoCuenta||''} ${d.banco||''}`,
@@ -2061,7 +2061,7 @@ function pintarCuentas(list){
     const title=document.createElement('p'); title.className='item-title'; title.textContent=(c.nombre||''); header.appendChild(title);
     div.appendChild(header);
 
-    const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC: '+(c.documento||''); div.appendChild(pDoc);
+    const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC / NIT: '+(c.documento||''); div.appendChild(pDoc);
     const pInf=document.createElement('p'); pInf.className='item-sub'; pInf.textContent='INFORME: '+(c.informe||'')+' de: '+(c.totalInformes||''); div.appendChild(pInf);
 
     const pContrato = document.createElement('p');
@@ -2651,7 +2651,7 @@ function pintarPlanesPagos(list){
     header.appendChild(title);
     div.appendChild(header);
 
-    const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC: '+(c.documento||''); div.appendChild(pDoc);
+    const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC / NIT: '+(c.documento||''); div.appendChild(pDoc);
     const pInf=document.createElement('p'); pInf.className='item-sub'; pInf.textContent='INFORME: '+(c.informe||'')+' de: '+(c.totalInformes||''); div.appendChild(pInf);
     const pContrato = document.createElement('p');
 pContrato.className = 'item-sub';
