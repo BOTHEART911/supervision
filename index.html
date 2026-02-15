@@ -1010,7 +1010,7 @@
           <p class="muted" style="margin:6px 0 12px;">N° de Cuentas</p>
         </div>
 
-        <input id="cuentas-filter" class="chip" style="width:100%; border-radius:999px;" type="text" placeholder="Filtrar por nombre, documento, informe o total informes">
+        <input id="cuentas-filter" class="chip" style="width:100%; border-radius:999px;" type="text" placeholder="Filtrar por nombre, documento, contrato, informe">
 
         <div class="btn-row spaced">
           <button id="revision-volver" class="danger">REGRESAR</button>
@@ -1088,10 +1088,11 @@
       <div id="planes-count" class="chip" style="display:none;">0</div>
       <p class="muted" style="margin:6px 0 12px;">N° de Cuentas en Plan de Pagos</p>
     </div>
-    <input id="planes-filter" class="chip" style="width:100%; border-radius:999px;" type="text" placeholder="Filtrar por nombre, documento, informe o total informes">
-    <div class="btn-row spaced">
-      <button id="planes-volver" class="danger">REGRESAR</button>
-    </div>
+    <input id="planes-filter" class="chip" style="width:100%; border-radius:999px;" type="text" placeholder="Filtrar por nombre, documento, contrato, informe">
+   <div class="btn-row spaced">
+  <button id="planes-secop2" class="chip">IR A SECOP II</button>
+  <button id="planes-volver" class="danger">REGRESAR</button>
+</div>
     <div id="planes-list" class="list-grid"></div>
   </div>
 </section>
@@ -2086,7 +2087,7 @@ div.appendChild(pContrato);
 document.getElementById('cuentas-filter').addEventListener('input',()=>{
   const q=document.getElementById('cuentas-filter').value.trim().toLowerCase();
   const filtered=CUENTAS_DATA.filter(c=>{
-    return [c.nombre,c.documento,c.informe,c.totalInformes].some(v=>String(v||'').toLowerCase().includes(q));
+    return [c.nombre,c.documento,c.contrato,c.informe,c.totalInformes].some(v=>String(v||'').toLowerCase().includes(q));
   });
   pintarCuentas(filtered); actualizarResumenCuentas(filtered);
 });
@@ -2663,28 +2664,85 @@ div.appendChild(pContrato);
     pEgreso.textContent='FECHA EGRESO: ' + (c.fechaEgreso || 'Primera Cuenta');
     div.appendChild(pEgreso);
     
-    const btnRow=document.createElement('div'); btnRow.className='btn-row';
+    const btnRow=document.createElement('div'); 
+btnRow.className='btn-row';
 
-    const btnCerrar=document.createElement('button');
-    btnCerrar.textContent='CERRAR PROCESO';
-    btnCerrar.addEventListener('click', ()=> {
-      playSoundOnce(SOUNDS.logout);
-      cerrarProcesoPlanPago(c.documento, c.informe);
+// NUEVO: FIRMAR INFORME (descarga PDF sin cambiar estado ni refrescar vista)
+const btnFirmar = document.createElement('button');
+btnFirmar.textContent = 'FIRMAR INFORME';
+btnFirmar.addEventListener('click', async ()=> {
+  playSoundOnce(SOUNDS.info);
+
+  try{
+    const supervisor = supervisorNombreCompleto;
+
+    // Llama al nuevo endpoint que solo genera y devuelve el PDF
+    const resp = await apiPost('firmarInformePlanPagoSupervisor', {
+      documento: c.documento,
+      informe: c.informe,
+      supervisor
     });
-    btnRow.appendChild(btnCerrar);
 
-    div.appendChild(btnRow);
-    wrap.appendChild(div);
+    if(!resp || !resp.base64){
+      throw new Error('No se recibió el PDF para descargar.');
+    }
+
+    const byteChars = atob(resp.base64);
+    const byteNumbers = new Array(byteChars.length);
+    for(let i=0;i<byteChars.length;i++){
+      byteNumbers[i] = byteChars.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+
+    const blob = new Blob([byteArray], { type: resp.mimeType || 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = resp.fileName || 'INF_SUP_CTA.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    setTimeout(()=> URL.revokeObjectURL(url), 20000);
+
+    // IMPORTANTE: no refresca vista, no cambia estado
+  }catch(e){
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }
+});
+btnRow.appendChild(btnFirmar);
+
+// EXISTENTE: cerrar proceso
+const btnCerrar=document.createElement('button');
+btnCerrar.textContent='CERRAR PROCESO';
+btnCerrar.addEventListener('click', ()=> {
+  playSoundOnce(SOUNDS.logout);
+  cerrarProcesoPlanPago(c.documento, c.informe);
+});
+btnRow.appendChild(btnCerrar);
+
+div.appendChild(btnRow);
+wrap.appendChild(div);
   }
 }
 
 document.getElementById('planes-filter').addEventListener('input', ()=>{
   const q=document.getElementById('planes-filter').value.trim().toLowerCase();
   const filtered = PLANES_PAGOS_DATA.filter(c=>{
-    return [c.nombre,c.documento,c.informe,c.totalInformes].some(v=>String(v||'').toLowerCase().includes(q));
+    return [c.nombre,c.documento,c.contrato,c.informe,c.totalInformes].some(v=>String(v||'').toLowerCase().includes(q));
   });
   pintarPlanesPagos(filtered);
   actualizarResumenPlanesPagos(filtered);
+});
+
+  document.getElementById('planes-secop2')?.addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.login);
+  window.open(
+    'https://community.secop.gov.co/STS/Users/Login/Index?SkinName=CCE&currentLanguage=es-CO&Page=login&Country=CO',
+    '_blank',
+    'noopener'
+  );
 });
 
 document.getElementById('planes-volver').addEventListener('click', ()=>{
