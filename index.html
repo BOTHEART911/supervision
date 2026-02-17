@@ -825,6 +825,34 @@
       border-radius:6px;
       background:#fff;
     }
+
+      /* Ícono carpeta en tarjeta Plan de Pagos (sin alterar botones) */
+.plan-card-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.plan-folder{
+  flex:0 0 auto;
+  margin-left:auto;
+}
+.plan-folder .btn-icon{
+  padding:6px !important;
+}
+.plan-folder .btn-icon img{
+  width:44px !important;
+  height:44px !important;
+  object-fit:contain;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));
+}
+
+/* Responsive: mantiene el ícono arriba a la derecha */
+@media (max-width:700px){
+  .plan-card-head{
+    align-items:flex-start;
+  }
+}
   </style>
 </head>
 <body>
@@ -2600,98 +2628,123 @@ function pintarPlanesPagos(list){
     return;
   }
   for(const c of list){
-    const div=document.createElement('div'); div.className='item-card';
-    const header=document.createElement('div'); header.className='item-header';
-    const title=document.createElement('p'); title.className='item-title'; title.textContent=(c.nombre||'');
-    header.appendChild(title);
-    div.appendChild(header);
+  const div=document.createElement('div'); div.className='item-card';
 
-    const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC / NIT: '+(c.documento||''); div.appendChild(pDoc);
-    const pInf=document.createElement('p'); pInf.className='item-sub'; pInf.textContent='INFORME: '+(c.informe||'')+' de: '+(c.totalInformes||''); div.appendChild(pInf);
-    const pContrato = document.createElement('p');
-pContrato.className = 'item-sub';
-pContrato.textContent = 'CONTRATO: ' + (c.contrato || '');
-div.appendChild(pContrato);
+  // Encabezado + ícono carpeta (arriba a la derecha)
+  const headRow = document.createElement('div');
+  headRow.className = 'plan-card-head';
 
-      const pEgreso=document.createElement('p');
-    pEgreso.className='item-sub';
-    pEgreso.textContent='FECHA EGRESO: ' + (c.fechaEgreso || 'Primera Cuenta');
-    div.appendChild(pEgreso);
-    
-    const btnRow=document.createElement('div'); 
-btnRow.className='btn-row';
+  const header=document.createElement('div'); header.className='item-header';
+  const title=document.createElement('p'); title.className='item-title'; title.textContent=(c.nombre||'');
+  header.appendChild(title);
 
-// NUEVO: FIRMAR INFORME (descarga PDF sin cambiar estado ni refrescar vista)
-const btnFirmar = document.createElement('button');
-btnFirmar.textContent = 'FIRMAR INFORME';
-btnFirmar.addEventListener('click', async ()=> {
-  const prevSuppress = suppressLoader;
-  suppressLoader = true;
+  const folderWrap = document.createElement('div');
+  folderWrap.className = 'plan-folder';
 
-  Swal.fire({
-    title: 'FIRMANDO DOCUMENTO....',
-    html: 'El Informe de Supervisión se está firmando, por favor espera unos segundos.',
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-    didOpen: () => {
-      Swal.showLoading();
-    }
-  });
+  const btnCarpeta = document.createElement('button');
+  btnCarpeta.className = 'btn-icon';
+  btnCarpeta.setAttribute('aria-label','Abrir carpeta de CUENTA en Drive');
+  btnCarpeta.title = 'Abrir carpeta de CUENTA en Drive';
+  btnCarpeta.innerHTML = '<img src="https://res.cloudinary.com/dqqeavica/image/upload/v1764111247/carpeta_drive_epbrhp.webp" alt="CUENTA">';
 
-  try{
-    const supervisor = supervisorNombreCompleto;
+  const idCuenta = String(c.idCuenta || '').trim();
+  if(idCuenta){
+    btnCarpeta.addEventListener('click', ()=> {
+      playSoundOnce(SOUNDS.menu);
+      window.open('https://drive.google.com/drive/folders/' + idCuenta, '_blank');
+    });
+    folderWrap.appendChild(btnCarpeta);
+  }
 
-    const resp = await apiPost('firmarInformePlanPagoSupervisor', {
-      documento: c.documento,
-      informe: c.informe,
-      supervisor
+  headRow.appendChild(header);
+  headRow.appendChild(folderWrap);
+  div.appendChild(headRow);
+
+  const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC / NIT: '+(c.documento||''); div.appendChild(pDoc);
+  const pInf=document.createElement('p'); pInf.className='item-sub'; pInf.textContent='INFORME: '+(c.informe||'')+' de: '+(c.totalInformes||''); div.appendChild(pInf);
+
+  const pContrato = document.createElement('p');
+  pContrato.className = 'item-sub';
+  pContrato.textContent = 'CONTRATO: ' + (c.contrato || '');
+  div.appendChild(pContrato);
+
+  const pEgreso=document.createElement('p');
+  pEgreso.className='item-sub';
+  pEgreso.textContent='FECHA EGRESO: ' + (c.fechaEgreso || 'Primera Cuenta');
+  div.appendChild(pEgreso);
+
+  const btnRow=document.createElement('div'); 
+  btnRow.className='btn-row';
+
+  const btnFirmar = document.createElement('button');
+  btnFirmar.textContent = 'FIRMAR INFORME';
+  btnFirmar.addEventListener('click', async ()=> {
+    const prevSuppress = suppressLoader;
+    suppressLoader = true;
+
+    Swal.fire({
+      title: 'FIRMANDO DOCUMENTO....',
+      html: 'El Informe de Supervisión se está firmando, por favor espera unos segundos.',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
     });
 
-    if(!resp || !resp.base64){
-      throw new Error('No se recibió el PDF para descargar.');
+    try{
+      const supervisor = supervisorNombreCompleto;
+
+      const resp = await apiPost('firmarInformePlanPagoSupervisor', {
+        documento: c.documento,
+        informe: c.informe,
+        supervisor
+      });
+
+      if(!resp || !resp.base64){
+        throw new Error('No se recibió el PDF para descargar.');
+      }
+
+      const byteChars = atob(resp.base64);
+      const byteNumbers = new Array(byteChars.length);
+      for(let i=0;i<byteChars.length;i++){
+        byteNumbers[i] = byteChars.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+
+      const blob = new Blob([byteArray], { type: resp.mimeType || 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = resp.fileName || 'INF_SUP_CTA.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      setTimeout(()=> URL.revokeObjectURL(url), 20000);
+
+      Swal.close();
+    }catch(e){
+      Swal.close();
+      Swal.fire({icon:'error',title:'Error',text:e.message});
+    }finally{
+      suppressLoader = prevSuppress;
     }
+  });
+  btnRow.appendChild(btnFirmar);
 
-    const byteChars = atob(resp.base64);
-    const byteNumbers = new Array(byteChars.length);
-    for(let i=0;i<byteChars.length;i++){
-      byteNumbers[i] = byteChars.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
+  const btnCerrar=document.createElement('button');
+  btnCerrar.textContent='CERRAR PROCESO';
+  btnCerrar.addEventListener('click', ()=> {
+    playSoundOnce(SOUNDS.logout);
+    cerrarProcesoPlanPago(c.documento, c.informe);
+  });
+  btnRow.appendChild(btnCerrar);
 
-    const blob = new Blob([byteArray], { type: resp.mimeType || 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = resp.fileName || 'INF_SUP_CTA.pdf';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    setTimeout(()=> URL.revokeObjectURL(url), 20000);
-
-    Swal.close();
-  }catch(e){
-    Swal.close();
-    Swal.fire({icon:'error',title:'Error',text:e.message});
-  }finally{
-    suppressLoader = prevSuppress;
-  }
-});
-btnRow.appendChild(btnFirmar);
-
-// EXISTENTE: cerrar proceso
-const btnCerrar=document.createElement('button');
-btnCerrar.textContent='CERRAR PROCESO';
-btnCerrar.addEventListener('click', ()=> {
-  playSoundOnce(SOUNDS.logout);
-  cerrarProcesoPlanPago(c.documento, c.informe);
-});
-btnRow.appendChild(btnCerrar);
-
-div.appendChild(btnRow);
-wrap.appendChild(div);
-  }
+  div.appendChild(btnRow);
+  wrap.appendChild(div);
+}
 }
 
 document.getElementById('planes-filter').addEventListener('input', ()=>{
