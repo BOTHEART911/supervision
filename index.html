@@ -853,6 +853,25 @@
     align-items:flex-start;
   }
 }
+
+      .plan-hint{
+  margin: 6px 0 0;
+  font-size: .72rem;
+  font-weight: 800;
+  color: #dc2626;
+  text-align: center;
+  animation: planHintPulse 1.15s ease-in-out infinite;
+}
+
+@keyframes planHintPulse{
+  0%   { transform: scale(1);   opacity: .85; }
+  50%  { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1);   opacity: .85; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .plan-hint{ animation: none; }
+}
   </style>
 </head>
 <body>
@@ -2672,6 +2691,11 @@ function pintarPlanesPagos(list){
   pEgreso.className='item-sub';
   pEgreso.textContent='FECHA EGRESO: ' + (c.fechaEgreso || 'Primera Cuenta');
   div.appendChild(pEgreso);
+
+  const pHint = document.createElement('p');
+  pHint.className = 'plan-hint';
+  pHint.textContent = 'Guarda la copia del informe en la 📁 de contratista, después clic en cerrar proceso.';
+  div.appendChild(pHint);
 
   const btnRow=document.createElement('div'); 
   btnRow.className='btn-row';
