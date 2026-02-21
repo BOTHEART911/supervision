@@ -2192,11 +2192,14 @@ function formatInfoList(arr){ return arr.map(x=>`<p>${x}</p>`).join(''); }
 function renderRevisionCuenta(){
   const c=REV_CUENTA?.contratista; const cu=REV_CUENTA?.cuenta;
   document.getElementById('rc-title').textContent='REVISIÓN DE CUENTA N° '+(cu?.informe||'')+' de '+(c?.nombre||'');
+  const obsEl = document.getElementById('rc-observaciones');
+  if (obsEl) obsEl.value = '';
   const rcBody=document.getElementById('rc-body');
   rcBody.innerHTML = formatInfoList([ `<b>DOCUMENTO:</b> ${c?.documento||''}`, `<b>SECRETARÍA:</b> ${c?.secretaria||''}`, `<b>SUPERVISOR:</b> ${c?.supervisor||''}` ]);
 
   document.getElementById('sec-contrato').innerHTML = formatInfoList([
     `<b>CONTRATO N°:</b> ${c?.contrato||''}`,
+    `<b>OBJETO:</b> ${c?.objeto||''}`,
     `<b>FECHA DE CONTRATO:</b> ${c?.fechaContrato||''}`,
     `<b>FECHA DE INICIO:</b> ${c?.fechaInicio||''}`,
     `<b>FECHA DE TERMINO:</b> ${c?.fechaTermino||''}`,
