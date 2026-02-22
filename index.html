@@ -2214,13 +2214,14 @@ function renderRevisionCuenta(){
     `<b>SUPERVISOR:</b> ${c?.supervisor||''}`,
   ]);
 
-  document.getElementById('sec-informe').innerHTML = [
+ document.getElementById('sec-informe').innerHTML = [
     `<h4 style="margin:4px 0;color:var(--primary)">RELACIÓN DE INFORME</h4>`,
     `<p><b>FECHA DE RADICACIÓN:</b> ${cu?.fechaRadicacion||''}</p>`,
     `<p><b>INFORME:</b> ${cu?.informe||''} de ${cu?.totalInformes||''}</p>`,
     `<p><b>INICIO DE PERIODO RATIFICADO:</b> ${cu?.inicioRatificar||''}</p>`,
     `<p><b>FIN DE PERIODO RATIFICADO:</b> ${cu?.finRatificar||''}</p>`,
     `<h4 style="margin:14px 0 4px;color:var(--primary)">RELACIÓN DE PAGO</h4>`,
+    `<p><b>N° FACTURA DIGITAL:</b> ${cu?.facturaDigital || 'N/A'}</p>`,
     `<p><b>SALDO ACTUAL:</b> ${cu?.saldoActual||''}</p>`,
     `<p><b>VALOR COBRADO:</b> ${cu?.menos||''}</p>`,
     `<p><b>NUEVO SALDO:</b> ${cu?.nuevoSaldo||''}</p>`
