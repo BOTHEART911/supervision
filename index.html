@@ -2180,7 +2180,10 @@ function resetToggleSections(){
 let REV_CUENTA=null;
 async function abrirRevisionCuenta(documento){
   try{
-    const data=await apiGet('revisarCuentaDataSupervisor',{documento});
+    const data = await apiGet('revisarCuentaDataSupervisor', {
+  documento,
+  supervisor: supervisorNombreCompleto
+});
     if(!data){ Swal.fire({icon:'info',title:'No encontrado'}); return; }
     REV_CUENTA=data;
     resetToggleSections();
@@ -2433,7 +2436,12 @@ el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
       // Devolver (mantiene lógica existente)
       el.querySelector('#opt-devolver')?.addEventListener('click', async ()=>{
         try{
-          await apiPost('devolverCuentaSupervisor',{documento,informe,observaciones:observ});
+         await apiPost('devolverCuentaSupervisor',{
+  documento,
+  informe,
+  observaciones: observ,
+  supervisor
+});
           if(telContratista){ sendBuilderbotMessage(telContratista, msgDevueltaContratista()); }
           Swal.close();
           Swal.fire({icon:'success',title:'Cuenta Devuelta',timer:1800,showConfirmButton:false});
@@ -2444,7 +2452,12 @@ el.querySelector('#opt-aprobar')?.addEventListener('click', async ()=>{
       // Incompleta (solo envía mensaje; NO llama backend)
       el.querySelector('#opt-incompleta')?.addEventListener('click', async ()=>{
   try{
-    await apiPost('marcarCuentaIncompletaSupervisor', { documento, informe, observaciones: observ });
+    await apiPost('marcarCuentaIncompletaSupervisor', {
+  documento,
+  informe,
+  observaciones: observ,
+  supervisor
+});
     if(telContratista){ sendBuilderbotMessage(telContratista, msgIncompleta()); }
     Swal.close();
     Swal.fire({icon:'success',title:'Cuenta marcada como INCOMPLETA',timer:2200,showConfirmButton:false});
