@@ -2386,7 +2386,8 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
           'Estimado(a) *'+nombre+'*' + '\n\n' +
           'Se ha devuelto tu *Cuenta N° '+informe+'* por esta inconsistencia:' + '\n\n' +
           '*'+(observ || 'Sin observaciones')+'*' + '\n\n' +
-          'Haz la corrección desde la *App Contratista* teniendo en cuenta las observaciones anteriores.' + '\n\n' +
+          'Haz la corrección desde la *App Contratista* teniendo en cuenta las observaciones anteriores.' + '\n' +
+          'Una vez corregida, vuelve a reportarla para revisarla.' + '\n\n' +
           'Cordialmente,' + '\n\n' +
           '*'+supervisor+'*' + '\n' + pieSupervisor()
         );
@@ -2397,7 +2398,8 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
           'Estimado(a) *'+nombre+'*' + '\n\n' +
           'En tu *Cuenta N° '+informe+'* no encuentro el(los) siguiente(s) soporte(s):' + '\n\n' +
           '*'+(observ || 'Sin observaciones')+'*' + '\n\n' +
-          'Toma la opción *MI CUENTA DRIVE* en la *App Contratista* y carga el(los) soporte(s) restante(s) teniendo en cuenta las observaciones anteriores.' + '\n\n' +
+          'Toma la opción *CORREGIR CUENTA* en la *App Contratista* y carga el(los) soporte(s) restante(s) teniendo en cuenta las observaciones anteriores.' + '\n' +
+          'Una vez corregida con lo solicitado, vuelve a reportarla para revisarla.' + '\n\n' +
           'Cordialmente,' + '\n\n' +
           '*'+supervisor+'*' + '\n' + pieSupervisor()
         );
