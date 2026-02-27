@@ -1603,13 +1603,21 @@ async function apiGet(action, params = {}){
     return j.data;
   } finally { stopLoading(); }
 }
-async function apiPost(action, body = {}){
+async function apiPost(action, body = {}, extraHeaders = null){
   startLoading();
   try{
     const url = API_BASE + '?action=' + encodeURIComponent(action);
+    const headers = { 'Content-Type':'text/plain;charset=utf-8' };
+    if(extraHeaders && typeof extraHeaders === 'object'){
+      Object.keys(extraHeaders).forEach(k=>{
+        if(extraHeaders[k] !== undefined && extraHeaders[k] !== null && extraHeaders[k] !== ''){
+          headers[k] = String(extraHeaders[k]);
+        }
+      });
+    }
     const r = await fetch(url, {
       method:'POST',
-      headers: { 'Content-Type':'text/plain;charset=utf-8' },
+      headers,
       body: JSON.stringify(body)
     });
     const j = await r.json();
@@ -2721,153 +2729,139 @@ function pintarPlanesPagos(list){
     wrap.innerHTML='<p class="muted center">No hay cuentas en Plan de Pagos.</p>';
     return;
   }
-
   for(const c of list){
-    const div=document.createElement('div'); 
-    div.className='item-card';
+  const div=document.createElement('div'); div.className='item-card';
 
-    // ===== supervisor oculto (CM) en el DOM (por si lo necesitas en el click) =====
-    // Nota: viene desde backend en c.supervisor (nuevo ajuste en gs.md)
-    const hiddenSup = document.createElement('input');
-    hiddenSup.type = 'hidden';
-    hiddenSup.className = 'pp-supervisor';
-    hiddenSup.value = String(c.supervisor || '').trim();
-    div.appendChild(hiddenSup);
+  // Encabezado + ícono carpeta (arriba a la derecha)
+  const headRow = document.createElement('div');
+  headRow.className = 'plan-card-head';
 
-    // Encabezado + ícono carpeta (arriba a la derecha)
-    const headRow = document.createElement('div');
-    headRow.className = 'plan-card-head';
+  const header=document.createElement('div'); header.className='item-header';
+  const title=document.createElement('p'); title.className='item-title'; title.textContent=(c.nombre||'');
+  header.appendChild(title);
 
-    const header=document.createElement('div'); 
-    header.className='item-header';
+  const folderWrap = document.createElement('div');
+  folderWrap.className = 'plan-folder';
 
-    const title=document.createElement('p'); 
-    title.className='item-title'; 
-    title.textContent=(c.nombre||'');
-    header.appendChild(title);
+  const btnCarpeta = document.createElement('button');
+  btnCarpeta.className = 'btn-icon';
+  btnCarpeta.setAttribute('aria-label','Abrir carpeta de CUENTA en Drive');
+  btnCarpeta.title = 'Abrir carpeta de CUENTA en Drive';
+  btnCarpeta.innerHTML = '<img src="https://res.cloudinary.com/dqqeavica/image/upload/v1764111247/carpeta_drive_epbrhp.webp" alt="CUENTA">';
 
-    const folderWrap = document.createElement('div');
-    folderWrap.className = 'plan-folder';
+  const idCuenta = String(c.idCuenta || '').trim();
+  if(idCuenta){
+    btnCarpeta.addEventListener('click', ()=> {
+      playSoundOnce(SOUNDS.menu);
+      window.open('https://drive.google.com/drive/folders/' + idCuenta, '_blank');
+    });
+    folderWrap.appendChild(btnCarpeta);
+  }
 
-    const btnCarpeta = document.createElement('button');
-    btnCarpeta.className = 'btn-icon';
-    btnCarpeta.setAttribute('aria-label','Abrir carpeta de CUENTA en Drive');
-    btnCarpeta.title = 'Abrir carpeta de CUENTA en Drive';
-    btnCarpeta.innerHTML = '<img src="https://res.cloudinary.com/dqqeavica/image/upload/v1764111247/carpeta_drive_epbrhp.webp" alt="CUENTA">';
+  headRow.appendChild(header);
+  headRow.appendChild(folderWrap);
+  div.appendChild(headRow);
 
-    const idCuenta = String(c.idCuenta || '').trim();
-    if(idCuenta){
-      btnCarpeta.addEventListener('click', ()=> {
-        playSoundOnce(SOUNDS.menu);
-        window.open('https://drive.google.com/drive/folders/' + idCuenta, '_blank');
-      });
-      folderWrap.appendChild(btnCarpeta);
+  const pDoc=document.createElement('p'); pDoc.className='item-sub'; pDoc.textContent='CC / NIT: '+(c.documento||''); div.appendChild(pDoc);
+  const pInf=document.createElement('p'); pInf.className='item-sub'; pInf.textContent='INFORME: '+(c.informe||'')+' de: '+(c.totalInformes||''); div.appendChild(pInf);
+
+  const pContrato = document.createElement('p');
+  pContrato.className = 'item-sub';
+  pContrato.textContent = 'CONTRATO: ' + (c.contrato || '');
+  div.appendChild(pContrato);
+
+  const pEgreso=document.createElement('p');
+  pEgreso.className='item-sub';
+  pEgreso.textContent='FECHA EGRESO: ' + (c.fechaEgreso || 'Primera Cuenta');
+  div.appendChild(pEgreso);
+
+  const pHint = document.createElement('p');
+  pHint.className = 'plan-hint';
+  pHint.textContent = 'Guarda la copia del informe en la 📁 de contratista, después clic en cerrar proceso.';
+  div.appendChild(pHint);
+
+  const btnRow=document.createElement('div'); 
+  btnRow.className='btn-row';
+
+  const btnFirmar = document.createElement('button');
+  btnFirmar.textContent = 'FIRMAR INFORME';
+  btnFirmar.addEventListener('click', async ()=> {
+  const prevSuppress = suppressLoader;
+  suppressLoader = true;
+
+  Swal.fire({
+    title: 'FIRMANDO DOCUMENTO....',
+    html: 'El Informe de Supervisión se está firmando, por favor espera unos segundos.',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+
+  try{
+    const supervisor = supervisorNombreCompleto;
+
+    const resp = await apiPost(
+      'firmarInformePlanPagoSupervisor',
+      {
+        documento: c.documento,
+        informe: c.informe,
+        supervisor
+      },
+      {
+        'x-supervisor': supervisor,
+        'x-contrato': (c.contrato || '')
+      }
+    );
+
+    if(!resp || !resp.base64){
+      throw new Error('No se recibió el PDF para descargar.');
     }
 
-    headRow.appendChild(header);
-    headRow.appendChild(folderWrap);
-    div.appendChild(headRow);
+    const byteChars = atob(resp.base64);
+    const byteNumbers = new Array(byteChars.length);
+    for(let i=0;i<byteChars.length;i++){
+      byteNumbers[i] = byteChars.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
 
-    const pDoc=document.createElement('p'); 
-    pDoc.className='item-sub'; 
-    pDoc.textContent='CC / NIT: '+(c.documento||''); 
-    div.appendChild(pDoc);
+    const blob = new Blob([byteArray], { type: resp.mimeType || 'application/pdf' });
+    const url = URL.createObjectURL(blob);
 
-    const pInf=document.createElement('p'); 
-    pInf.className='item-sub'; 
-    pInf.textContent='INFORME: '+(c.informe||'')+' de: '+(c.totalInformes||''); 
-    div.appendChild(pInf);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = resp.fileName || 'INF_SUP_CTA.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 
-    const pContrato = document.createElement('p');
-    pContrato.className = 'item-sub';
-    pContrato.textContent = 'CONTRATO: ' + (c.contrato || '');
-    div.appendChild(pContrato);
+    setTimeout(()=> URL.revokeObjectURL(url), 20000);
 
-    const pEgreso=document.createElement('p');
-    pEgreso.className='item-sub';
-    pEgreso.textContent='FECHA EGRESO: ' + (c.fechaEgreso || 'Primera Cuenta');
-    div.appendChild(pEgreso);
-
-    const pHint = document.createElement('p');
-    pHint.className = 'plan-hint';
-    pHint.textContent = 'Guarda la copia del informe en la 📁 de contratista, después clic en cerrar proceso.';
-    div.appendChild(pHint);
-
-    const btnRow=document.createElement('div'); 
-    btnRow.className='btn-row';
-
-    const btnFirmar = document.createElement('button');
-    btnFirmar.textContent = 'FIRMAR INFORME';
-    btnFirmar.addEventListener('click', async ()=> {
-      const prevSuppress = suppressLoader;
-      suppressLoader = true;
-
-      Swal.fire({
-        title: 'FIRMANDO DOCUMENTO....',
-        html: 'El Informe de Supervisión se está firmando, por favor espera unos segundos.',
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
-      });
-
-      try{
-        // Usar el supervisor oculto (CM) si viene, y si no, caer al supervisor logueado
-        const supervisorHidden = String(hiddenSup.value || '').trim();
-        const supervisor = supervisorHidden || supervisorNombreCompleto;
-
-        const resp = await apiPost('firmarInformePlanPagoSupervisor', {
-          documento: c.documento,
-          informe: c.informe,
-          supervisor
-        });
-
-        if(!resp || !resp.base64){
-          throw new Error('No se recibió el PDF para descargar.');
-        }
-
-        const byteChars = atob(resp.base64);
-        const byteNumbers = new Array(byteChars.length);
-        for(let i=0;i<byteChars.length;i++){
-          byteNumbers[i] = byteChars.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-
-        const blob = new Blob([byteArray], { type: resp.mimeType || 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = resp.fileName || 'INF_SUP_CTA.pdf';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        setTimeout(()=> URL.revokeObjectURL(url), 20000);
-
-        Swal.close();
-      }catch(e){
-        Swal.close();
-        Swal.fire({icon:'error',title:'Error',text:e.message});
-      }finally{
-        suppressLoader = prevSuppress;
-      }
-    });
-    btnRow.appendChild(btnFirmar);
-
-    const btnCerrar=document.createElement('button');
-    btnCerrar.textContent='CERRAR PROCESO';
-    btnCerrar.addEventListener('click', ()=> {
-      playSoundOnce(SOUNDS.logout);
-      cerrarProcesoPlanPago(c.documento, c.informe);
-    });
-    btnRow.appendChild(btnCerrar);
-
-    div.appendChild(btnRow);
-    wrap.appendChild(div);
+    Swal.close();
+  }catch(e){
+    Swal.close();
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }finally{
+    suppressLoader = prevSuppress;
   }
+});
+    
+  btnRow.appendChild(btnFirmar);
+
+  const btnCerrar=document.createElement('button');
+  btnCerrar.textContent='CERRAR PROCESO';
+  btnCerrar.addEventListener('click', ()=> {
+    playSoundOnce(SOUNDS.logout);
+    cerrarProcesoPlanPago(c.documento, c.informe);
+  });
+  btnRow.appendChild(btnCerrar);
+
+  div.appendChild(btnRow);
+  wrap.appendChild(div);
 }
+}
+
 document.getElementById('planes-filter').addEventListener('input', ()=>{
   const q=document.getElementById('planes-filter').value.trim().toLowerCase();
   const filtered = PLANES_PAGOS_DATA.filter(c=>{
