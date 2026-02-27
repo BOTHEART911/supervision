@@ -1603,21 +1603,13 @@ async function apiGet(action, params = {}){
     return j.data;
   } finally { stopLoading(); }
 }
-async function apiPost(action, body = {}, extraHeaders = null){
+async function apiPost(action, body = {}){
   startLoading();
   try{
     const url = API_BASE + '?action=' + encodeURIComponent(action);
-    const headers = { 'Content-Type':'text/plain;charset=utf-8' };
-    if(extraHeaders && typeof extraHeaders === 'object'){
-      Object.keys(extraHeaders).forEach(k=>{
-        if(extraHeaders[k] !== undefined && extraHeaders[k] !== null && extraHeaders[k] !== ''){
-          headers[k] = String(extraHeaders[k]);
-        }
-      });
-    }
     const r = await fetch(url, {
       method:'POST',
-      headers,
+      headers: { 'Content-Type':'text/plain;charset=utf-8' },
       body: JSON.stringify(body)
     });
     const j = await r.json();
@@ -1942,6 +1934,12 @@ function pintarContratistas(list){
   if(!list.length){ wrap.innerHTML='<p class="muted center">No hay contratistas.</p>'; return; }
   for(const c of list){
     const div=document.createElement('div'); div.className='item-card';
+      // Supervisor (CM) oculto (por si necesitas usarlo luego sin reconsultar)
+  const supHidden = document.createElement('input');
+  supHidden.type = 'hidden';
+  supHidden.className = 'plan-supervisor-cm';
+  supHidden.value = String(c.supervisor || '');
+  div.appendChild(supHidden);
    const header=document.createElement('div'); header.className='item-header';
 const title=document.createElement('p'); title.className='item-title'; title.textContent=(c.nombre||'');
 header.appendChild(title);
@@ -2786,67 +2784,59 @@ function pintarPlanesPagos(list){
   const btnFirmar = document.createElement('button');
   btnFirmar.textContent = 'FIRMAR INFORME';
   btnFirmar.addEventListener('click', async ()=> {
-  const prevSuppress = suppressLoader;
-  suppressLoader = true;
+    const prevSuppress = suppressLoader;
+    suppressLoader = true;
 
-  Swal.fire({
-    title: 'FIRMANDO DOCUMENTO....',
-    html: 'El Informe de Supervisión se está firmando, por favor espera unos segundos.',
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-    didOpen: () => {
-      Swal.showLoading();
-    }
-  });
+    Swal.fire({
+      title: 'FIRMANDO DOCUMENTO....',
+      html: 'El Informe de Supervisión se está firmando, por favor espera unos segundos.',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
 
-  try{
-    const supervisor = supervisorNombreCompleto;
+    try{
+      const supervisor = supervisorNombreCompleto;
 
-    const resp = await apiPost(
-      'firmarInformePlanPagoSupervisor',
-      {
+      const resp = await apiPost('firmarInformePlanPagoSupervisor', {
         documento: c.documento,
         informe: c.informe,
         supervisor
-      },
-      {
-        'x-supervisor': supervisor,
-        'x-contrato': (c.contrato || '')
+      });
+
+      if(!resp || !resp.base64){
+        throw new Error('No se recibió el PDF para descargar.');
       }
-    );
 
-    if(!resp || !resp.base64){
-      throw new Error('No se recibió el PDF para descargar.');
+      const byteChars = atob(resp.base64);
+      const byteNumbers = new Array(byteChars.length);
+      for(let i=0;i<byteChars.length;i++){
+        byteNumbers[i] = byteChars.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+
+      const blob = new Blob([byteArray], { type: resp.mimeType || 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = resp.fileName || 'INF_SUP_CTA.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      setTimeout(()=> URL.revokeObjectURL(url), 20000);
+
+      Swal.close();
+    }catch(e){
+      Swal.close();
+      Swal.fire({icon:'error',title:'Error',text:e.message});
+    }finally{
+      suppressLoader = prevSuppress;
     }
-
-    const byteChars = atob(resp.base64);
-    const byteNumbers = new Array(byteChars.length);
-    for(let i=0;i<byteChars.length;i++){
-      byteNumbers[i] = byteChars.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-
-    const blob = new Blob([byteArray], { type: resp.mimeType || 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = resp.fileName || 'INF_SUP_CTA.pdf';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    setTimeout(()=> URL.revokeObjectURL(url), 20000);
-
-    Swal.close();
-  }catch(e){
-    Swal.close();
-    Swal.fire({icon:'error',title:'Error',text:e.message});
-  }finally{
-    suppressLoader = prevSuppress;
-  }
-});
-    
+  });
   btnRow.appendChild(btnFirmar);
 
   const btnCerrar=document.createElement('button');
