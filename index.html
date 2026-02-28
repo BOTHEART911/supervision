@@ -972,6 +972,10 @@
           <button class="btn-primary" id="btn-login">Iniciar Sesión</button>
         </div>
 
+        <div class="btn-row spaced">
+          <button id="btn-recuperar" class="chip">Recuperar Contraseña</button>
+        </div>
+
         <img class="banner-bottom" alt="Banner" src="https://res.cloudinary.com/dqqeavica/image/upload/v1766347982/banner_wbfbf7.gif" />
         <p class="center muted">Copyright © <b>GOBIERNO DIGITAL</b></p>
       </div>
@@ -1247,6 +1251,19 @@
     <div class="btn-row" style="margin-top:14px;">
       <button id="modal-req-enviar" class="btn-primary">Enviar</button>
       <button id="modal-req-cancelar" class="danger">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+    <!-- MODAL CONTRASEÑA -->
+    <div id="modal-recuperar" class="modal-backdrop hidden">
+  <div class="modal">
+    <h3 style="color:var(--primary)">Selecciona tu nombre</h3>
+
+    <div id="recuperar-list" style="display:flex; flex-direction:column; gap:10px; margin-top:12px;"></div>
+
+    <div class="btn-row" style="margin-top:14px;">
+      <button id="recuperar-cerrar" class="danger">Cerrar</button>
     </div>
   </div>
 </div>
@@ -1640,6 +1657,124 @@ function sendBuilderbotMessage(destino, mensaje){
   }).catch(err => console.warn('Error BuilderBot', err));
 }
 
+/* ================== RECUPERAR CONTRASEÑA ================== */
+function firstTwoWordsIfMoreThan3(fullName){
+  const parts = String(fullName || '')
+    .trim()
+    .replace(/\s+/g,' ')
+    .split(' ')
+    .filter(Boolean);
+
+  if(parts.length > 3){
+    return (parts[0] || '') + ' ' + (parts[1] || '');
+  }
+  return parts.join(' ');
+}
+
+function openRecuperarModal(){
+  const modal = document.getElementById('modal-recuperar');
+  if(!modal) return;
+  modal.classList.remove('hidden');
+}
+function closeRecuperarModal(){
+  const modal = document.getElementById('modal-recuperar');
+  if(!modal) return;
+  modal.classList.add('hidden');
+}
+
+async function cargarListaSupervisoresParaRecuperar(){
+  try{
+    const list = await apiGet('listSupervisoresRecuperar', {});
+    const data = Array.isArray(list) ? list : [];
+
+    const wrap = document.getElementById('recuperar-list');
+    if(!wrap) return;
+    wrap.innerHTML = '';
+
+    if(!data.length){
+      wrap.innerHTML = '<p class="muted center">No hay supervisores disponibles.</p>';
+      return;
+    }
+
+    data.forEach(item=>{
+      const btn = document.createElement('button');
+      btn.className = 'chip';
+      btn.style.borderRadius = '12px';
+      btn.style.padding = '12px';
+      btn.style.fontWeight = '900';
+      btn.textContent = item.nombre || '';
+
+      // ocultos (no visibles)
+      btn.dataset.pass = item.contrasena || '';
+      btn.dataset.tel  = item.telefono || '';
+      btn.dataset.nom  = item.nombre || '';
+
+      btn.addEventListener('click', async ()=>{
+        playSoundOnce(SOUNDS.info);
+
+        const nombre = btn.dataset.nom || '';
+        const contrasena = btn.dataset.pass || '';
+        const telefonoRaw = btn.dataset.tel || '';
+        const tel = normalizeNumber57(telefonoRaw);
+
+        const rs = await Swal.fire({
+          icon:'info',
+          title:'Confirmación',
+          text:'¿Deseas recuperar tu contraseña?',
+          showConfirmButton:true,
+          confirmButtonText:'Recuperar',
+          showDenyButton:true,
+          denyButtonText:'Cerrar'
+        });
+
+        if(rs.isConfirmed){
+          if(!tel){
+            Swal.fire({icon:'warning',title:'Teléfono inválido',text:'No se encontró un número válido para enviar la contraseña.'});
+            return;
+          }
+
+          const nombreCorto = firstTwoWordsIfMoreThan3(nombre);
+
+          const mensaje =
+            'Hola *' + nombreCorto + '*\n' +
+            'Esta es tu contraseña: *' + contrasena + '*\n' +
+            '> Gobierno Digital';
+
+          sendBuilderbotMessage(tel, mensaje);
+
+          await Swal.fire({
+            icon:'success',
+            title:'Contraseña enviada',
+            text:'Revisa tu WhatsApp.',
+            timer: 2600,
+            showConfirmButton:false
+          });
+
+          closeRecuperarModal();
+        }
+      });
+
+      wrap.appendChild(btn);
+    });
+  }catch(e){
+    Swal.fire({icon:'error',title:'Error',text:String(e.message || e)});
+  }
+}
+
+/* Botón "Recuperar Contraseña" en Login */
+document.getElementById('btn-recuperar')?.addEventListener('click', async ()=>{
+  playSoundOnce(SOUNDS.question);
+  await cargarListaSupervisoresParaRecuperar();
+  openRecuperarModal();
+});
+
+/* Cerrar modal */
+document.getElementById('recuperar-cerrar')?.addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  closeRecuperarModal();
+});
+
+  
 /* ================== ESTADO ================== */
 let currentUser = null;  // { cedula, supervisor, firmaId, imagenId }
 let supervisorNombreCompleto = ''; // Col C
