@@ -1024,6 +1024,24 @@
     transform:none !important;
   }
 }
+      /* FECHA DE RADICACIÓN en rojo + latido */
+.rad-latido{
+  color:#dc2626 !important;
+  font-weight:900;
+  text-align:center;
+  margin-top:6px;
+  animation: radLatido 1.15s ease-in-out infinite;
+}
+
+@keyframes radLatido{
+  0%   { transform: scale(1);   opacity: .85; }
+  50%  { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1);   opacity: .85; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .rad-latido{ animation: none; }
+}
   </style>
 </head>
 <body>
@@ -2456,6 +2474,12 @@ function pintarCuentas(list){
 pContrato.className = 'item-sub';
 pContrato.textContent = 'CONTRATO: ' + (c.contrato || '');
 div.appendChild(pContrato);
+
+     // ✅ NUEVO: FECHA DE RADICACIÓN debajo de CONTRATO (rojo + latido)
+    const pRad = document.createElement('p');
+    pRad.className = 'item-sub rad-latido';
+    pRad.textContent = 'FECHA DE RADICACIÓN: ' + (c.fechaRadicacion || '');
+    div.appendChild(pRad);
 
     const btnRow=document.createElement('div'); btnRow.className='btn-row';
 
