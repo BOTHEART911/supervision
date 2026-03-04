@@ -3179,20 +3179,34 @@ document.getElementById('planes-volver').addEventListener('click', ()=>{
 
 async function cerrarProcesoPlanPago(documento, informe){
   try{
-    // Obtener detalles del contratista para mensajes
+    // 1) Traer detalles del contratista (para nombre y teléfono)
     const det = await apiGet('detallesContratistaSupervisor', { documento });
     if(!det){ Swal.fire({icon:'warning',title:'Contratista no encontrado'}); return; }
+
     const nombre = det.nombre || '';
     const telRaw = det.telefono || '';
     const telContratista = normalizeNumber57(telRaw);
+
     const supervisor = supervisorNombreCompleto;
     function pieSupervisor(){ return supervisor === 'ANA JUDITH GAMBOA MANTILLA' ? '> Alcaldesa' : '> Supervisor(a)'; }
 
+    // 2) Traer DQ desde CUENTAS (misma fila: documento + informe + CM = supervisor)
+    const cuentaData = await apiGet('revisarCuentaDataSupervisor', {
+      documento,
+      supervisor
+    });
+
+    const dqUrl = (cuentaData && cuentaData.cuenta && cuentaData.cuenta.pdfFirmadoUrl)
+      ? String(cuentaData.cuenta.pdfFirmadoUrl).trim()
+      : '';
+
+    // 3) Mensajes (incluye DQ)
     const msgContratista =
       '> Estado 3️⃣\n' +
       'Estimado(a) *'+nombre+'*' + '\n\n' +
       '¡He aceptado tu *Plan de Pagos* de la *Cuenta N° '+informe+'* en el SECOP II!' + '\n\n' +
       'Ya se encuentra a la espera de emisión de Orden de Pago por el área de *Contabilidad*, ten en cuenta los tiempos y demanda de procesos.' + '\n\n' +
+      'Mientras el proceso se digitaliza al 100%, te comparto el informe de supervisión para anexar a tus paquetes: ' + (dqUrl || 'N/A') + '.' + '\n\n' +
       'Cordialmente,' + '\n\n' +
       '*'+supervisor+'*' + '\n' + pieSupervisor();
 
@@ -3202,12 +3216,12 @@ async function cerrarProcesoPlanPago(documento, informe){
       'Cordialmente,' + '\n\n' +
       '*'+supervisor+'*' + '\n' + pieSupervisor();
 
-    // Enviar mensajes
+    // 4) Enviar mensajes
     const grupoId = 'GMnAsKZXoG8LUjtxNdw830'; // GRUPO DE CONTABILIDAD
     if(telContratista){ sendBuilderbotMessage(telContratista, msgContratista); }
     sendBuilderbotMessage(grupoId, msgGrupo);
 
-    // Actualizar estado en la hoja
+    // 5) Actualizar estado en la hoja
     await apiPost('cerrarPlanPagoSupervisor', { documento, informe, supervisor });
 
     Swal.fire({icon:'success',title:'Proceso Cerrado',timer:1800,showConfirmButton:false});
