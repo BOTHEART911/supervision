@@ -3077,7 +3077,7 @@ function pintarPlanesPagos(list){
 
   const pHint = document.createElement('p');
   pHint.className = 'plan-hint';
-  pHint.textContent = 'Guarda la copia del informe en la 📁 de contratista, después clic en cerrar proceso.';
+  pHint.textContent = 'El informe se guarda automáticamente en la 📁 del contratista, No olvides hacer clic en cerrar proceso.';
   div.appendChild(pHint);
 
   const btnRow=document.createElement('div'); 
@@ -3091,7 +3091,7 @@ function pintarPlanesPagos(list){
 
     Swal.fire({
       title: 'FIRMANDO DOCUMENTO....',
-      html: 'El Informe de Supervisión se está firmando, por favor espera unos segundos.',
+      html: 'El Informe de Supervisión se está firmando y subiendo automáticamente en la carpeta del contratista, por favor espera unos segundos.',
       allowOutsideClick: false,
       allowEscapeKey: false,
       didOpen: () => {
