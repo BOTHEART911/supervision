@@ -2732,8 +2732,8 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
         return (
           '> Estado 1️⃣\n' +
           'Estimado(a) *'+nombre+'*' + '\n\n' +
-          '¡He solicitado al área de contratación validar tu *Cuenta N° '+informe+'*!' + '\n\n' +
-          'Espera atentamente la aprobación.' + '\n\n' +
+          '¡He solicitado al área de contratación aplicar el segundo filtro a tu *Cuenta N° '+informe+'*!' + '\n\n' +
+          'Espera atentamente el siguiente estado de cuenta.' + '\n\n' +
           'Cordialmente,' + '\n\n' +
           '*'+supervisor+'*' + '\n' + pieSupervisor()
         );
@@ -2753,8 +2753,8 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
           'Estimado(a) *'+nombre+'*' + '\n\n' +
           'Se ha devuelto tu *Cuenta N° '+informe+'* por esta inconsistencia:' + '\n\n' +
           '*'+(observ || 'Sin observaciones')+'*' + '\n\n' +
-          'Haz la corrección desde la *App Contratista* teniendo en cuenta las observaciones anteriores.' + '\n' +
-          'Una vez corregida, vuelve a reportarla para revisarla.' + '\n\n' +
+          'Toma la opción *CORREGIR CUENTA* desde la *App Contratista* y haz las correcciones teniendo en cuenta las observaciones anteriores.' + '\n' +
+          'Una vez corregida y guardada, toma nuevamente la opción *REPORTAR CUENTA*.' + '\n\n' +
           'Cordialmente,' + '\n\n' +
           '*'+supervisor+'*' + '\n' + pieSupervisor()
         );
@@ -2766,7 +2766,7 @@ document.getElementById('rc-guardar').addEventListener('click', async ()=>{
           'En tu *Cuenta N° '+informe+'* no encuentro el(los) siguiente(s) soporte(s):' + '\n\n' +
           '*'+(observ || 'Sin observaciones')+'*' + '\n\n' +
           'Toma la opción *CORREGIR CUENTA* en la *App Contratista* y carga el(los) soporte(s) restante(s) teniendo en cuenta las observaciones anteriores.' + '\n' +
-          'Una vez corregida con lo solicitado, vuelve a reportarla para revisarla.' + '\n\n' +
+          'Una vez corregida y guardada con lo solicitado, vuelve a tomar la opción *REPORTAR CUENTA*.' + '\n\n' +
           'Cordialmente,' + '\n\n' +
           '*'+supervisor+'*' + '\n' + pieSupervisor()
         );
@@ -3194,8 +3194,8 @@ async function cerrarProcesoPlanPago(documento, informe){
       '> Estado 3️⃣\n' +
       'Estimado(a) *'+nombre+'*' + '\n\n' +
       '¡He aceptado tu *Plan de Pagos* de la *Cuenta N° '+informe+'* en el SECOP II!' + '\n\n' +
-      'Mientras el proceso se digitaliza al 100%, te comparto el *Informe de Supervisión* para anexar a tus paquetes: ' + (dqUrl || 'N/A') + '.' + '\n\n' +
-       'Presenta los dos paquetes completos con el encargado de la secretaria para radicar cuentas en contratación.' + '\n\n' +
+      'Mientras el proceso se digitaliza al 100%, te comparto el *Informe de Supervisión* para descargar: ' + (dqUrl || 'N/A') + '\n\n' +
+      'Presenta los dos paquetes completos al encargado de la secretaria para radicarlos en el área de contratación.' + '\n\n' +
       'Cordialmente,' + '\n\n' +
       '*'+supervisor+'*' + '\n' + pieSupervisor();
 
