@@ -2685,51 +2685,25 @@ function renderRevisionCuenta(){
     }
 
 
-// === Mostrar/ocultar y parametrizar botones (CARPETA + OBSERVACIONES) ===
-const idCuenta = String(cu?.idCuenta || '').trim();
-const observPrev = String(cu?.observacionesSeguimiento || '').trim();
-
-function rebindBtn_(btnId, onClick){
-  const oldBtn = document.getElementById(btnId);
-  if(!oldBtn) return null;
-  const newBtn = oldBtn.cloneNode(true);
-  oldBtn.parentNode.replaceChild(newBtn, oldBtn);
-  newBtn.addEventListener('click', onClick);
-  return newBtn;
-}
-
-// Botón CARPETA (BH)
+// === Mostrar/ocultar y parametrizar botón "CUENTA" (debajo de Actividades) ===
 const cuentaBtn = document.getElementById('btn-abrir-carpeta-cuenta');
-if (cuentaBtn){
-  if (idCuenta){
-    cuentaBtn.classList.remove('hidden');
-    rebindBtn_('btn-abrir-carpeta-cuenta', ()=>{
-      playSoundOnce(SOUNDS.menu);
-      window.open('https://drive.google.com/drive/folders/' + idCuenta, '_blank');
-    });
-  } else {
-    cuentaBtn.classList.add('hidden');
-  }
-}
+const idCuenta = String(cu?.idCuenta || '').trim();
 
-// Botón OBSERVACIONES (CL)
-const obsBtn = document.getElementById('btn-ver-observaciones-seguimiento');
-if (obsBtn){
-  // Siempre lo mostramos (aunque CL venga vacío), porque debe decir "Sin observaciones anteriores"
-  obsBtn.classList.remove('hidden');
+// Si hay idCuenta (BH), mostramos el botón y abrimos esa carpeta
+if (idCuenta){
+  cuentaBtn.classList.remove('hidden');
+  // Limpiamos cualquier listener previo
+  const nuevoBtn = cuentaBtn.cloneNode(true);
+  cuentaBtn.parentNode.replaceChild(nuevoBtn, cuentaBtn);
 
-  rebindBtn_('btn-ver-observaciones-seguimiento', async ()=>{
-    playSoundOnce(SOUNDS.info);
-
-    const texto = observPrev ? observPrev : 'Sin observaciones anteriores';
-
-    await Swal.fire({
-      icon: 'success',
-      title: 'OBSERVACIONES DE SEGUIMIENTO',
-      text: texto,
-      confirmButtonText: 'Cerrar'
-    });
+  nuevoBtn.addEventListener('click', ()=>{
+    playSoundOnce(SOUNDS.menu); // o SOUNDS.logout, como prefieras
+    window.open('https://drive.google.com/drive/folders/' + idCuenta, '_blank');
   });
+} else {
+  // Si no hay BH, ocultamos el botón
+  cuentaBtn.classList.add('hidden');
+}
 }
   
 document.getElementById('rc-volver').addEventListener('click', ()=>{
