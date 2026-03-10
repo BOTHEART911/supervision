@@ -2674,12 +2674,7 @@ function renderRevisionCuenta(){
     const block=document.createElement('div'); block.className='oblig-block';
     const titulo=document.createElement('p'); titulo.className='oblig-title'; titulo.textContent='OBLIGACIÓN N° '+i; block.appendChild(titulo);
     if(oblig && oblig!=='-'){ const ob=document.createElement('p'); ob.className='oblig-sub'; ob.textContent=oblig; block.appendChild(ob); }
-    if(act && act!=='-'){
-  const ac = document.createElement('p');
-  ac.className = 'oblig-sub';
-  ac.innerHTML = '<b>Actividades:</b> ' + String(act).replace(/\n/g,'<br>');
-  block.appendChild(ac);
-}
+    if(act && act!=='-'){ const ac=document.createElement('p'); ac.className='oblig-sub'; ac.innerHTML='<b>Actividades:</b> '+act; block.appendChild(ac); }
     if(evid && evid!=='-'){
       const evDiv=document.createElement('div'); evDiv.className='evidence-grid';
       const img=document.createElement('img'); img.className='evidence-thumb'; img.src=evidenciaThumb(evid); img.alt='Evidencia '+i;
