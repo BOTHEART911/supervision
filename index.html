@@ -1271,8 +1271,8 @@
           <button id="btn-toggle-actividades" class="chip">Ver Relación de Actividades</button>
         </div>
 
-        <!-- Botón CUENTA debajo del botón de Actividades -->
-<div class="center" style="margin-top:6px;">
+        <!-- Botón CUENTA y MEMORIA debajo del botón de Actividades -->
+<div class="center" style="margin-top:6px; display:flex; justify-content:center; gap:12px; align-items:center;">
   <button
     id="btn-abrir-carpeta-cuenta"
     class="btn-icon hidden"
@@ -1282,6 +1282,18 @@
     <img
       src="https://res.cloudinary.com/dqqeavica/image/upload/v1764111247/carpeta_drive_epbrhp.webp"
       alt="CUENTA"
+    >
+  </button>
+
+  <button
+    id="btn-ver-observaciones-seguimiento"
+    class="btn-icon hidden"
+    aria-label="Ver observaciones de seguimiento"
+    title="Ver observaciones de seguimiento"
+  >
+    <img
+      src="https://res.cloudinary.com/dqqeavica/image/upload/v1773105921/memoria_o2lro5.webp"
+      alt="OBSERVACIONES"
     >
   </button>
 </div>
@@ -2673,25 +2685,51 @@ function renderRevisionCuenta(){
     }
 
 
-// === Mostrar/ocultar y parametrizar botón "CUENTA" (debajo de Actividades) ===
-const cuentaBtn = document.getElementById('btn-abrir-carpeta-cuenta');
+// === Mostrar/ocultar y parametrizar botones (CARPETA + OBSERVACIONES) ===
 const idCuenta = String(cu?.idCuenta || '').trim();
+const observPrev = String(cu?.observacionesSeguimiento || '').trim();
 
-// Si hay idCuenta (BH), mostramos el botón y abrimos esa carpeta
-if (idCuenta){
-  cuentaBtn.classList.remove('hidden');
-  // Limpiamos cualquier listener previo
-  const nuevoBtn = cuentaBtn.cloneNode(true);
-  cuentaBtn.parentNode.replaceChild(nuevoBtn, cuentaBtn);
-
-  nuevoBtn.addEventListener('click', ()=>{
-    playSoundOnce(SOUNDS.menu); // o SOUNDS.logout, como prefieras
-    window.open('https://drive.google.com/drive/folders/' + idCuenta, '_blank');
-  });
-} else {
-  // Si no hay BH, ocultamos el botón
-  cuentaBtn.classList.add('hidden');
+function rebindBtn_(btnId, onClick){
+  const oldBtn = document.getElementById(btnId);
+  if(!oldBtn) return null;
+  const newBtn = oldBtn.cloneNode(true);
+  oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+  newBtn.addEventListener('click', onClick);
+  return newBtn;
 }
+
+// Botón CARPETA (BH)
+const cuentaBtn = document.getElementById('btn-abrir-carpeta-cuenta');
+if (cuentaBtn){
+  if (idCuenta){
+    cuentaBtn.classList.remove('hidden');
+    rebindBtn_('btn-abrir-carpeta-cuenta', ()=>{
+      playSoundOnce(SOUNDS.menu);
+      window.open('https://drive.google.com/drive/folders/' + idCuenta, '_blank');
+    });
+  } else {
+    cuentaBtn.classList.add('hidden');
+  }
+}
+
+// Botón OBSERVACIONES (CL)
+const obsBtn = document.getElementById('btn-ver-observaciones-seguimiento');
+if (obsBtn){
+  // Siempre lo mostramos (aunque CL venga vacío), porque debe decir "Sin observaciones anteriores"
+  obsBtn.classList.remove('hidden');
+
+  rebindBtn_('btn-ver-observaciones-seguimiento', async ()=>{
+    playSoundOnce(SOUNDS.info);
+
+    const texto = observPrev ? observPrev : 'Sin observaciones anteriores';
+
+    await Swal.fire({
+      icon: 'success',
+      title: 'OBSERVACIONES DE SEGUIMIENTO',
+      text: texto,
+      confirmButtonText: 'Cerrar'
+    });
+  });
 }
   
 document.getElementById('rc-volver').addEventListener('click', ()=>{
