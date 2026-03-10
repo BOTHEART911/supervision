@@ -1042,6 +1042,22 @@
 @media (prefers-reduced-motion: reduce){
   .rad-latido{ animation: none; }
 }
+      /*  iconos en revisión (carpeta + observaciones) */
+.rc-icons-row{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:12px;
+  margin-top:6px;
+}
+.rc-icons-row .btn-icon{
+  padding:6px !important;
+}
+.rc-icons-row .btn-icon img{
+  width:44px !important;
+  height:44px !important;
+  object-fit:contain;
+}
   </style>
 </head>
 <body>
@@ -1271,8 +1287,8 @@
           <button id="btn-toggle-actividades" class="chip">Ver Relación de Actividades</button>
         </div>
 
-        <!-- Botón CUENTA debajo del botón de Actividades -->
-<div class="center" style="margin-top:6px;">
+     <!-- Botones (Carpeta + Observaciones) debajo del botón de Actividades -->
+<div class="rc-icons-row">
   <button
     id="btn-abrir-carpeta-cuenta"
     class="btn-icon hidden"
@@ -1282,6 +1298,18 @@
     <img
       src="https://res.cloudinary.com/dqqeavica/image/upload/v1764111247/carpeta_drive_epbrhp.webp"
       alt="CUENTA"
+    >
+  </button>
+
+  <button
+    id="btn-ver-observaciones"
+    class="btn-icon hidden"
+    aria-label="Ver observaciones de seguimiento"
+    title="Ver observaciones de seguimiento"
+  >
+    <img
+      src="https://res.cloudinary.com/dqqeavica/image/upload/v1773105921/memoria_o2lro5.webp"
+      alt="OBS"
     >
   </button>
 </div>
@@ -2662,7 +2690,13 @@ function renderRevisionCuenta(){
     const block=document.createElement('div'); block.className='oblig-block';
     const titulo=document.createElement('p'); titulo.className='oblig-title'; titulo.textContent='OBLIGACIÓN N° '+i; block.appendChild(titulo);
     if(oblig && oblig!=='-'){ const ob=document.createElement('p'); ob.className='oblig-sub'; ob.textContent=oblig; block.appendChild(ob); }
-    if(act && act!=='-'){ const ac=document.createElement('p'); ac.className='oblig-sub'; ac.innerHTML='<b>Actividades:</b> '+act; block.appendChild(ac); }
+   if(act && act !== '-'){
+  const ac = document.createElement('p');
+  ac.className = 'oblig-sub';
+  ac.style.whiteSpace = 'pre-line';  // ✅ respeta saltos de línea (\n)
+  ac.textContent = 'Actividades: ' + act;
+  block.appendChild(ac);
+}
     if(evid && evid!=='-'){
       const evDiv=document.createElement('div'); evDiv.className='evidence-grid';
       const img=document.createElement('img'); img.className='evidence-thumb'; img.src=evidenciaThumb(evid); img.alt='Evidencia '+i;
@@ -2673,24 +2707,53 @@ function renderRevisionCuenta(){
     }
 
 
-// === Mostrar/ocultar y parametrizar botón "CUENTA" (debajo de Actividades) ===
+// === Mostrar/ocultar y parametrizar botones (Carpeta + Observaciones) ===
 const cuentaBtn = document.getElementById('btn-abrir-carpeta-cuenta');
+const obsBtn    = document.getElementById('btn-ver-observaciones');
+
 const idCuenta = String(cu?.idCuenta || '').trim();
+const obsTxtRaw = (cu && typeof cu.observacionesSeguimiento !== 'undefined')
+  ? String(cu.observacionesSeguimiento || '').trim()
+  : '';
 
-// Si hay idCuenta (BH), mostramos el botón y abrimos esa carpeta
-if (idCuenta){
-  cuentaBtn.classList.remove('hidden');
-  // Limpiamos cualquier listener previo
-  const nuevoBtn = cuentaBtn.cloneNode(true);
-  cuentaBtn.parentNode.replaceChild(nuevoBtn, cuentaBtn);
+const obsTxt = obsTxtRaw ? obsTxtRaw : 'Sin observaciones anteriores';
 
-  nuevoBtn.addEventListener('click', ()=>{
-    playSoundOnce(SOUNDS.menu); // o SOUNDS.logout, como prefieras
-    window.open('https://drive.google.com/drive/folders/' + idCuenta, '_blank');
+// helper: clonar para limpiar listeners previos
+function resetBtnById(btnId){
+  const btn = document.getElementById(btnId);
+  if(!btn || !btn.parentNode) return btn;
+  const nb = btn.cloneNode(true);
+  btn.parentNode.replaceChild(nb, btn);
+  return nb;
+}
+
+// ---- Carpeta
+if(cuentaBtn){
+  if(idCuenta){
+    let btn = resetBtnById('btn-abrir-carpeta-cuenta');
+    btn.classList.remove('hidden');
+    btn.addEventListener('click', ()=>{
+      playSoundOnce(SOUNDS.menu);
+      window.open('https://drive.google.com/drive/folders/' + idCuenta, '_blank');
+    });
+  }else{
+    cuentaBtn.classList.add('hidden');
+  }
+}
+
+// ---- Observaciones (CL)
+if(obsBtn){
+  let btn = resetBtnById('btn-ver-observaciones');
+  btn.classList.remove('hidden');
+  btn.addEventListener('click', async ()=>{
+    playSoundOnce(SOUNDS.info);
+    await Swal.fire({
+      icon:'success',
+      title:'OBSERVACIONES DE SEGUIMIENTO',
+      text: obsTxt,
+      confirmButtonText:'Cerrar'
+    });
   });
-} else {
-  // Si no hay BH, ocultamos el botón
-  cuentaBtn.classList.add('hidden');
 }
 }
   
