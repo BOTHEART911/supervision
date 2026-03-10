@@ -2689,12 +2689,27 @@ function renderRevisionCuenta(){
     if(![oblig,act,evid].some(v=>v && v!=='-')) continue;
     const block=document.createElement('div'); block.className='oblig-block';
     const titulo=document.createElement('p'); titulo.className='oblig-title'; titulo.textContent='OBLIGACIÓN N° '+i; block.appendChild(titulo);
-    if(oblig && oblig!=='-'){ const ob=document.createElement('p'); ob.className='oblig-sub'; ob.textContent=oblig; block.appendChild(ob); }
-   if(act && act !== '-'){
+    if(oblig && oblig !== '-'){
+  const ob = document.createElement('p');
+  ob.className = 'oblig-sub';
+  ob.style.fontWeight = '900';  // ✅ obligación completa en negrilla
+  ob.textContent = String(oblig);
+  block.appendChild(ob);
+}
+ if(act && act !== '-'){
   const ac = document.createElement('p');
   ac.className = 'oblig-sub';
-  ac.style.whiteSpace = 'pre-line';  // ✅ respeta saltos de línea (\n)
-  ac.textContent = 'Actividades: ' + act;
+  ac.style.whiteSpace = 'pre-line'; // ✅ respeta saltos de línea (\n)
+
+  // ✅ "Actividades:" en negrilla + texto con saltos de línea
+  const b = document.createElement('b');
+  b.textContent = 'Actividades: ';
+  ac.appendChild(b);
+
+  const span = document.createElement('span');
+  span.textContent = String(act);
+  ac.appendChild(span);
+
   block.appendChild(ac);
 }
     if(evid && evid!=='-'){
