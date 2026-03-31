@@ -3158,75 +3158,162 @@ function pintarPlanesPagos(list){
   pHint.textContent = 'El informe se guarda automáticamente en la 📁 del contratista, No olvides hacer clic en cerrar proceso.';
   div.appendChild(pHint);
 
-  const btnRow=document.createElement('div'); 
-  btnRow.className='btn-row';
+  const btnRow = document.createElement('div'); 
+btnRow.className = 'btn-row';
 
-  const btnFirmar = document.createElement('button');
-  btnFirmar.textContent = 'FIRMAR INFORME';
-  btnFirmar.addEventListener('click', async ()=> {
-    const prevSuppress = suppressLoader;
-    suppressLoader = true;
+// =====================
+// Botón FIRMAR INFORME
+// =====================
+const btnFirmar = document.createElement('button');
+btnFirmar.textContent = 'FIRMAR INFORME';
 
-    Swal.fire({
-      title: 'FIRMANDO DOCUMENTO....',
-      html: 'El Informe de Supervisión se está firmando y subiendo automáticamente en la carpeta del contratista, por favor espera unos segundos.',
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
+// =====================
+// NUEVO: Botón DESCARGAR
+// - Aparece automáticamente si ya existe c.dqUrl (opción B)
+// =====================
+const btnDescargar = document.createElement('button');
+btnDescargar.textContent = 'DESCARGAR';
 
-    try{
+const dqInicial = String(c.dqUrl || '').trim();
+if(!dqInicial){
+  btnDescargar.classList.add('hidden'); // solo aparece si ya hay DQ o si firmas OK
+}
+
+// Acción DESCARGAR (fuerza download desde Drive)
+btnDescargar.addEventListener('click', async ()=> {
+  playSoundOnce(SOUNDS.info);
+
+  try{
+    let dqUrl = String(c.dqUrl || '').trim();
+
+    // Fallback por si no vino en el listado (o quedó desactualizado)
+    if(!dqUrl){
       const supervisor = supervisorNombreCompleto;
-
-      const resp = await apiPost('firmarInformePlanPagoSupervisor', {
+      dqUrl = await apiGet('getCuentaPdfUrlDQ', {
         documento: c.documento,
         informe: c.informe,
         supervisor
       });
+      dqUrl = String(dqUrl || '').trim();
+    }
 
-      if(!resp || !resp.base64){
-        throw new Error('No se recibió el PDF para descargar.');
-      }
+    if(!dqUrl){
+      Swal.fire({
+        icon:'warning',
+        title:'Aún no disponible',
+        text:'No se encontró el enlace del PDF (DQ). Primero debes firmar.'
+      });
+      return;
+    }
 
-      const byteChars = atob(resp.base64);
-      const byteNumbers = new Array(byteChars.length);
-      for(let i=0;i<byteChars.length;i++){
-        byteNumbers[i] = byteChars.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
+    // Extraer FILE_ID desde: https://drive.google.com/file/d/<ID>/view
+    const idMatch = dqUrl.match(/\/file\/d\/([A-Za-z0-9_-]{10,})\//);
+    const fileId = idMatch ? idMatch[1] : '';
 
-      const blob = new Blob([byteArray], { type: resp.mimeType || 'application/pdf' });
-      const url = URL.createObjectURL(blob);
+    if(!fileId){
+      Swal.fire({
+        icon:'warning',
+        title:'Enlace inválido',
+        text:'No se pudo extraer el ID del archivo desde DQ.'
+      });
+      return;
+    }
 
+    // Forzar descarga
+    const downloadUrl = 'https://drive.google.com/uc?export=download&id=' + fileId;
+
+    const isMobile = /android|iphone|ipad|mobile/i.test(navigator.userAgent);
+
+    if(isMobile){
+      window.open(downloadUrl, '_blank');
+    }else{
       const a = document.createElement('a');
-      a.href = url;
-      a.download = resp.fileName || 'INF_SUP_CTA.pdf';
+      a.href = downloadUrl;
+      a.target = '_self';
+      a.rel = 'noopener';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-
-      setTimeout(()=> URL.revokeObjectURL(url), 20000);
-
-      Swal.close();
-    }catch(e){
-      Swal.close();
-      Swal.fire({icon:'error',title:'Error',text:e.message});
-    }finally{
-      suppressLoader = prevSuppress;
     }
-  });
-  btnRow.appendChild(btnFirmar);
+  }catch(e){
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }
+});
 
-  const btnCerrar=document.createElement('button');
-  btnCerrar.textContent='CERRAR PROCESO';
-  btnCerrar.addEventListener('click', ()=> {
-    playSoundOnce(SOUNDS.logout);
-    cerrarProcesoPlanPago(c.documento, c.informe);
-  });
-  btnRow.appendChild(btnCerrar);
+// Acción FIRMAR (ya no descarga)
+btnFirmar.addEventListener('click', async ()=> {
+  const prevSuppress = suppressLoader;
+  suppressLoader = true;
 
+  Swal.fire({
+    title: 'FIRMANDO DOCUMENTO....',
+    html: 'El Informe de Supervisión se está firmando y subiendo automáticamente en la carpeta del contratista, por favor espera unos segundos.',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  try{
+    const supervisor = supervisorNombreCompleto;
+
+    const resp = await apiPost('firmarInformePlanPagoSupervisor', {
+      documento: c.documento,
+      informe: c.informe,
+      supervisor
+    });
+
+    if(!resp || !resp.success){
+      throw new Error('No se pudo firmar el informe.');
+    }
+
+    // Si el backend devolvió savedFileUrl, lo guardamos como dqUrl local
+    // (esto hace que DESCARGAR aparezca inmediatamente sin recargar)
+    if(resp.savedFileUrl){
+      c.dqUrl = resp.savedFileUrl;
+    }
+
+    // Mostrar DESCARGAR
+    btnDescargar.classList.remove('hidden');
+
+    Swal.close();
+
+    await Swal.fire({
+      icon:'success',
+      title:'Documento firmado',
+      text:'Ahora puedes presionar DESCARGAR.',
+      timer: 2200,
+      showConfirmButton:false
+    });
+
+    // ✅ Opción B (robustez): recargar lista para que quede persistente al refrescar/volver
+    await cargarPlanesPagos();
+    showView('view-planes-pagos');
+
+  }catch(e){
+    Swal.close();
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }finally{
+    suppressLoader = prevSuppress;
+  }
+});
+
+// =====================
+// Botón CERRAR PROCESO (igual que lo tenías)
+// =====================
+const btnCerrar = document.createElement('button');
+btnCerrar.textContent = 'CERRAR PROCESO';
+btnCerrar.addEventListener('click', ()=> {
+  playSoundOnce(SOUNDS.logout);
+  cerrarProcesoPlanPago(c.documento, c.informe);
+});
+
+// Orden: FIRMAR | DESCARGAR | CERRAR
+btnRow.appendChild(btnFirmar);
+btnRow.appendChild(btnDescargar);
+btnRow.appendChild(btnCerrar);
+
+div.appendChild(btnRow);
+wrap.appendChild(div);
   div.appendChild(btnRow);
   wrap.appendChild(div);
 }
