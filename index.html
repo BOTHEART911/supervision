@@ -3161,97 +3161,89 @@ function pintarPlanesPagos(list){
   const btnRow=document.createElement('div'); 
   btnRow.className='btn-row';
 
-  const btnFirmar = document.createElement('button');
-  btnFirmar.textContent = 'FIRMAR INFORME';
-   btnFirmar.addEventListener('click', async ()=> {
-    const prevSuppress = suppressLoader;
-    suppressLoader = true;
+ // ====================== BOTÓN FIRMAR (SIN DESCARGAR) ======================
+const btnFirmar = document.createElement('button');
+btnFirmar.textContent = 'FIRMAR INFORME';
+btnFirmar.addEventListener('click', async ()=> {
+  const prevSuppress = suppressLoader;
+  suppressLoader = true;
 
-    Swal.fire({
-      title: 'FIRMANDO DOCUMENTO....',
-      html: 'El Informe de Supervisión se está firmando y subiendo automáticamente en la carpeta del contratista, por favor espera unos segundos.',
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      didOpen: () => Swal.showLoading()
+  Swal.fire({
+    title: 'FIRMANDO DOCUMENTO....',
+    html: 'El Informe de Supervisión se está firmando y subiendo automáticamente en la carpeta del contratista, por favor espera unos segundos.',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+
+  try{
+    const supervisor = supervisorNombreCompleto;
+
+    // IMPORTANTE: NO tocamos la lógica del backend.
+    // Esto crea el PDF, lo guarda en BH y escribe el link en DQ (si todo está bien).
+    const resp = await apiPost('firmarInformePlanPagoSupervisor', {
+      documento: c.documento,
+      informe: c.informe,
+      supervisor
     });
 
-    try{
-      const supervisor = supervisorNombreCompleto;
+    Swal.close();
 
-      const resp = await apiPost('firmarInformePlanPagoSupervisor', {
-        documento: c.documento,
-        informe: c.informe,
-        supervisor
-      });
+    // Aviso simple: ya quedó firmado y guardado.
+    // (No descargamos aquí para evitar que el flujo falle por el base64 o por bloqueo del navegador)
+    await Swal.fire({
+      icon:'success',
+      title:'Informe firmado',
+      text:'El PDF quedó guardado en la carpeta (BH) y el enlace quedó listo para descargar.',
+      timer: 2600,
+      showConfirmButton:false
+    });
 
-      Swal.close();
+  }catch(e){
+    Swal.close();
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }finally{
+    suppressLoader = prevSuppress;
+  }
+});
+btnRow.appendChild(btnFirmar);
 
-      // Aviso de éxito (ya quedó guardado y DQ actualizado)
+
+// ====================== BOTÓN DESCARGAR (SOLO DESDE DQ) ======================
+const btnDescargar = document.createElement('button');
+btnDescargar.textContent = 'DESCARGAR';
+btnDescargar.addEventListener('click', async ()=> {
+  playSoundOnce(SOUNDS.download || SOUNDS.info);
+
+  try{
+    const supervisor = supervisorNombreCompleto;
+
+    // Lee el link ya guardado en DQ
+    const dqUrl = await apiGet('getCuentaPdfUrlDQ', {
+      documento: c.documento,
+      informe: c.informe,
+      supervisor
+    });
+
+    if(!dqUrl){
       await Swal.fire({
-        icon:'success',
-        title:'Informe firmado',
-        text:'Listo. Ahora usa el botón DESCARGAR para bajar el documento.',
-        timer: 2800,
-        showConfirmButton:false
+        icon:'warning',
+        title:'Aún no hay PDF para descargar',
+        text:'Primero debes hacer clic en "FIRMAR INFORME" para generar el PDF y guardar el enlace.'
       });
-
-    }catch(e){
-      Swal.close();
-      Swal.fire({icon:'error',title:'Error',text:e.message});
-    }finally{
-      suppressLoader = prevSuppress;
+      return;
     }
-  });
-  btnRow.appendChild(btnFirmar);
 
-    // ✅ NUEVO: Botón DESCARGAR (solo descarga desde DQ)
-  const btnDescargar = document.createElement('button');
-  btnDescargar.textContent = 'DESCARGAR';
-  btnDescargar.addEventListener('click', async ()=> {
-    try{
-      playSoundOnce(SOUNDS.info);
+    // Abre el PDF (Drive) en una pestaña nueva
+    window.open(dqUrl, '_blank', 'noopener');
 
-      const supervisor = supervisorNombreCompleto;
-
-      // 1) pedir URL desde DQ (si no existe => alerta)
-      const dqUrl = await apiGet('getCuentaPdfUrlDQ', {
-        documento: c.documento,
-        informe: c.informe,
-        supervisor
-      });
-
-      if(!dqUrl){
-        Swal.fire({
-          icon:'warning',
-          title:'Aún no hay informe firmado',
-          text:'Primero debes firmar el informe para generar el enlace de descarga.'
-        });
-        return;
-      }
-
-      // 2) descargar/abrir (misma pestaña para evitar bloqueos)
-      // Si quieres forzar descarga directa, usamos el endpoint redirect del Apps Script:
-      const url = API_BASE + '?' + new URLSearchParams({
-        action: 'downloadCuentaPdfFromDQ',
-        documento: c.documento,
-        informe: c.informe,
-        supervisor
-      }).toString();
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.target = '_self';
-      a.rel = 'noopener';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-    }catch(e){
-      Swal.fire({icon:'error',title:'Error',text:e.message});
-    }
-  });
-  btnRow.appendChild(btnDescargar);
-
+  }catch(e){
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }
+});
+btnRow.appendChild(btnDescargar);
   const btnCerrar=document.createElement('button');
   btnCerrar.textContent='CERRAR PROCESO';
   btnCerrar.addEventListener('click', ()=> {
