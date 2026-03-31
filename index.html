@@ -3158,58 +3158,89 @@ function pintarPlanesPagos(list){
   pHint.textContent = 'El informe se guarda automáticamente en la 📁 del contratista, No olvides hacer clic en cerrar proceso.';
   div.appendChild(pHint);
 
-  const btnRow=document.createElement('div'); 
+    const btnRow=document.createElement('div'); 
   btnRow.className='btn-row';
 
+  // =========================
+  // 1) FIRMAR (SIN DESCARGAR)
+  // =========================
   const btnFirmar = document.createElement('button');
   btnFirmar.textContent = 'FIRMAR INFORME';
+
+  // =========================
+  // 2) DESCARGAR (NUEVO)
+  // =========================
+  const btnDescargar = document.createElement('button');
+  btnDescargar.textContent = 'DESCARGAR';
+  btnDescargar.disabled = true;
+  btnDescargar.style.opacity = '0.55';
+  btnDescargar.style.cursor = 'not-allowed';
+
+  async function refreshDescargarState(){
+    try{
+      const dqUrl = await apiGet('getCuentaPdfUrlDQ', {
+        documento: c.documento,
+        informe: c.informe,
+        supervisor: supervisorNombreCompleto
+      });
+
+      const ok = !!String(dqUrl || '').trim();
+      btnDescargar.disabled = !ok;
+      btnDescargar.style.opacity = ok ? '1' : '0.55';
+      btnDescargar.style.cursor = ok ? 'pointer' : 'not-allowed';
+
+      // guardamos en dataset para no reconsultar en click si ya lo tenemos
+      btnDescargar.dataset.dq = ok ? String(dqUrl).trim() : '';
+    }catch(_){
+      btnDescargar.disabled = true;
+      btnDescargar.style.opacity = '0.55';
+      btnDescargar.style.cursor = 'not-allowed';
+      btnDescargar.dataset.dq = '';
+    }
+  }
+
   btnFirmar.addEventListener('click', async ()=> {
     const prevSuppress = suppressLoader;
     suppressLoader = true;
 
+    // IMPORTANTE: aquí ya NO descargamos nada. Solo firmar + guardar + DQ.
     Swal.fire({
       title: 'FIRMANDO DOCUMENTO....',
       html: 'El Informe de Supervisión se está firmando y subiendo automáticamente en la carpeta del contratista, por favor espera unos segundos.',
       allowOutsideClick: false,
       allowEscapeKey: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
+      didOpen: () => Swal.showLoading()
     });
 
     try{
       const supervisor = supervisorNombreCompleto;
 
+      // ⬇️ sigue exactamente igual el POST (backend hace todo)
       const resp = await apiPost('firmarInformePlanPagoSupervisor', {
         documento: c.documento,
         informe: c.informe,
         supervisor
       });
 
-      if(!resp || !resp.base64){
-        throw new Error('No se recibió el PDF para descargar.');
-      }
-
-      const byteChars = atob(resp.base64);
-      const byteNumbers = new Array(byteChars.length);
-      for(let i=0;i<byteChars.length;i++){
-        byteNumbers[i] = byteChars.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-
-      const blob = new Blob([byteArray], { type: resp.mimeType || 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = resp.fileName || 'INF_SUP_CTA.pdf';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-      setTimeout(()=> URL.revokeObjectURL(url), 20000);
+      // Antes validabas base64 porque descargabas.
+      // Ahora validamos success y/o URL guardada.
+      // (Tu backend ya retorna savedFileUrl si logró guardar)
+      const savedUrl = String(resp?.savedFileUrl || '').trim();
 
       Swal.close();
+
+      await Swal.fire({
+        icon:'success',
+        title:'Informe firmado',
+        text: savedUrl
+          ? 'Documento guardado y enlace disponible para descargar.'
+          : 'Proceso finalizado. Si no se habilita DESCARGAR, espera 2–3 segundos e inténtalo de nuevo.',
+        timer: 2800,
+        showConfirmButton:false
+      });
+
+      // Revalidar DQ y habilitar Descargar
+      await refreshDescargarState();
     }catch(e){
       Swal.close();
       Swal.fire({icon:'error',title:'Error',text:e.message});
@@ -3217,7 +3248,54 @@ function pintarPlanesPagos(list){
       suppressLoader = prevSuppress;
     }
   });
+
+  btnDescargar.addEventListener('click', async ()=> {
+    playSoundOnce(SOUNDS.info);
+
+    // Intentar usar cache
+    let url = String(btnDescargar.dataset.dq || '').trim();
+
+    // Si no hay cache, consultar de nuevo
+    if(!url){
+      try{
+        url = await apiGet('getCuentaPdfUrlDQ', {
+          documento: c.documento,
+          informe: c.informe,
+          supervisor: supervisorNombreCompleto
+        });
+        url = String(url || '').trim();
+      }catch(e){
+        Swal.fire({icon:'error',title:'Error',text:String(e.message||e)});
+        return;
+      }
+    }
+
+    if(!url){
+      Swal.fire({
+        icon:'info',
+        title:'Aún no disponible',
+        text:'Todavía no hay enlace guardado. Firma el informe primero o espera unos segundos.'
+      });
+      return;
+    }
+
+    // Descarga “amigable” PC: misma pestaña (menos bloqueos)
+    const isMobile = /android|iphone|ipad|mobile/i.test(navigator.userAgent);
+    if(isMobile){
+      window.open(url,'_blank');
+    }else{
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_self';
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  });
+
   btnRow.appendChild(btnFirmar);
+  btnRow.appendChild(btnDescargar);
 
   const btnCerrar=document.createElement('button');
   btnCerrar.textContent='CERRAR PROCESO';
@@ -3226,6 +3304,9 @@ function pintarPlanesPagos(list){
     cerrarProcesoPlanPago(c.documento, c.informe);
   });
   btnRow.appendChild(btnCerrar);
+
+  // Al pintar la tarjeta: validar si ya existe DQ
+  refreshDescargarState();
 
   div.appendChild(btnRow);
   wrap.appendChild(div);
