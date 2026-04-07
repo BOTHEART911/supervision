@@ -329,43 +329,124 @@ button:active { transform: translateY(0); }
 }
 .item-sub { font-size: .72rem; font-weight: 700; color: #333; margin: 0; }
 
-/* ─── OVERLAY MENÚ LATERAL ───────────────────────────────── */
+/* ── Overlay Menú (sidebar) ── */
 .overlay { position: fixed; inset: 0; pointer-events: none; }
 .overlay .scrim {
   position: absolute; inset: 0;
-  background: var(--scrim); opacity: 0; transition: opacity .25s ease;
+  background: var(--scrim); opacity: 0;
+  transition: opacity .25s ease;
+}
+@keyframes panelHueCycle {
+  0%   { background-position: 0% 0%; }
+  25%  { background-position: 100% 30%; }
+  50%  { background-position: 60% 100%; }
+  75%  { background-position: 0% 70%; }
+  100% { background-position: 0% 0%; }
 }
 .overlay .panel {
   position: absolute; top: 0; left: 0;
   width: min(360px, 90vw); height: 100%;
-  background: #06402B; color: #fff;
-  padding: 18px 16px 10px;
+  background: linear-gradient(
+    125deg,
+    #04281C, #06402B, #0a5c3a,
+    #063d28, #082e1e, #0f6644, #04281C
+  );
+  background-size: 350% 350%;
+  animation: panelHueCycle 9s ease infinite;
+  box-shadow: inset 0 0 80px rgba(0,0,0,.20);
+  color: #fff;
+  padding: 16px 16px 8px 16px;
   box-sizing: border-box;
-  transform: translateX(-100%); transition: transform .25s ease;
+  transform: translateX(-100%);
+  transition: transform .25s ease;
   display: flex; flex-direction: column; gap: 10px;
   overflow-y: auto; min-height: 0;
-  box-shadow: 4px 0 40px rgba(0,0,0,.35);
 }
 .overlay.open { pointer-events: auto; }
-.overlay.open .scrim  { opacity: 1; }
-.overlay.open .panel  { transform: translateX(0); }
+.overlay.open .scrim { opacity: 1; }
+.overlay.open .panel { transform: translateX(0); }
 .panel h3 {
+  font-family: 'Sora', sans-serif;
   margin: 4px 0 8px; text-align: center;
-  font-family: 'Sora', sans-serif; font-weight: 800;
+  color: #fff;
+}
+
+/* ── Botones del menú ── */
+@keyframes menuBtnShimmer {
+  0%   { left: -130%; }
+  45%  { left: 160%; }
+  100% { left: 160%; }
 }
 .menu-btn {
-  background: #7de3ef; color: #000;
-  border: 0; font-weight: 800;
-  font-family: 'Sora', sans-serif; font-size: .88rem;
-  border-radius: 999px; padding: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,.22);
-  transition: transform .12s ease, box-shadow .12s ease;
-  cursor: pointer; width: 100%; text-align: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #052e1e 0%, #063322 55%, #073a26 100%);
+  color: #7de3ef;
+  border: 1.5px solid rgba(255,255,255,.26);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 12px 14px;
+  box-shadow: inset 0 0 0 1px rgba(125,227,239,.06), 0 4px 14px rgba(0,0,0,.28);
+  transition: border-color .25s ease, box-shadow .25s ease, background .25s ease, color .2s ease;
+  text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  cursor: pointer; width: 100%;
+}
+.menu-btn::before {
+  content: ''; position: absolute;
+  top: 0; left: -130%;
+  width: 55%; height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(125,227,239,.22) 50%, transparent 100%);
+  animation: menuBtnShimmer 3.8s ease-in-out infinite;
+  pointer-events: none;
+}
+.menu-btn::after {
+  content: ''; position: absolute;
+  top: 0; left: 20%; right: 20%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.32), transparent);
+  pointer-events: none;
 }
 .menu-btn:hover {
+  border-color: rgba(125,227,239,.55);
+  background: linear-gradient(135deg, #073a26 0%, #0a4e32 55%, #06402B 100%);
+  color: #a8f0f7;
+  box-shadow: inset 0 0 18px rgba(125,227,239,.10), 0 0 14px rgba(125,227,239,.14), 0 6px 20px rgba(0,0,0,.32);
   transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(0,0,0,.28);
-  background: #5dd5e5; color: #000; border: 0;
+}
+
+/* ── Secciones del menú ── */
+.menu-section-block { margin: 6px 0; }
+.menu-cat-btn {
+  display: flex; align-items: center; justify-content: flex-start;
+  gap: 10px; width: 100%;
+  border-radius: 999px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 800; font-size: .9rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.15);
+  color: rgba(255,255,255,.78);
+  padding: 10px 14px;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+.menu-cat-btn:hover {
+  background: rgba(255,255,255,.10);
+  border-color: rgba(255,255,255,.28);
+  color: #fff;
+}
+.menu-cat-btn.active { background: #7de3ef; color: #000; border: none; }
+.menu-cat-btn span { flex: 1 1 auto; text-align: left; }
+.menu-cat-icon { width: 26px; height: 26px; flex: 0 0 auto; object-fit: contain; }
+.menu-cat-options {
+  display: none; flex-direction: column; gap: 8px;
+  margin: 6px 0 10px;
+}
+.menu-cat-options .menu-btn { font-size: .86rem; }
+.menu-cat-options.showing { animation: menuDropIn .22s ease-out; }
+@keyframes menuDropIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ─── AVATAR ─────────────────────────────────────────────── */
@@ -1152,18 +1233,59 @@ button:active { transform: translateY(0); }
         <div class="image-center">
           <img alt="banner" src="https://res.cloudinary.com/dqqeavica/image/upload/v1766349498/slider_zcq18s.gif" style="max-width:180px;border-radius:10px;" />
         </div>
-        <h3>Selecciona una opción</h3>
-        <button class="menu-btn" id="go-contratistas">CONTRATISTAS</button>
-        <button class="menu-btn" id="go-revision">REVISAR CUENTAS</button>
-        <button class="menu-btn" id="go-planes-pagos">PLAN DE PAGOS</button>
-        <button class="menu-btn" id="go-requerimientos">REQUERIMIENTO</button>
-        <button class="menu-btn" id="go-comunicados">COMUNICADOS</button>
-        <button class="menu-btn" id="go-actualizar">ACTUALIZAR FIRMA E IMAGEN</button>
-        <button class="menu-btn" id="go-calendario">CALENDARIO INSTITUCIONAL</button>
-        <button class="menu-btn" id="go-directorio">DIRECTORIO INSTITUCIONAL</button>
-        <button class="menu-btn" id="go-firmados">SUPERVISIÓN FIRMADOS</button>
-        <button class="menu-btn" id="go-secop2">IR A SECOP II</button>
-        <button class="menu-btn" id="go-soporte">SOPORTE</button>
+        <h3>Selecciona una categoría</h3>
+
+        <!-- PROCESOS DE CUENTA -->
+        <div class="menu-section-block">
+          <button class="menu-btn menu-cat-btn" data-cat="cat-cuenta">
+            <img src="https://res.cloudinary.com/dqqeavica/image/upload/v1766347980/procesos_de_cuenta_aoevkw.webp" alt="" class="menu-cat-icon">
+            <span>PROCESOS DE CUENTA</span>
+          </button>
+          <div id="cat-cuenta" class="menu-cat-options">
+            <button class="menu-btn" id="go-revision">REVISAR CUENTAS</button>
+            <button class="menu-btn" id="go-planes-pagos">PLAN DE PAGOS</button>
+            <button class="menu-btn" id="go-firmados">SUPERVISIÓN FIRMADOS</button>
+            <button class="menu-btn" id="go-drive-hacienda" style="display:none;">DRIVE HACIENDA</button>
+          </div>
+        </div>
+
+        <!-- COMUNICACIONES -->
+        <div class="menu-section-block">
+          <button class="menu-btn menu-cat-btn" data-cat="cat-comunicaciones">
+            <img src="https://res.cloudinary.com/dqqeavica/image/upload/v1775561743/Comunicaciones_mv7wlo.png" alt="" class="menu-cat-icon">
+            <span>COMUNICACIONES</span>
+          </button>
+          <div id="cat-comunicaciones" class="menu-cat-options">
+            <button class="menu-btn" id="go-contratistas">CONTRATISTAS</button>
+            <button class="menu-btn" id="go-requerimientos">REQUERIMIENTOS</button>
+            <button class="menu-btn" id="go-comunicados">COMUNICADOS</button>
+          </div>
+        </div>
+
+        <!-- INSTITUCIONAL -->
+        <div class="menu-section-block">
+          <button class="menu-btn menu-cat-btn" data-cat="cat-institucional">
+            <img src="https://res.cloudinary.com/dqqeavica/image/upload/v1766347984/Institucional_pxbtrc.png" alt="" class="menu-cat-icon">
+            <span>INSTITUCIONAL</span>
+          </button>
+          <div id="cat-institucional" class="menu-cat-options">
+            <button class="menu-btn" id="go-calendario">CALENDARIO INSTITUCIONAL</button>
+            <button class="menu-btn" id="go-directorio">DIRECTORIO INSTITUCIONAL</button>
+          </div>
+        </div>
+
+        <!-- CONFIGURACIÓN Y WEB -->
+        <div class="menu-section-block">
+          <button class="menu-btn menu-cat-btn" data-cat="cat-config">
+            <img src="https://res.cloudinary.com/dqqeavica/image/upload/v1766347980/manual_de_uso_n0zu32.webp" alt="" class="menu-cat-icon">
+            <span>CONFIGURACIÓN Y WEB</span>
+          </button>
+          <div id="cat-config" class="menu-cat-options">
+            <button class="menu-btn" id="go-actualizar">ACTUALIZAR FIRMA E IMAGEN</button>
+            <button class="menu-btn" id="go-secop2">IR A SECOP II</button>
+            <button class="menu-btn" id="go-soporte">SOPORTE</button>
+          </div>
+        </div>
         <div style="height:24px"></div>
         <img class="brand" alt="Banner" src="https://res.cloudinary.com/dqqeavica/image/upload/v1766347982/banner_wbfbf7.gif" />
         <p class="center muted">Copyright © <b>GOBIERNO DIGITAL</b></p>
@@ -2025,6 +2147,14 @@ document.getElementById('btn-login').addEventListener('click', async ()=>{
     currentUser = { cedula, supervisor: res.supervisor || '', firmaId: res.firmaId || '', imagenId: res.imagenId || '' };
     supervisorNombreCompleto = res.supervisor || '';
 
+    // Mostrar DRIVE HACIENDA solo para LUZ HAYDEE ORTEGA MAYORGA
+    const driveHaciendaBtn = document.getElementById('go-drive-hacienda');
+    if(driveHaciendaBtn){
+      driveHaciendaBtn.style.display =
+        supervisorNombreCompleto.toUpperCase().includes('LUZ HAYDEE ORTEGA MAYORGA')
+          ? '' : 'none';
+    }
+
      // Sonido de login al iniciar sesión
   playSoundOnce(SOUNDS.login);
     
@@ -2104,10 +2234,45 @@ document.getElementById('ovlClose').addEventListener('click', ()=>{
   overlay.classList.remove('open');
 });
 
+  // Inicializar comportamiento del menú por categorías
+(function initOverlayCategories(){
+  const catButtons    = Array.from(document.querySelectorAll('.menu-cat-btn'));
+  const catContainers = Array.from(document.querySelectorAll('.menu-cat-options'));
+
+  function hideAllCategories(){
+    catContainers.forEach(c =>{ c.style.display = 'none'; c.classList.remove('showing'); });
+    catButtons.forEach(b => b.classList.remove('active'));
+  }
+
+  function showCategory(catId){
+    hideAllCategories();
+    const cont = document.getElementById(catId);
+    const btn  = catButtons.find(b => b.dataset.cat === catId);
+    if(cont){ cont.style.display = 'flex'; cont.offsetHeight; cont.classList.add('showing'); }
+    if(btn)  { btn.classList.add('active'); }
+  }
+
+  catButtons.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.cat;
+      if(!id) return;
+      try{ if(typeof playSoundOnce==='function') playSoundOnce(SOUNDS.back); }catch(_){}
+      const cont = document.getElementById(id);
+      const isOpen = cont && cont.style.display === 'flex';
+      isOpen ? hideAllCategories() : showCategory(id);
+    });
+  });
+
+  hideAllCategories();
+
+  const openBtn = document.getElementById('btn-open-menu');
+  if(openBtn){ openBtn.addEventListener('click', ()=>{ hideAllCategories(); }); }
+})();
+
 
 /* Sonido 'logout' al seleccionar cualquiera de las opciones del overlay.
    Ubicar este bucle inmediatamente después de los listeners anteriores. */
-['go-actualizar','go-contratistas','go-revision','go-firmados','go-planes-pagos','go-requerimientos','go-comunicados','go-soporte', 'go-directorio', 'go-secop2']
+['go-actualizar','go-contratistas','go-revision','go-firmados','go-planes-pagos','go-requerimientos','go-comunicados','go-soporte', 'go-directorio', 'go-secop2', 'go-drive-hacienda']
   .forEach(id => {
     const el = document.getElementById(id);
     if(el){
@@ -2211,6 +2376,12 @@ document.getElementById('btn-upd-guardar').addEventListener('click', async ()=>{
   }catch(e){
     Swal.fire({icon:'error',title:'Error',text:e.message});
   }
+});
+
+  document.getElementById('go-drive-hacienda')?.addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.login);
+  overlay.classList.remove('open');
+  window.open('https://drive.google.com/drive/folders/1M6-wSvyAXzMqGSKC_oHya1j63QkgwTyZ?usp=sharing', '_blank');
 });
 
 /* ================== CONTRATISTAS ================== */
