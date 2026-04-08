@@ -2144,7 +2144,7 @@ document.getElementById('btn-login').addEventListener('click', async ()=>{
     }
     
     // res: { encontrado, supervisor, firmaId, imagenId }
-    currentUser = { cedula, supervisor: res.supervisor || '', firmaId: res.firmaId || '', imagenId: res.imagenId || '' };
+    currentUser = { cedula, supervisor: res.supervisor || '', firmaId: res.firmaId || '', imagenId: res.imagenId || '', telefono: res.telefono || '' };
     supervisorNombreCompleto = res.supervisor || '';
 
     // Mostrar DRIVE HACIENDA solo para LUZ HAYDEE ORTEGA MAYORGA
@@ -3563,20 +3563,45 @@ document.getElementById('comunicado-volver').addEventListener('click', ()=>{
 /* ================== SOPORTE ================== */
 document.getElementById('go-soporte').addEventListener('click', ()=>{ overlay.classList.remove('open'); showView('view-soporte'); });
 document.getElementById('soporte-enviar').addEventListener('click', async ()=>{
-  const txt=(document.getElementById('soporte-text').value||'').trim();
-  if(!txt){ Swal.fire({icon:'warning',title:'Texto requerido'}); return; }
+  const txt = (document.getElementById('soporte-text').value || '').trim();
+  if(!txt){ Swal.fire({icon:'warning', title:'Texto requerido'}); return; }
   try{
     await apiPost('guardarSoporteSupervisor',{
       supervisor: supervisorNombreCompleto,
       soporte: txt,
-      celular: ''  // no requerido; si quisieras capturar un campo, aquí se envía
+      celular: ''
     });
-    Swal.fire({icon:'success',title:'SOLICITUD CARGADA CON ÉXITO',timer:4000,showConfirmButton:false});
-    document.getElementById('soporte-text').value='';
+
+    // Mensaje 1 → teléfono del supervisor logueado
+    const telSupervisor = normalizeNumber57(currentUser?.telefono || '');
+    const nombreCorto = firstTwoWordsIfMoreThan3(supervisorNombreCompleto);
+    if(telSupervisor){
+      const msg1 =
+        'Estimado(a) *' + nombreCorto + '*\n' +
+        '¡He recibido tu solicitud!\n' +
+        'Te ayudaré en el menor tiempo posible.\n' +
+        'Cordialmente,\n' +
+        '*Oscar Polania*\n' +
+        '> Desarrollador Gobierno Digital';
+      sendBuilderbotMessage(telSupervisor, msg1);
+    }
+
+    // Mensaje 2 → directo a Oscar
+    const msg2 =
+      'Hola *Oscar*\n' +
+      'Tienes una nueva solicitud:\n' +
+      '*Supervisor(a):* ' + supervisorNombreCompleto + '\n' +
+      '*Solicitud:*\n' +
+      txt;
+    sendBuilderbotMessage('573103230712', msg2);
+
+    Swal.fire({ icon:'success', title:'SOLICITUD CARGADA CON ÉXITO', timer:5000, showConfirmButton:false });
+    document.getElementById('soporte-text').value = '';
     renderInicio(); showView('view-inicio');
-  }catch(e){ Swal.fire({icon:'error',title:'Error',text:e.message}); }
+  }catch(e){ Swal.fire({icon:'error', title:'Error', text:e.message}); }
 });
-document.getElementById('soporte-volver').addEventListener('click', ()=>{
+  
+  document.getElementById('soporte-volver').addEventListener('click', ()=>{
   playSoundOnce(SOUNDS.back);
   showView('view-inicio');
 });
