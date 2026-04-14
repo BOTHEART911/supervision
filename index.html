@@ -2938,7 +2938,7 @@ function renderRevisionCuenta(){
     if(evid && evid!=='-'){
       const evDiv=document.createElement('div'); evDiv.className='evidence-grid';
       const img=document.createElement('img'); img.className='evidence-thumb'; img.src=evidenciaThumb(evid); img.alt='Evidencia '+i;
-      img.addEventListener('click', ()=> abrirZoomEvidencia(evidenciaFull(evid)));
+      img.addEventListener('click', ()=> openEvLightbox_(evidenciaThumb(evid)));
       evDiv.appendChild(img); block.appendChild(evDiv);
     }
     blocksWrap.appendChild(block);
