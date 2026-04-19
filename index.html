@@ -2930,7 +2930,36 @@ function renderRevisionCuenta(){
   ac.appendChild(b);
 
   const span = document.createElement('span');
-  span.textContent = String(act);
+  // ✅ Detectar URLs en el texto y convertirlas en enlaces clicables
+  const texto = String(act);
+  const regexUrl = /(https?:\/\/[^\s]+)/g;
+  let ultimoIndice = 0;
+  let match;
+  while ((match = regexUrl.exec(texto)) !== null) {
+    if (match.index > ultimoIndice) {
+      span.appendChild(document.createTextNode(texto.substring(ultimoIndice, match.index)));
+    }
+    // Limpiar signos de puntuación finales que no son parte de la URL
+    let urlLimpia = match[0];
+    const puntFinal = urlLimpia.match(/[.,;:!?)\]]+$/);
+    if (puntFinal) urlLimpia = urlLimpia.slice(0, -puntFinal[0].length);
+
+    const enlace = document.createElement('a');
+    enlace.href = urlLimpia;
+    enlace.textContent = urlLimpia;
+    enlace.target = '_blank';
+    enlace.rel = 'noopener noreferrer';
+    enlace.style.color = '#1d4ed8';
+    enlace.style.textDecoration = 'underline';
+    enlace.style.wordBreak = 'break-all';
+    span.appendChild(enlace);
+
+    if (puntFinal) span.appendChild(document.createTextNode(puntFinal[0]));
+    ultimoIndice = match.index + match[0].length;
+  }
+  if (ultimoIndice < texto.length) {
+    span.appendChild(document.createTextNode(texto.substring(ultimoIndice)));
+  }
   ac.appendChild(span);
 
   block.appendChild(ac);
