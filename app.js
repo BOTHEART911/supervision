@@ -826,6 +826,27 @@ document.getElementById('detalles-ocultar').addEventListener('click', ()=>{
 });
 
 /* ================== REVISIÓN ================== */
+/* Convierte "dd/mm/yyyy" o "dd/mm/yyyy HH:mm:ss" a timestamp para ordenar */
+function parseFechaRadicacion(str){
+  if(!str) return 0;
+  const s = String(str).trim();
+  const partes = s.split(/\s+/);
+  const fecha = (partes[0] || '').split('/');
+  if(fecha.length !== 3) return 0;
+  const d = parseInt(fecha[0],10);
+  const m = parseInt(fecha[1],10);
+  const y = parseInt(fecha[2],10);
+  if(!d || !m || !y) return 0;
+  let h=0, mi=0, se=0;
+  if(partes[1]){
+    const t = partes[1].split(':');
+    h  = parseInt(t[0]||'0',10) || 0;
+    mi = parseInt(t[1]||'0',10) || 0;
+    se = parseInt(t[2]||'0',10) || 0;
+  }
+  return new Date(y, m-1, d, h, mi, se).getTime();
+}
+
 let CUENTAS_DATA=[];
 document.getElementById('go-revision').addEventListener('click', async ()=>{
   overlay.classList.remove('open');
@@ -848,6 +869,20 @@ async function cargarCuentas(){
   try{
     const list=await apiGet('listCuentasIngresadas',{ supervisor: supervisorNombreCompleto });
     CUENTAS_DATA=Array.isArray(list)?list:[];
+
+    async function cargarCuentas(){
+  try{
+    const list=await apiGet('listCuentasIngresadas',{ supervisor: supervisorNombreCompleto });
+    CUENTAS_DATA=Array.isArray(list)?list:[];
+    CUENTAS_DATA.sort((a,b)=> parseFechaRadicacion(a.fechaRadicacion) - parseFechaRadicacion(b.fechaRadicacion)); // ✅ ordena por radicación (antigua → reciente)
+    pintarCuentas(CUENTAS_DATA);
+    actualizarResumenCuentas(CUENTAS_DATA);
+  }catch(e){
+    CUENTAS_DATA=[]; pintarCuentas(CUENTAS_DATA); actualizarResumenCuentas(CUENTAS_DATA);
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }
+}
+    
     pintarCuentas(CUENTAS_DATA);
     actualizarResumenCuentas(CUENTAS_DATA);
   }catch(e){
@@ -1473,6 +1508,22 @@ async function cargarPlanesPagos(){
   try{
     const list = await apiGet('listPlanesPagos', { supervisor: supervisorNombreCompleto });
     PLANES_PAGOS_DATA = Array.isArray(list) ? list : [];
+
+    async function cargarPlanesPagos(){
+  try{
+    const list = await apiGet('listPlanesPagos', { supervisor: supervisorNombreCompleto });
+    PLANES_PAGOS_DATA = Array.isArray(list) ? list : [];
+    PLANES_PAGOS_DATA.sort((a,b)=> parseFechaRadicacion(a.fechaRadicacion) - parseFechaRadicacion(b.fechaRadicacion)); // ✅ ordena por radicación (antigua → reciente)
+    pintarPlanesPagos(PLANES_PAGOS_DATA);
+    actualizarResumenPlanesPagos(PLANES_PAGOS_DATA);
+  }catch(e){
+    PLANES_PAGOS_DATA = [];
+    pintarPlanesPagos(PLANES_PAGOS_DATA);
+    actualizarResumenPlanesPagos(PLANES_PAGOS_DATA);
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }
+}
+    
     pintarPlanesPagos(PLANES_PAGOS_DATA);
     actualizarResumenPlanesPagos(PLANES_PAGOS_DATA);
   }catch(e){
