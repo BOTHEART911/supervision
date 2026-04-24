@@ -870,11 +870,17 @@ async function cargarCuentas(){
     const list=await apiGet('listCuentasIngresadas',{ supervisor: supervisorNombreCompleto });
     CUENTAS_DATA=Array.isArray(list)?list:[];
 
-    async function cargarCuentas(){
-  try{
-    const list=await apiGet('listCuentasIngresadas',{ supervisor: supervisorNombreCompleto });
-    CUENTAS_DATA=Array.isArray(list)?list:[];
-    CUENTAS_DATA.sort((a,b)=> parseFechaRadicacion(a.fechaRadicacion) - parseFechaRadicacion(b.fechaRadicacion)); // ✅ ordena por radicación (antigua → reciente)
+    // Orden por fecha de radicación (antigua → reciente)
+    CUENTAS_DATA.sort((a,b)=> parseFechaRadicacion(a.fechaRadicacion) - parseFechaRadicacion(b.fechaRadicacion));
+
+    // Priorizar a OSCAR MAURICIO POLANIA GUERRA al inicio
+    const PRIORITARIO = 'OSCAR MAURICIO POLANIA GUERRA';
+    CUENTAS_DATA.sort((a, b) => {
+      const aPrio = String(a.nombre || '').trim().toUpperCase() === PRIORITARIO ? 0 : 1;
+      const bPrio = String(b.nombre || '').trim().toUpperCase() === PRIORITARIO ? 0 : 1;
+      return aPrio - bPrio;
+    });
+
     pintarCuentas(CUENTAS_DATA);
     actualizarResumenCuentas(CUENTAS_DATA);
   }catch(e){
@@ -882,14 +888,8 @@ async function cargarCuentas(){
     Swal.fire({icon:'error',title:'Error',text:e.message});
   }
 }
-    
-    pintarCuentas(CUENTAS_DATA);
-    actualizarResumenCuentas(CUENTAS_DATA);
-  }catch(e){
-    CUENTAS_DATA=[]; pintarCuentas(CUENTAS_DATA); actualizarResumenCuentas(CUENTAS_DATA);
-    Swal.fire({icon:'error',title:'Error',text:e.message});
-  }
-}
+
+
 function actualizarResumenCuentas(list){
   const box=document.getElementById('cuentas-count');
   if(!list.length){ box.style.display='none'; box.textContent=''; return; }
@@ -1509,21 +1509,17 @@ async function cargarPlanesPagos(){
     const list = await apiGet('listPlanesPagos', { supervisor: supervisorNombreCompleto });
     PLANES_PAGOS_DATA = Array.isArray(list) ? list : [];
 
-    async function cargarPlanesPagos(){
-  try{
-    const list = await apiGet('listPlanesPagos', { supervisor: supervisorNombreCompleto });
-    PLANES_PAGOS_DATA = Array.isArray(list) ? list : [];
-    PLANES_PAGOS_DATA.sort((a,b)=> parseFechaRadicacion(a.fechaRadicacion) - parseFechaRadicacion(b.fechaRadicacion)); // ✅ ordena por radicación (antigua → reciente)
-    pintarPlanesPagos(PLANES_PAGOS_DATA);
-    actualizarResumenPlanesPagos(PLANES_PAGOS_DATA);
-  }catch(e){
-    PLANES_PAGOS_DATA = [];
-    pintarPlanesPagos(PLANES_PAGOS_DATA);
-    actualizarResumenPlanesPagos(PLANES_PAGOS_DATA);
-    Swal.fire({icon:'error',title:'Error',text:e.message});
-  }
-}
-    
+    // Orden por fecha de radicación (antigua → reciente)
+    PLANES_PAGOS_DATA.sort((a,b)=> parseFechaRadicacion(a.fechaRadicacion) - parseFechaRadicacion(b.fechaRadicacion));
+
+    // Priorizar a OSCAR MAURICIO POLANIA GUERRA al inicio
+    const PRIORITARIO = 'OSCAR MAURICIO POLANIA GUERRA';
+    PLANES_PAGOS_DATA.sort((a, b) => {
+      const aPrio = String(a.nombre || '').trim().toUpperCase() === PRIORITARIO ? 0 : 1;
+      const bPrio = String(b.nombre || '').trim().toUpperCase() === PRIORITARIO ? 0 : 1;
+      return aPrio - bPrio;
+    });
+
     pintarPlanesPagos(PLANES_PAGOS_DATA);
     actualizarResumenPlanesPagos(PLANES_PAGOS_DATA);
   }catch(e){
