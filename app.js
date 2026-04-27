@@ -1501,6 +1501,44 @@ document.getElementById('firmados-descargar')?.addEventListener('click', async (
   }
   showView('view-planes-pagos');
 });
+
+/* Registro de cuentas que ya tienen URL guardada en DQ (en esta sesión de la vista) */
+const PLANES_DQ_VALIDADOS = new Set();
+function planDqKey(documento, informe){
+  return String(documento || '') + '||' + String(informe || '');
+}
+function habilitarBotonCerrarPlan(documento, informe){
+  PLANES_DQ_VALIDADOS.add(planDqKey(documento, informe));
+  const btns = document.querySelectorAll('#planes-list button.btn-cerrar-proceso');
+  btns.forEach(btn => {
+    if(btn.dataset.documento === String(documento || '') &&
+       btn.dataset.informe   === String(informe   || '')){
+      btn.disabled = false;
+    }
+  });
+}
+async function validarDQEnPlanesPagos(list){
+  if(!Array.isArray(list) || !list.length) return;
+  const prevSuppress = suppressLoader;
+  suppressLoader = true;   // estas validaciones son de fondo, no muestran loader
+  try{
+    for(const c of list){
+      try{
+        const dqUrl = await apiGet('getCuentaPdfUrlDQ', {
+          documento: c.documento,
+          informe:   c.informe,
+          supervisor: supervisorNombreCompleto
+        });
+        const url = String(dqUrl || '').trim();
+        if(url && url.toUpperCase() !== 'N/A'){
+          habilitarBotonCerrarPlan(c.documento, c.informe);
+        }
+      }catch(_){}
+    }
+  }finally{
+    suppressLoader = prevSuppress;
+  }
+}
   
 let PLANES_PAGOS_DATA = [];
 
@@ -1520,8 +1558,14 @@ async function cargarPlanesPagos(){
       return aPrio - bPrio;
     });
 
+    // limpiar el registro previo de validaciones DQ (cada carga arranca limpia)
+    PLANES_DQ_VALIDADOS.clear();
+
     pintarPlanesPagos(PLANES_PAGOS_DATA);
     actualizarResumenPlanesPagos(PLANES_PAGOS_DATA);
+
+    // validar DQ en segundo plano: irá habilitando los botones a medida que confirme
+    validarDQEnPlanesPagos(PLANES_PAGOS_DATA);
   }catch(e){
     PLANES_PAGOS_DATA = [];
     pintarPlanesPagos(PLANES_PAGOS_DATA);
@@ -1678,9 +1722,36 @@ function pintarPlanesPagos(list){
       a.click();
       document.body.removeChild(a);
 
-      setTimeout(()=> URL.revokeObjectURL(url), 20000);
+     setTimeout(()=> URL.revokeObjectURL(url), 20000);
+
+      // Verificar que la URL ya quedó guardada en DQ antes de habilitar "CERRAR PROCESO"
+      let dqUrl = '';
+      try{
+        dqUrl = await apiGet('getCuentaPdfUrlDQ', {
+          documento: c.documento,
+          informe:   c.informe,
+          supervisor
+        });
+      }catch(_){}
 
       Swal.close();
+
+      const dqOk = String(dqUrl || '').trim();
+      if(dqOk && dqOk.toUpperCase() !== 'N/A'){
+        habilitarBotonCerrarPlan(c.documento, c.informe);
+        await Swal.fire({
+          icon: 'success',
+          title: 'TODO LISTO PARA CERRAR',
+          html: 'Envía la cuenta a contabilidad'
+        });
+      }else{
+        // Defensa: la firma se descargó pero DQ aún no respondió con la URL
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Aún no se confirma la URL en DQ',
+          text: 'Vuelve a tocar FIRMAR INFORME para asegurar el guardado antes de cerrar el proceso.'
+        });
+      }
     }catch(e){
       Swal.close();
       Swal.fire({icon:'error',title:'Error',text:e.message});
@@ -1690,9 +1761,15 @@ function pintarPlanesPagos(list){
   });
   btnRow.appendChild(btnFirmar);
 
-  const btnCerrar=document.createElement('button');
+ const btnCerrar=document.createElement('button');
   btnCerrar.textContent='CERRAR PROCESO';
+  btnCerrar.classList.add('btn-cerrar-proceso');
+  btnCerrar.dataset.documento = String(c.documento || '');
+  btnCerrar.dataset.informe   = String(c.informe   || '');
+  // arranca deshabilitado salvo que DQ ya esté validado en esta sesión (p. ej. tras filtrar)
+  btnCerrar.disabled = !PLANES_DQ_VALIDADOS.has(planDqKey(c.documento, c.informe));
   btnCerrar.addEventListener('click', ()=> {
+    if(btnCerrar.disabled) return;
     playSoundOnce(SOUNDS.logout);
     cerrarProcesoPlanPago(c.documento, c.informe);
   });
