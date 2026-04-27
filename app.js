@@ -1614,14 +1614,48 @@ function pintarPlanesPagos(list){
       }
     });
 
-    try{
+ try{
       const supervisor = supervisorNombreCompleto;
 
-      const resp = await apiPost('firmarInformePlanPagoSupervisor', {
-        documento: c.documento,
-        informe: c.informe,
-        supervisor
-      });
+      // Reintento automático: hasta 3 intentos si Drive falla por latencia/conexión
+      async function intentarFirmar(maxIntentos){
+        let ultimoError = null;
+        for(let intento = 1; intento <= maxIntentos; intento++){
+          try{
+            const r = await apiPost('firmarInformePlanPagoSupervisor', {
+              documento: c.documento,
+              informe: c.informe,
+              supervisor
+            });
+            if(!r || !r.base64){
+              throw new Error('No se recibió el PDF para descargar.');
+            }
+            return r;
+          }catch(err){
+            ultimoError = err;
+            const msg = String(err && err.message || err || '').toLowerCase();
+            const esErrorReintenable =
+              msg.includes('drive') ||
+              msg.includes('servicio') ||
+              msg.includes('service') ||
+              msg.includes('timeout') ||
+              msg.includes('network') ||
+              msg.includes('failed to fetch');
+
+            // Si NO es un error reintenable, lanzar de inmediato
+            if(!esErrorReintenable) throw err;
+
+            // Si es el último intento, lanzar el error
+            if(intento === maxIntentos) throw err;
+
+            // Esperar antes de reintentar (1.5s, luego 3s)
+            await new Promise(res => setTimeout(res, 1500 * intento));
+          }
+        }
+        throw ultimoError || new Error('No se pudo firmar el informe.');
+      }
+
+      const resp = await intentarFirmar(3);
 
       if(!resp || !resp.base64){
         throw new Error('No se recibió el PDF para descargar.');
