@@ -1636,7 +1636,7 @@ function pintarPlanesPagos(list){
 
   const pHint = document.createElement('p');
   pHint.className = 'plan-hint';
-  pHint.textContent = 'El informe se guarda automáticamente en la 📁 del contratista, No olvides hacer clic en cerrar proceso.';
+  pHint.textContent = 'El informe se guarda automáticamente en la 📁 del contratista, No olvides subir el informe en SECOP II.';
   div.appendChild(pHint);
 
   const btnRow=document.createElement('div'); 
@@ -1741,8 +1741,8 @@ function pintarPlanesPagos(list){
         habilitarBotonCerrarPlan(c.documento, c.informe);
         await Swal.fire({
           icon: 'success',
-          title: 'TODO LISTO PARA CERRAR',
-          html: 'Envía la cuenta a contabilidad'
+          title: 'SUBE EL INFORME A SECOP II',
+          html: 'Después de acpetar el Plan de Pagos, envía la cuenta a contabilidad'
         });
       }else{
         // Defensa: la firma se descargó pero DQ aún no respondió con la URL
