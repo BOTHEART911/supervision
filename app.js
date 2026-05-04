@@ -1195,6 +1195,21 @@ if(obsBtn){
     });
   });
 }
+
+// ---- Firma del contratista (debajo de observaciones)
+const firmaWrap = document.getElementById('rc-firma-wrap');
+const firmaImg  = document.getElementById('rc-firma-img');
+const firmaIdContr = String(c?.firmaId || '').trim();
+
+if(firmaWrap && firmaImg){
+  if(firmaIdContr){
+    firmaImg.src = 'https://drive.google.com/thumbnail?sz=w1000&id=' + firmaIdContr;
+    firmaWrap.style.display = '';
+  }else{
+    firmaImg.src = '';
+    firmaWrap.style.display = 'none';
+  }
+}
 }
   
 document.getElementById('rc-volver').addEventListener('click', ()=>{
