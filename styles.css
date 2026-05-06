@@ -736,10 +736,20 @@ button:active { transform: translateY(0); }
 #planes-list .item-card { position: relative; }
 #planes-list .plan-card-head { display: block !important; margin: 0 !important; padding: 0 !important; }
 #planes-list .plan-card-head .item-header { margin: 0 !important; padding: 0 !important; }
-#planes-list .plan-card-head .item-title  { margin: 0 !important; padding: 0 !important; line-height: 1.15 !important; padding-right: 70px !important; }
-#planes-list .plan-folder { position: absolute !important; top: 14px !important; right: 16px !important; margin: 0 !important; padding: 0 !important; }
+#planes-list .plan-card-head .item-title  { margin: 0 !important; padding: 0 !important; line-height: 1.15 !important; padding-right: 120px !important; }
+#planes-list .plan-folder { 
+  position: absolute !important; 
+  top: 14px !important; 
+  right: 16px !important; 
+  margin: 0 !important; 
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
 #planes-list .plan-folder .btn-icon { padding: 0 !important; }
 #planes-list .plan-folder img { width: 46px !important; height: 46px !important; display: block !important; object-fit: contain !important; filter: drop-shadow(0 2px 4px rgba(0,0,0,.25)) !important; }
+#planes-list .plan-card-head .item-title { padding-right: 120px !important; }
 #planes-list .plan-card-head + .item-sub { margin-top: 0 !important; padding-top: 0 !important; }
 #planes-list .item-sub { margin: 0 !important; padding: 0 !important; line-height: 1.25 !important; }
 
