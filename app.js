@@ -1918,7 +1918,7 @@ document.getElementById('modal-corregir-enviar')?.addEventListener('click', asyn
       'Estimado(a) *' + nombre + '*\n\n' +
       '*He rechazado tu Plan de Pagos* debido a esta inconsistencia:\n' +
       txt + '\n\n' +
-      'Después de haber corregido con base a la inconsistencia, busca la opción *REPORTAR CORRECCIÓN PLAN DE PAGOS* para volver a validar.\n' +
+      'Después de haber corregido con base a la inconsistencia, busca la opción *PLAN DE PAGOS - REPORTAR CORRECCIÓN* para volver a validar.\n' +
       '> Espero no se vuelva a presentar esta situación 🙏🏻\n\n' +
       'Cordialmente,\n\n' +
       '*' + supervisor + '*\n' +
