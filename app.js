@@ -1623,6 +1623,18 @@ function pintarPlanesPagos(list){
   btnCarpeta.title = 'Abrir carpeta de CUENTA en Drive';
   btnCarpeta.innerHTML = '<img src="https://res.cloudinary.com/dqqeavica/image/upload/v1764111247/carpeta_drive_epbrhp.webp" alt="CUENTA">';
 
+  // ✅ Botón CORREGIR PLAN (icono chat) — va antes del de carpeta
+  const btnCorregir = document.createElement('button');
+  btnCorregir.className = 'btn-icon';
+  btnCorregir.setAttribute('aria-label','Corregir Plan');
+  btnCorregir.title = 'Corregir Plan';
+  btnCorregir.innerHTML = '<img src="https://res.cloudinary.com/dqqeavica/image/upload/v1776016986/chat_sueco4.webp" alt="Corregir Plan">';
+  btnCorregir.addEventListener('click', ()=>{
+    playSoundOnce(SOUNDS.question);
+    abrirModalCorregirPlan(c);
+  });
+  folderWrap.appendChild(btnCorregir);
+
   const idCuenta = String(c.idCuenta || '').trim();
   if(idCuenta){
     btnCarpeta.addEventListener('click', ()=> {
