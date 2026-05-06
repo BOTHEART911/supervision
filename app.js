@@ -1874,6 +1874,72 @@ async function cerrarProcesoPlanPago(documento, informe){
   }
 }
 
+/* ================== CORREGIR PLAN DE PAGOS ================== */
+let CORREGIR_PLAN_TARGET = null;
+
+function abrirModalCorregirPlan(c){
+  CORREGIR_PLAN_TARGET = c;
+  const ta = document.getElementById('inconsistencia');
+  if(ta) ta.value = '';
+  document.getElementById('modal-corregir-plan').classList.remove('hidden');
+  if(ta) setTimeout(()=> ta.focus(), 60);
+}
+
+function cerrarModalCorregirPlan(){
+  document.getElementById('modal-corregir-plan').classList.add('hidden');
+  CORREGIR_PLAN_TARGET = null;
+}
+
+document.getElementById('modal-corregir-cancelar')?.addEventListener('click', ()=>{
+  playSoundOnce(SOUNDS.back);
+  cerrarModalCorregirPlan();
+});
+
+document.getElementById('modal-corregir-enviar')?.addEventListener('click', async ()=>{
+  const txt = (document.getElementById('inconsistencia').value || '').trim();
+  if(!CORREGIR_PLAN_TARGET){ return; }
+  if(!txt){
+    Swal.fire({icon:'warning', title:'Texto requerido', text:'Especifícale al contratista qué debe corregir.'});
+    return;
+  }
+
+  try{
+    // Obtener teléfono actualizado del contratista (igual que en cerrarProcesoPlanPago)
+    const det = await apiGet('detallesContratistaSupervisor', { documento: CORREGIR_PLAN_TARGET.documento });
+    const nombre = String(CORREGIR_PLAN_TARGET.nombre || det?.nombre || '').trim();
+    const telRaw = det?.telefono || CORREGIR_PLAN_TARGET.telefono || '';
+    const tel = normalizeNumber57(telRaw);
+
+    const supervisor = supervisorNombreCompleto;
+    const pie = supervisor === 'ANA JUDITH GAMBOA MANTILLA' ? '> Alcaldesa' : '> Supervisor(a)';
+
+    const mensaje =
+      '⚠⚠⚠⚠⚠⚠⚠\n' +
+      'Estimado(a) *' + nombre + '*\n\n' +
+      '*He rechazado tu Plan de Pagos* debido a esta inconsistencia:\n' +
+      txt + '\n\n' +
+      'Después de haber corregido con base a la inconsistencia, busca la opción *REPORTAR CORRECCIÓN PLAN DE PAGOS* para volver a validar.\n' +
+      '> Espero no se vuelva a presentar esta situación 🙏🏻\n\n' +
+      'Cordialmente,\n\n' +
+      '*' + supervisor + '*\n' +
+      pie;
+
+    if(tel){
+      sendBuilderbotMessage(tel, mensaje);
+    }
+
+    cerrarModalCorregirPlan();
+    Swal.fire({
+      icon:'success',
+      title:'El Contratista ha sido notificado',
+      timer:2400,
+      showConfirmButton:false
+    });
+  }catch(e){
+    Swal.fire({icon:'error', title:'Error', text:String(e.message||e)});
+  }
+});
+
 /* ================== REQUERIMIENTOS ================== */
 let REQ_DATA=[];
 document.getElementById('go-requerimientos').addEventListener('click', async ()=>{
