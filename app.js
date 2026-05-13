@@ -1519,6 +1519,7 @@ document.getElementById('firmados-descargar')?.addEventListener('click', async (
 
 /* Registro de cuentas que ya tienen URL guardada en DQ (en esta sesión de la vista) */
 const PLANES_DQ_VALIDADOS = new Set();
+const PROCESOS_CIERRE_EN_CURSO = new Set();
 function planDqKey(documento, informe){
   return String(documento || '') + '||' + String(informe || '');
 }
@@ -1795,10 +1796,29 @@ function pintarPlanesPagos(list){
   btnCerrar.dataset.informe   = String(c.informe   || '');
   // arranca deshabilitado salvo que DQ ya esté validado en esta sesión (p. ej. tras filtrar)
   btnCerrar.disabled = !PLANES_DQ_VALIDADOS.has(planDqKey(c.documento, c.informe));
-  btnCerrar.addEventListener('click', ()=> {
+btnCerrar.addEventListener('click', async ()=> {
     if(btnCerrar.disabled) return;
+
+    const key = String(c.documento || '') + '||' + String(c.informe || '');
+    if(PROCESOS_CIERRE_EN_CURSO.has(key)) return;
+
+    // Bloqueo inmediato — sin esperar ni un milisegundo
+    PROCESOS_CIERRE_EN_CURSO.add(key);
+    btnCerrar.disabled = true;
     playSoundOnce(SOUNDS.logout);
-    cerrarProcesoPlanPago(c.documento, c.informe);
+
+    // Loader visible INSTANTÁNEAMENTE (saltándonos el debounce de 120ms)
+    suppressLoader = true;                    // bloquea el loader automático de apiGet/apiPost
+    loader.classList.remove('hidden');        // mostramos nuestro loader manual ya mismo
+
+    try{
+      await cerrarProcesoPlanPago(c.documento, c.informe);
+    }finally{
+      // Ocultamos el loader recién cuando todo (incluida la recarga) terminó
+      loader.classList.add('hidden');
+      suppressLoader = false;
+      PROCESOS_CIERRE_EN_CURSO.delete(key);
+    }
   });
   btnRow.appendChild(btnCerrar);
 
