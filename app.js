@@ -655,6 +655,13 @@ pSup.innerHTML='SUPERVISOR: '+(c.supervisor||'');
 div.appendChild(pSup);
     div.appendChild(pSup);
 
+    // ▼ AJUSTE 1: CONTRACTUAL (Columna CI) en color verde
+    const pContractual = document.createElement('p');
+    pContractual.className = 'item-sub';
+    pContractual.style.color = '#06402B';
+    pContractual.innerHTML = 'CONTRACTUAL: ' + (c.contractual || '');
+    div.appendChild(pContractual);
+
     const actionsRow = document.createElement('div');
     actionsRow.className = 'contr-actions';
 
@@ -805,10 +812,13 @@ async function mostrarDetallesContratista(documento){
         `<b>VALOR INICIAL:</b> ${d.valor||''}`,
         `<b>MRA:</b> ${d.mra||''}`,
         `<b>VALOR FINAL:</b> ${d.valorFinal||''}`,
-        `<b>CDP:</b> ${d.cdp||''}`,
+       `<b>CDP:</b> ${d.cdp||''}`,
         `<b>RP:</b> ${d.rp||''}`,
-        `<b>CDP ADICIÓN:</b> ${d.cdpAdicion||''}`,
-        `<b>RP ADICIÓN:</b> ${d.rpAdicion||''}`,
+        `<b>CONTRACTUAL:</b> ${d.contractual||''}`,
+        `<b>CDP 1RA ADICIÓN:</b> ${d.cdpAdicion||''}`,
+        `<b>RP 1RA ADICIÓN:</b> ${d.rpAdicion||''}`,
+        `<b>CDP 2DA ADICIÓN:</b> ${d.cdpAdicion2||''}`,
+        `<b>RP 2DA ADICIÓN:</b> ${d.rpAdicion2||''}`,
         `<b>REGIMEN:</b> ${d.regimen||''}`
       ];
       for(let i=1;i<=26;i++){
@@ -1002,7 +1012,7 @@ function renderRevisionCuenta(){
   const obsEl = document.getElementById('rc-observaciones');
   if (obsEl) obsEl.value = '';
   const rcBody=document.getElementById('rc-body');
-  rcBody.innerHTML = formatInfoList([ `<b>DOCUMENTO:</b> ${c?.documento||''}`, `<b>SECRETARÍA:</b> ${c?.secretaria||''}`, `<b>SUPERVISOR:</b> ${c?.supervisor||''}` ]);
+  rcBody.innerHTML = formatInfoList([ `<b>DOCUMENTO:</b> ${c?.documento||''}`, `<b>SECRETARÍA:</b> ${c?.secretaria||''}`, `<b>SUPERVISOR:</b> ${c?.supervisor||''}`, `<span style="color:#06402B"><b>CONTRACTUAL:</b> ${c?.contractual||''}</span>` ]);
 
   document.getElementById('sec-contrato').innerHTML = formatInfoList([
     `<b>CONTRATO N°:</b> ${c?.contrato||''}`,
@@ -1013,10 +1023,12 @@ function renderRevisionCuenta(){
     `<b>VALOR INICIAL:</b> ${c?.valor || '-'}`,
     `<b>MRA:</b> ${c?.mra||''}`,
     `<b>VALOR FINAL:</b> ${c?.valorFinal||''}`,
-    `<b>CDP:</b> ${c?.cdp||''}`,
+   `<b>CDP:</b> ${c?.cdp||''}`,
     `<b>RP:</b> ${c?.rp||''}`,
-    `<b>CDP ADICIÓN:</b> ${c?.cdpAdicion||''}`,
-    `<b>RP ADICIÓN:</b> ${c?.rpAdicion||''}`,
+    `<b>CDP 1RA ADICIÓN:</b> ${c?.cdpAdicion||''}`,
+    `<b>RP 1RA ADICIÓN:</b> ${c?.rpAdicion||''}`,
+    `<b>CDP 2DA ADICIÓN:</b> ${c?.cdpAdicion2||''}`,
+    `<b>RP 2DA ADICIÓN:</b> ${c?.rpAdicion2||''}`,
     `<b>SECRETARÍA:</b> ${c?.secretaria||''}`,
     `<b>SUPERVISOR:</b> ${c?.supervisor||''}`,
   ]);
