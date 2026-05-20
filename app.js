@@ -1583,48 +1583,48 @@ function habilitarBotonActa(documento, informe, totalInformes){
 }
 async function validarDFEnPlanesPagos(list){
   if(!Array.isArray(list) || !list.length) return;
-  const prevSuppress = suppressLoader;
-  suppressLoader = true;
-  try{
-    for(const c of list){
-      if(!esUltimoInforme(c.informe, c.totalInformes)) continue;
-      try{
-        const dfUrl = await apiGet('getCuentaActaUrlDF', {
-          documento: c.documento,
-          informe:   c.informe,
-          supervisor: supervisorNombreCompleto
-        });
-        const url = String(dfUrl || '').trim();
-        if(url && url.toUpperCase() !== 'N/A'){
-          habilitarBotonActa(c.documento, c.informe, c.totalInformes);
-        }
-      }catch(_){}
-    }
-  }finally{
-    suppressLoader = prevSuppress;
+  // Background fetch: NO toca el loader global
+  for(const c of list){
+    if(!esUltimoInforme(c.informe, c.totalInformes)) continue;
+    try{
+      const url = new URL(API_BASE);
+      url.search = new URLSearchParams({
+        action: 'getCuentaActaUrlDF',
+        documento: c.documento,
+        informe:   c.informe,
+        supervisor: supervisorNombreCompleto
+      }).toString();
+      const r = await fetch(url.toString(), { method: 'GET' });
+      const j = await r.json();
+      const dfUrl = (j && j.ok) ? j.data : '';
+      const u = String(dfUrl || '').trim();
+      if(u && u.toUpperCase() !== 'N/A'){
+        habilitarBotonActa(c.documento, c.informe, c.totalInformes);
+      }
+    }catch(_){}
   }
 }
 
 async function validarDQEnPlanesPagos(list){
   if(!Array.isArray(list) || !list.length) return;
-  const prevSuppress = suppressLoader;
-  suppressLoader = true;   // estas validaciones son de fondo, no muestran loader
-  try{
-    for(const c of list){
-      try{
-        const dqUrl = await apiGet('getCuentaPdfUrlDQ', {
-          documento: c.documento,
-          informe:   c.informe,
-          supervisor: supervisorNombreCompleto
-        });
-        const url = String(dqUrl || '').trim();
-        if(url && url.toUpperCase() !== 'N/A'){
-         habilitarBotonCerrarPlan(c.documento, c.informe, c.totalInformes);
-        }
-      }catch(_){}
-    }
-  }finally{
-    suppressLoader = prevSuppress;
+  // Background fetch: NO toca el loader global para no interferir con navegaciones del usuario
+  for(const c of list){
+    try{
+      const url = new URL(API_BASE);
+      url.search = new URLSearchParams({
+        action: 'getCuentaPdfUrlDQ',
+        documento: c.documento,
+        informe:   c.informe,
+        supervisor: supervisorNombreCompleto
+      }).toString();
+      const r = await fetch(url.toString(), { method: 'GET' });
+      const j = await r.json();
+      const dqUrl = (j && j.ok) ? j.data : '';
+      const u = String(dqUrl || '').trim();
+      if(u && u.toUpperCase() !== 'N/A'){
+        habilitarBotonCerrarPlan(c.documento, c.informe, c.totalInformes);
+      }
+    }catch(_){}
   }
 }
   
