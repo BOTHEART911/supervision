@@ -1535,16 +1535,76 @@ const PROCESOS_CIERRE_EN_CURSO = new Set();
 function planDqKey(documento, informe){
   return String(documento || '') + '||' + String(informe || '');
 }
-function habilitarBotonCerrarPlan(documento, informe){
+
+function habilitarBotonCerrarPlan(documento, informe, totalInformes){
   PLANES_DQ_VALIDADOS.add(planDqKey(documento, informe));
   const btns = document.querySelectorAll('#planes-list button.btn-cerrar-proceso');
   btns.forEach(btn => {
-    if(btn.dataset.documento === String(documento || '') &&
-       btn.dataset.informe   === String(informe   || '')){
-      btn.disabled = false;
-    }
+    if(btn.dataset.documento !== String(documento || '')) return;
+    if(btn.dataset.informe   !== String(informe   || '')) return;
+
+    // Si no se nos pasó totalInformes, lo leemos del dataset del botón
+    const total = (typeof totalInformes !== 'undefined' && totalInformes !== null && totalInformes !== '')
+      ? totalInformes
+      : btn.dataset.totalInformes;
+
+    const ultimo = esUltimoInforme(informe, total);
+    const okDQ = PLANES_DQ_VALIDADOS.has(planDqKey(documento, informe));
+    const okDF = PLANES_DF_VALIDADOS.has(planDfKey(documento, informe));
+    btn.disabled = ultimo ? !(okDQ && okDF) : !okDQ;
   });
 }
+
+/* ===== ACTA CUMPLIMIENTO — tracking de DF ===== */
+const PLANES_DF_VALIDADOS = new Set();
+function planDfKey(documento, informe){
+  return String(documento || '') + '||' + String(informe || '');
+}
+function esUltimoInforme(informe, totalInformes){
+  const a = Number(String(informe || '').trim());
+  const b = Number(String(totalInformes || '').trim());
+  if(!isFinite(a) || !isFinite(b) || a <= 0 || b <= 0) return false;
+  return a === b;
+}
+function recalcularEstadoBotonCerrar(documento, informe, totalInformes){
+  const btns = document.querySelectorAll('#planes-list button.btn-cerrar-proceso');
+  btns.forEach(btn => {
+    if(btn.dataset.documento !== String(documento || '')) return;
+    if(btn.dataset.informe   !== String(informe   || '')) return;
+    const ultimo = esUltimoInforme(informe, totalInformes);
+    const okDQ = PLANES_DQ_VALIDADOS.has(planDqKey(documento, informe));
+    const okDF = PLANES_DF_VALIDADOS.has(planDfKey(documento, informe));
+    btn.disabled = ultimo ? !(okDQ && okDF) : !okDQ;
+  });
+}
+function habilitarBotonActa(documento, informe, totalInformes){
+  PLANES_DF_VALIDADOS.add(planDfKey(documento, informe));
+  recalcularEstadoBotonCerrar(documento, informe, totalInformes);
+}
+async function validarDFEnPlanesPagos(list){
+  if(!Array.isArray(list) || !list.length) return;
+  const prevSuppress = suppressLoader;
+  suppressLoader = true;
+  try{
+    for(const c of list){
+      if(!esUltimoInforme(c.informe, c.totalInformes)) continue;
+      try{
+        const dfUrl = await apiGet('getCuentaActaUrlDF', {
+          documento: c.documento,
+          informe:   c.informe,
+          supervisor: supervisorNombreCompleto
+        });
+        const url = String(dfUrl || '').trim();
+        if(url && url.toUpperCase() !== 'N/A'){
+          habilitarBotonActa(c.documento, c.informe, c.totalInformes);
+        }
+      }catch(_){}
+    }
+  }finally{
+    suppressLoader = prevSuppress;
+  }
+}
+
 async function validarDQEnPlanesPagos(list){
   if(!Array.isArray(list) || !list.length) return;
   const prevSuppress = suppressLoader;
@@ -1559,7 +1619,7 @@ async function validarDQEnPlanesPagos(list){
         });
         const url = String(dqUrl || '').trim();
         if(url && url.toUpperCase() !== 'N/A'){
-          habilitarBotonCerrarPlan(c.documento, c.informe);
+         habilitarBotonCerrarPlan(c.documento, c.informe, c.totalInformes);
         }
       }catch(_){}
     }
@@ -1586,14 +1646,16 @@ async function cargarPlanesPagos(){
       return aPrio - bPrio;
     });
 
-    // limpiar el registro previo de validaciones DQ (cada carga arranca limpia)
+   // limpiar el registro previo de validaciones DQ y DF (cada carga arranca limpia)
     PLANES_DQ_VALIDADOS.clear();
+    PLANES_DF_VALIDADOS.clear();
 
     pintarPlanesPagos(PLANES_PAGOS_DATA);
     actualizarResumenPlanesPagos(PLANES_PAGOS_DATA);
 
-    // validar DQ en segundo plano: irá habilitando los botones a medida que confirme
+    // validar DQ y DF en segundo plano (DF solo aplica a cuentas en último informe)
     validarDQEnPlanesPagos(PLANES_PAGOS_DATA);
+    validarDFEnPlanesPagos(PLANES_PAGOS_DATA);
   }catch(e){
     PLANES_PAGOS_DATA = [];
     pintarPlanesPagos(PLANES_PAGOS_DATA);
@@ -1778,7 +1840,7 @@ function pintarPlanesPagos(list){
 
       const dqOk = String(dqUrl || '').trim();
       if(dqOk && dqOk.toUpperCase() !== 'N/A'){
-        habilitarBotonCerrarPlan(c.documento, c.informe);
+       habilitarBotonCerrarPlan(c.documento, c.informe, c.totalInformes);
         await Swal.fire({
           icon: 'success',
           title: 'SUBE EL INFORME A SECOP II',
@@ -1801,13 +1863,128 @@ function pintarPlanesPagos(list){
   });
   btnRow.appendChild(btnFirmar);
 
- const btnCerrar=document.createElement('button');
+    // ===== BOTÓN ACTA CUMPLIMIENTO (solo visible cuando informe === totalInformes) =====
+  const esUltimo = esUltimoInforme(c.informe, c.totalInformes);
+  if(esUltimo){
+    const btnActa = document.createElement('button');
+    btnActa.textContent = 'ACTA CUMPLIMIENTO';
+    btnActa.addEventListener('click', async ()=>{
+      const prevSuppress = suppressLoader;
+      suppressLoader = true;
+
+      Swal.fire({
+        title: 'FIRMANDO ACTA....',
+        html: 'El Acta de Cumplimiento se está firmando y subiendo automáticamente en la carpeta del contratista, por favor espera unos segundos.',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+
+      try{
+        const supervisor = supervisorNombreCompleto;
+
+        async function intentarFirmarActa(maxIntentos){
+          let ultimoError = null;
+          for(let intento = 1; intento <= maxIntentos; intento++){
+            try{
+              const r = await apiPost('firmarActaCumplimientoSupervisor', {
+                documento: c.documento,
+                informe: c.informe,
+                supervisor
+              });
+              if(!r || !r.base64){
+                throw new Error('No se recibió el PDF del Acta para descargar.');
+              }
+              return r;
+            }catch(err){
+              ultimoError = err;
+              const msg = String(err && err.message || err || '').toLowerCase();
+              const reintenable =
+                msg.includes('drive') ||
+                msg.includes('servicio') ||
+                msg.includes('service') ||
+                msg.includes('timeout') ||
+                msg.includes('network') ||
+                msg.includes('failed to fetch');
+              if(!reintenable) throw err;
+              if(intento === maxIntentos) throw err;
+              await new Promise(res => setTimeout(res, 1500 * intento));
+            }
+          }
+          throw ultimoError || new Error('No se pudo firmar el Acta.');
+        }
+
+        const resp = await intentarFirmarActa(3);
+        if(!resp || !resp.base64) throw new Error('No se recibió el PDF del Acta.');
+
+        // Descargar
+        const byteChars = atob(resp.base64);
+        const byteNumbers = new Array(byteChars.length);
+        for(let i=0;i<byteChars.length;i++){ byteNumbers[i] = byteChars.charCodeAt(i); }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: resp.mimeType || 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = resp.fileName || 'ACTA_CUMPLIMIENTO.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(()=> URL.revokeObjectURL(url), 20000);
+
+        // Verificar que la URL ya quedó en DF
+        let dfUrl = '';
+        try{
+          dfUrl = await apiGet('getCuentaActaUrlDF', {
+            documento: c.documento,
+            informe:   c.informe,
+            supervisor
+          });
+        }catch(_){}
+
+        Swal.close();
+
+        const dfOk = String(dfUrl || '').trim();
+        if(dfOk && dfOk.toUpperCase() !== 'N/A'){
+          habilitarBotonActa(c.documento, c.informe, c.totalInformes);
+          await Swal.fire({
+            icon: 'success',
+            title: 'ACTA DE CUMPLIMIENTO LISTA',
+            html: 'Cuando ya hayas firmado también el Informe, podrás cerrar el proceso.'
+          });
+        }else{
+          await Swal.fire({
+            icon: 'warning',
+            title: 'Aún no se confirma la URL del Acta',
+            text: 'Vuelve a tocar ACTA CUMPLIMIENTO para asegurar el guardado antes de cerrar el proceso.'
+          });
+        }
+      }catch(e){
+        Swal.close();
+        Swal.fire({icon:'error',title:'Error',text:e.message});
+      }finally{
+        suppressLoader = prevSuppress;
+      }
+    });
+    btnRow.appendChild(btnActa);
+  }
+
+const btnCerrar=document.createElement('button');
   btnCerrar.textContent='CERRAR PROCESO';
   btnCerrar.classList.add('btn-cerrar-proceso');
   btnCerrar.dataset.documento = String(c.documento || '');
   btnCerrar.dataset.informe   = String(c.informe   || '');
-  // arranca deshabilitado salvo que DQ ya esté validado en esta sesión (p. ej. tras filtrar)
-  btnCerrar.disabled = !PLANES_DQ_VALIDADOS.has(planDqKey(c.documento, c.informe));
+  btnCerrar.dataset.totalInformes = String(c.totalInformes || '');
+  // arranca deshabilitado:
+  // - si es último informe → necesita DQ y DF
+  // - si no es último informe → solo necesita DQ
+  {
+    const okDQ = PLANES_DQ_VALIDADOS.has(planDqKey(c.documento, c.informe));
+    const okDF = PLANES_DF_VALIDADOS.has(planDfKey(c.documento, c.informe));
+    const ultimo = esUltimoInforme(c.informe, c.totalInformes);
+    btnCerrar.disabled = ultimo ? !(okDQ && okDF) : !okDQ;
+  }
 btnCerrar.addEventListener('click', async ()=> {
     if(btnCerrar.disabled) return;
 
@@ -1875,14 +2052,33 @@ async function cerrarProcesoPlanPago(documento, informe){
 
      const dqUrl = await apiGet('getCuentaPdfUrlDQ', { documento, informe, supervisor });
 
-    const msgContratista =
-      '> Estado 3️⃣\n' +
-      'Estimado(a) *'+nombre+'*' + '\n\n' +
-      '¡He aceptado tu *Plan de Pagos* de la *Cuenta N° '+informe+'* en el SECOP II!' + '\n\n' +
-      'Mientras el proceso se digitaliza al 100%, te comparto el *Informe de Supervisión* para descargar: ' + (dqUrl || 'N/A') + '\n\n' +
-      'Presenta los dos paquetes completos al encargado de nuestra secretaria para radicarlos en el área de contratación.' + '\n\n' +
-      'Cordialmente,' + '\n\n' +
-      '*'+supervisor+'*' + '\n' + pieSupervisor();
+    // Leer DF (Acta Cumplimiento). Solo tendrá valor cuando informe === totalInformes y se haya firmado el Acta.
+    let dfUrl = '';
+    try{
+      dfUrl = await apiGet('getCuentaActaUrlDF', { documento, informe, supervisor });
+    }catch(_){}
+    const dfTxt = String(dfUrl || '').trim();
+    const tieneActa = (dfTxt && dfTxt.toUpperCase() !== 'N/A');
+
+    const msgContratista = tieneActa
+      ? (
+        '> Estado 3️⃣\n' +
+        'Estimado(a) *'+nombre+'*' + '\n\n' +
+        '¡He aceptado tu *Plan de Pagos* de la *Cuenta N° '+informe+'* en el SECOP II!' + '\n\n' +
+        'Mientras el proceso se digitaliza al 100%, te comparto el *Informe de Supervisión* para descargar: ' + (dqUrl || 'N/A') + ' y el *Acta final de cumplimiento:* ' + (dfTxt || 'N/A') + '\n\n' +
+        'Presenta los dos paquetes completos al encargado de nuestra secretaria para radicarlos en el área de contratación.' + '\n\n' +
+        'Cordialmente,' + '\n\n' +
+        '*'+supervisor+'*' + '\n' + pieSupervisor()
+      )
+      : (
+        '> Estado 3️⃣\n' +
+        'Estimado(a) *'+nombre+'*' + '\n\n' +
+        '¡He aceptado tu *Plan de Pagos* de la *Cuenta N° '+informe+'* en el SECOP II!' + '\n\n' +
+        'Mientras el proceso se digitaliza al 100%, te comparto el *Informe de Supervisión* para descargar: ' + (dqUrl || 'N/A') + '\n\n' +
+        'Presenta los dos paquetes completos al encargado de nuestra secretaria para radicarlos en el área de contratación.' + '\n\n' +
+        'Cordialmente,' + '\n\n' +
+        '*'+supervisor+'*' + '\n' + pieSupervisor()
+      );
 
     const msgGrupo =
       '📋 Buen día *Equipo de Contabilidad* 📋' + '\n\n' +
