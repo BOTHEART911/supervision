@@ -1006,6 +1006,85 @@ async function abrirRevisionCuenta(documento){
   }catch(e){ Swal.fire({icon:'error',title:'Error',text:e.message}); }
 }
 function formatInfoList(arr){ return arr.map(x=>`<p>${x}</p>`).join(''); }
+function _hEsc(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function _histCSS(){
+  return `<style>
+    .hist-table{border-collapse:collapse;width:100%;font-size:.82rem;}
+    .hist-table th,.hist-table td{padding:6px 8px;text-align:left;border-bottom:1px solid #e5e7eb;white-space:nowrap;}
+    .hist-table thead th{background:var(--primary,#06402B);color:#fff;}
+    .hist-actual{background:#e8f5e9;font-weight:700;}
+    .hist-anexa td{background:#fafafa;color:#374151;font-style:italic;}
+  </style>`;
+}
+
+/* Historial de PAGOS (todos los informes del contrato, actual resaltado) */
+function histPagosHTML(hist){
+  if(!hist || !hist.length) return '';
+  const rows = hist.map(h=>{
+    const cls = h.esActual ? ' class="hist-actual"' : '';
+    return `<tr${cls}>
+      <td>${_hEsc(h.informe)} de ${_hEsc(h.totalInformes)}</td>
+      <td>${_hEsc(h.fechaRadicacion)}</td>
+      <td>${_hEsc(h.saldoActual)}</td>
+      <td>${_hEsc(h.menos)}</td>
+      <td>${_hEsc(h.nuevoSaldo)}</td>
+      <td>${_hEsc(h.facturaDigital)}</td>
+      <td>${_hEsc(h.estado)}</td>
+    </tr>`;
+  }).join('');
+  return `${_histCSS()}
+    <h4 style="margin:16px 0 6px;color:var(--primary)">HISTORIAL DE PAGOS</h4>
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+      <table class="hist-table" style="min-width:640px;">
+        <thead><tr>
+          <th>Informe</th><th>Fecha Rad.</th><th>Saldo Actual</th>
+          <th>Valor Cobrado</th><th>Nuevo Saldo</th><th>Factura</th><th>Estado</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+/* Historial de PLANILLA (incluye la anexa como fila propia bajo cada informe) */
+function histPlanillaHTML(hist){
+  if(!hist || !hist.length) return '';
+  const body = hist.map(h=>{
+    const hl = h.esActual ? ' hist-actual' : '';
+    const principal = `<tr class="h-row${hl}">
+      <td>${_hEsc(h.informe)}</td>
+      <td>Principal</td>
+      <td>${_hEsc(h.planilla)} ${h.mesPlanilla?('de '+_hEsc(h.mesPlanilla)):''}</td>
+      <td>${_hEsc(h.base)}</td>
+      <td>${_hEsc(h.salud)}</td>
+      <td>${_hEsc(h.fondo)}</td>
+      <td>${_hEsc(h.riesgos)}</td>
+      <td>${_hEsc(h.solidario)} ${_hEsc(h.aporte)}</td>
+    </tr>`;
+    const hasAnexa = String(h.planilla2||'').trim()!=='' || String(h.mesPlanilla2||'').trim()!=='';
+    const anexa = hasAnexa ? `<tr class="hist-anexa${hl}">
+      <td>${_hEsc(h.informe)}</td>
+      <td>Anexa</td>
+      <td>${_hEsc(h.planilla2)} ${h.mesPlanilla2?('de '+_hEsc(h.mesPlanilla2)):''}</td>
+      <td>${_hEsc(h.base2)}</td>
+      <td>${_hEsc(h.salud2)}</td>
+      <td>${_hEsc(h.fondo2)}</td>
+      <td>${_hEsc(h.riesgos2)}</td>
+      <td>${_hEsc(h.solidario2)} ${_hEsc(h.aporte2)}</td>
+    </tr>` : '';
+    return principal + anexa;
+  }).join('');
+  return `${_histCSS()}
+    <h4 style="margin:16px 0 6px;color:var(--primary)">HISTORIAL DE PLANILLA (incluye anexas)</h4>
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+      <table class="hist-table" style="min-width:720px;">
+        <thead><tr>
+          <th>Informe</th><th>Tipo</th><th>Planilla</th><th>Base</th>
+          <th>Salud</th><th>Pensión</th><th>ARL</th><th>FPS</th>
+        </tr></thead>
+        <tbody>${body}</tbody>
+      </table>
+    </div>`;
+}
 function renderRevisionCuenta(){
   const c=REV_CUENTA?.contratista; const cu=REV_CUENTA?.cuenta;
   document.getElementById('rc-title').textContent='REVISIÓN DE CUENTA N° '+(cu?.informe||'')+' de '+(c?.nombre||'');
@@ -1043,8 +1122,9 @@ function renderRevisionCuenta(){
     `<p><b>N° FACTURA DIGITAL:</b> ${cu?.facturaDigital || 'N/A'}</p>`,
     `<p><b>SALDO ACTUAL:</b> ${cu?.saldoActual||''}</p>`,
     `<p><b>VALOR COBRADO:</b> ${cu?.menos||''}</p>`,
-    `<p><b>NUEVO SALDO:</b> ${cu?.nuevoSaldo||''}</p>`
+   `<p><b>NUEVO SALDO:</b> ${cu?.nuevoSaldo||''}</p>`
   ].join('');
+  document.getElementById('sec-informe').innerHTML += histPagosHTML(REV_CUENTA?.historial||[]);
 
   document.getElementById('sec-planilla').innerHTML = [
     `<h4 style="margin:4px 0;color:var(--primary)">RELACIÓN DE PLANILLA</h4>`,
@@ -1055,6 +1135,7 @@ function renderRevisionCuenta(){
     `<p><b>APORTES A ARL:</b> ${cu?.riesgos||''}</p>`,
     `<p><b>APORTES FPS:</b> ${cu?.solidario||''} ${cu?.aporte||''}</p>`
   ].join('');
+  document.getElementById('sec-planilla').innerHTML += histPlanillaHTML(REV_CUENTA?.historial||[]);
 
   document.getElementById('sec-planilla2').innerHTML = [
     `<h4 style="margin:4px 0;color:var(--primary)">RELACIÓN DE PLANILLA ANEXA</h4>`,
