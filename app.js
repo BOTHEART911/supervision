@@ -5,7 +5,7 @@
   const lbClose = document.getElementById('ev-lightbox-close');
   if (!lb || !lbImg) return;
 
-  window.openEvLightbox_ = function(src) {
+  window.openEvLightbox_ = function(src) { 
     lbImg.src = src;
     lb.classList.add('open');
     document.body.style.overflow = 'hidden';
