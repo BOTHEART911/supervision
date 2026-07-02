@@ -3,7 +3,7 @@
   const lb      = document.getElementById('ev-lightbox');
   const lbImg   = document.getElementById('ev-lightbox-img');
   const lbClose = document.getElementById('ev-lightbox-close');
-  if (!lb || !lbImg) return;
+  if (!lb || !lbImg) return; 
 
   window.openEvLightbox_ = function(src) { 
     lbImg.src = src;
